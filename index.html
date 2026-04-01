@@ -4,31 +4,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MTS Clan Ranking v14</title>
+  <title>MTS Clan Ranking v15.6</title>
   <style>
     :root {
-      --bg: #0b1020;
-      --panel: #121a2f;
-      --panel-2: #18223d;
-      --text: #eef2ff;
-      --muted: #9fb0d6;
-      --accent: #6ea8fe;
-      --accent-2: #7ef0c2;
-      --danger: #ff6b6b;
-      --warning: #ffd166;
-      --border: rgba(255,255,255,.09);
-      --chip: rgba(255,255,255,.06);
-      --shadow: 0 16px 38px rgba(0,0,0,.28);
+      --bg: #000000;
+      --panel: #0c0c0c;
+      --panel-2: #151515;
+      --text: #f7f7f7;
+      --muted: #cfcfcf;
+      --accent: #ff4200;
+      --accent-2: #f1c232;
+      --danger: #ff4200;
+      --warning: #f1c232;
+      --border: rgba(255,255,255,.12);
+      --chip: rgba(255,255,255,.05);
+      --shadow: 0 18px 38px rgba(0,0,0,.38);
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
-      background:
-        radial-gradient(circle at top right, rgba(110,168,254,.16), transparent 26%),
-        radial-gradient(circle at top left, rgba(126,240,194,.1), transparent 20%),
-        linear-gradient(180deg, #0a0f1d 0%, #0b1020 100%);
+      background: #000;
       min-height: 100vh;
     }
     .container { max-width: 1500px; margin: 0 auto; padding: 24px; }
@@ -37,7 +34,7 @@
       margin-bottom: 20px;
     }
     .card {
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      background: linear-gradient(180deg, rgba(255,66,0,.10), rgba(255,255,255,.02));
       border: 1px solid var(--border);
       border-radius: 22px;
       box-shadow: var(--shadow);
@@ -72,24 +69,26 @@
       padding: 11px 14px; cursor: pointer; font-weight: 700;
     }
     .tab-btn.active {
-      background: linear-gradient(180deg, rgba(110,168,254,.28), rgba(110,168,254,.14));
-      border-color: rgba(110,168,254,.35);
+      background: linear-gradient(180deg, rgba(255,66,0,.36), rgba(255,66,0,.16));
+      border-color: rgba(255,66,0,.55);
+      box-shadow: 0 0 0 1px rgba(255,66,0,.18) inset;
     }
     button {
       cursor: pointer; padding: 10px 14px; font-weight: 700;
       background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
     }
     button.primary {
-      background: linear-gradient(180deg, rgba(110,168,254,.35), rgba(110,168,254,.18));
-      border-color: rgba(110,168,254,.5);
+      background: linear-gradient(180deg, rgba(255,66,0,.45), rgba(255,66,0,.22));
+      border-color: rgba(255,66,0,.65);
     }
     button.success {
-      background: linear-gradient(180deg, rgba(126,240,194,.32), rgba(126,240,194,.14));
-      border-color: rgba(126,240,194,.45);
+      background: linear-gradient(180deg, rgba(241,194,50,.40), rgba(241,194,50,.18));
+      border-color: rgba(241,194,50,.65);
+      color: #171717;
     }
     button.danger {
-      background: linear-gradient(180deg, rgba(255,107,107,.35), rgba(255,107,107,.16));
-      border-color: rgba(255,107,107,.45);
+      background: linear-gradient(180deg, rgba(255,66,0,.48), rgba(255,66,0,.22));
+      border-color: rgba(255,66,0,.65);
     }
     button.ghost {
       background: transparent;
@@ -231,6 +230,26 @@
       border-color: rgba(205,127,50,.28);
       box-shadow: 0 8px 22px rgba(205,127,50,.08);
     }
+
+    .panel-accent {
+      border-color: rgba(255,66,0,.35);
+      background: linear-gradient(180deg, rgba(255,66,0,.10), rgba(255,255,255,.02));
+    }
+    .gold-card {
+      border-color: rgba(241,194,50,.35);
+      background: linear-gradient(180deg, rgba(241,194,50,.10), rgba(255,255,255,.02));
+    }
+    .content-block {
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+    .admin-only { display: none; }
+    .logged-in .admin-only { display: block; }
+
     @media (max-width: 1180px) {
       .hero, .grid-2, .grid-3, .team-grid, .form-grid { grid-template-columns: 1fr; }
       .stats { grid-template-columns: repeat(2, 1fr); }
@@ -246,7 +265,7 @@
   <div class="container">
     <div class="hero">
       <div class="card">
-        <div class="badge">MTS Clan • Browser Front End</div>
+        <div class="badge" id="versionBadge">MTS Clan Website version 15.6</div>
         <h1 class="title">MTS Clan Ranking</h1>
       </div>
       <div class="card">
@@ -259,6 +278,7 @@
         <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
         <button class="tab-btn" data-tab="leaderboards">Leaderboards</button>
         <button class="tab-btn" data-tab="matches">Matches</button>
+        <button class="tab-btn" data-tab="howRankingWorks">How Ranking Works</button>
         <button class="tab-btn" data-tab="players" id="playersTabBtn">Players DB</button>
         <button class="tab-btn" data-tab="settings" id="settingsTabBtn">Settings / Data</button>
       </div>
@@ -519,6 +539,24 @@
       </div>
     </section>
 
+
+    <section id="howRankingWorks" class="page">
+      <div class="grid-2">
+        <div class="card panel-accent">
+          <h2 class="section-title">How Ranking Works</h2>
+          <div id="howRankingWorksContent" class="content-block"></div>
+        </div>
+        <div class="card gold-card admin-only" id="howRankingAdminCard">
+          <h2 class="section-title">Επεξεργασία επεξήγησης ranking</h2>
+          <label>Κείμενο public επεξήγησης</label>
+          <textarea id="howRankingWorksInput" style="min-height:280px;"></textarea>
+          <div class="toolbar">
+            <button class="success" id="saveHowRankingWorksBtn">Αποθήκευση κειμένου</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="settings" class="page">
       <div class="grid-2">
         <div class="card">
@@ -558,6 +596,15 @@
           <div class="toolbar">
             <button class="primary" id="saveSettingsBtn">Αποθήκευση Settings</button>
             <button id="recalculateBtn">Recalculate Ranking</button>
+          </div>
+
+          <div class="card panel-accent" style="padding:14px; margin-top:12px;">
+            <h3 style="margin-top:0;">Known Issues</h3>
+            <label>Σημειώσεις / γνωστά θέματα του project</label>
+            <textarea id="knownIssuesInput" placeholder="Γράψε εδώ known issues για την τρέχουσα live έκδοση..." style="min-height:180px;"></textarea>
+            <div class="toolbar">
+              <button class="success" id="saveKnownIssuesBtn">Αποθήκευση Known Issues</button>
+            </div>
           </div>
         </div>
 
@@ -605,6 +652,7 @@
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_rkO-husHLu-bUaR8XrNJpQ_aJp8aSdT";
     const ADMIN_USER_ID = "79fa115c-8f91-4262-bf18-3d048cd1b33c";
     const SESSION_STORAGE_KEY = "mts_supabase_admin_session_v1";
+    const APP_VERSION = "15.6";
     const defaultSeedPlayers = [];
 
     const state = {
@@ -635,7 +683,10 @@
           kFactor: 24,
           eloWinLossWeight: 5,
           eloKdWeight: 5,
-          eloOverallScale: 0.5
+          eloOverallScale: 0.5,
+          knownIssues: "- Performance warning μπορεί να εμφανιστεί σε βαριά delete/recalc actions.\n- Bulk import matches χωρίς kills/deaths δίνει στρεβλό ELO λόγω KD=0.\n- Η φόρμουλα ELO θέλει rebalance σε επόμενο version.",
+          howRankingWorks: "Το current ELO προκύπτει από το base ELO και έπειτα προστίθενται τα effects από Win/Loss και KD.\n\nCurrent ELO = base ELO + eloOverallScale * ((eloWinLossWeight * (wins-losses)) + (eloKdWeight * ((KD - 1) * 10)))\n\nΆρα το ranking επηρεάζεται και από το αποτέλεσμα του official match και από τα ατομικά kills/deaths.",
+          liveVersion: APP_VERSION
         },
         players: structuredClone(defaultSeedPlayers).map(p => ({
           ...p,
@@ -759,6 +810,7 @@
       const quickExportBtn = document.getElementById("quickExport");
       const matchesAdminCard = document.getElementById("matchesAdminCard");
       const matchesGrid = document.getElementById("matchesGrid");
+      document.body.classList.toggle("logged-in", loggedIn);
 
       if (playersTabBtn) playersTabBtn.style.display = loggedIn ? "inline-flex" : "none";
       if (settingsTabBtn) settingsTabBtn.style.display = loggedIn ? "inline-flex" : "none";
@@ -914,7 +966,10 @@
           kFactor: Number(settings?.k_factor ?? 24),
           eloWinLossWeight: Number(settings?.elo_win_loss_weight ?? 5),
           eloKdWeight: Number(settings?.elo_kd_weight ?? 5),
-          eloOverallScale: Number(settings?.elo_overall_scale ?? 0.5)
+          eloOverallScale: Number(settings?.elo_overall_scale ?? 0.5),
+          knownIssues: String(settings?.known_issues ?? initialData().settings.knownIssues),
+          howRankingWorks: String(settings?.how_ranking_works ?? initialData().settings.howRankingWorks),
+          liveVersion: String(settings?.live_version ?? APP_VERSION)
         },
         players: playersMapped,
         matches: matchesMapped
@@ -945,7 +1000,10 @@
             k_factor: Number(state.data.settings.kFactor || 24),
             elo_win_loss_weight: Number(state.data.settings.eloWinLossWeight || 5),
             elo_kd_weight: Number(state.data.settings.eloKdWeight || 5),
-            elo_overall_scale: Number(state.data.settings.eloOverallScale || 0.5)
+            elo_overall_scale: Number(state.data.settings.eloOverallScale || 0.5),
+            known_issues: String(state.data.settings.knownIssues || ""),
+            how_ranking_works: String(state.data.settings.howRankingWorks || ""),
+            live_version: String(state.data.settings.liveVersion || APP_VERSION)
           }])
         }, true);
 
@@ -1080,10 +1138,13 @@
         state.data = initialData();
       }
 
-      if (!state.data.settings) state.data.settings = { defaultElo: 1000, kFactor: 24, eloWinLossWeight: 5, eloKdWeight: 5, eloOverallScale: 0.5 };
+      if (!state.data.settings) state.data.settings = initialData().settings;
       if (state.data.settings.eloWinLossWeight == null) state.data.settings.eloWinLossWeight = 5;
       if (state.data.settings.eloKdWeight == null) state.data.settings.eloKdWeight = 5;
       if (state.data.settings.eloOverallScale == null) state.data.settings.eloOverallScale = 0.5;
+      if (state.data.settings.knownIssues == null) state.data.settings.knownIssues = initialData().settings.knownIssues;
+      if (state.data.settings.howRankingWorks == null) state.data.settings.howRankingWorks = initialData().settings.howRankingWorks;
+      if (state.data.settings.liveVersion == null) state.data.settings.liveVersion = APP_VERSION;
       if (!Array.isArray(state.data.players)) state.data.players = [];
       if (!Array.isArray(state.data.matches)) state.data.matches = [];
 
@@ -2033,6 +2094,7 @@ function resetPlayerForm() {
       state.data.settings.eloWinLossWeight = Number(document.getElementById("eloWinLossWeightSetting").value || 5);
       state.data.settings.eloKdWeight = Number(document.getElementById("eloKdWeightSetting").value || 5);
       state.data.settings.eloOverallScale = Number(document.getElementById("eloOverallScaleSetting").value || 0.5);
+      state.data.settings.liveVersion = APP_VERSION;
       await saveState();
       renderAll();
       alert("Τα settings αποθηκεύτηκαν.");
@@ -2322,18 +2384,51 @@ function renderPlayers(derived) {
       `;
     }
 
+
+    async function saveKnownIssues() {
+      if (!requireAdmin()) return;
+      state.data.settings.knownIssues = document.getElementById("knownIssuesInput").value.trim();
+      state.data.settings.liveVersion = APP_VERSION;
+      await saveState();
+      renderAll();
+      alert("Τα known issues αποθηκεύτηκαν.");
+    }
+
+    async function saveHowRankingWorks() {
+      if (!requireAdmin()) return;
+      state.data.settings.howRankingWorks = document.getElementById("howRankingWorksInput").value.trim();
+      state.data.settings.liveVersion = APP_VERSION;
+      await saveState();
+      renderAll();
+      alert("Η επεξήγηση του ranking αποθηκεύτηκε.");
+    }
+
+    function renderHowRankingWorks() {
+      const text = String(state.data.settings.howRankingWorks || initialData().settings.howRankingWorks);
+      const version = String(state.data.settings.liveVersion || APP_VERSION);
+      document.getElementById("howRankingWorksContent").textContent = text;
+      document.getElementById("howRankingWorksInput").value = text;
+      const badge = document.getElementById("versionBadge");
+      if (badge) badge.textContent = `MTS Clan Website version ${version}`;
+    }
+
     function renderSettings() {
       document.getElementById("defaultEloSetting").value = state.data.settings.defaultElo;
       document.getElementById("kFactorSetting").value = state.data.settings.kFactor;
       document.getElementById("eloWinLossWeightSetting").value = state.data.settings.eloWinLossWeight;
       document.getElementById("eloKdWeightSetting").value = state.data.settings.eloKdWeight;
       document.getElementById("eloOverallScaleSetting").value = state.data.settings.eloOverallScale;
+      document.getElementById("knownIssuesInput").value = state.data.settings.knownIssues || "";
       document.getElementById("settingsPreview").innerHTML = `
-        <div class="team-score-box" style="margin-top:12px;">
+        <div class="team-score-box panel-accent" style="margin-top:12px;">
           <div>
             <div><strong>Τρέχον config</strong></div>
-            <div class="muted small">Default ELO: ${state.data.settings.defaultElo} • Win/Loss Weight: ${state.data.settings.eloWinLossWeight} • KD Weight: ${state.data.settings.eloKdWeight} • Overall Scale: ${state.data.settings.eloOverallScale}</div>
+            <div class="muted small">Live version: ${escapeHtml(state.data.settings.liveVersion || APP_VERSION)} • Default ELO: ${state.data.settings.defaultElo} • Win/Loss Weight: ${state.data.settings.eloWinLossWeight} • KD Weight: ${state.data.settings.eloKdWeight} • Overall Scale: ${state.data.settings.eloOverallScale}</div>
           </div>
+        </div>
+        <div class="card" style="padding:14px; margin-top:12px;">
+          <div><strong>Known Issues Preview</strong></div>
+          <div class="content-block" style="margin-top:10px;">${escapeHtml(state.data.settings.knownIssues || "-")}</div>
         </div>
       `;
     }
@@ -2346,6 +2441,7 @@ function renderPlayers(derived) {
       renderLeaderboards(derived);
       renderMatches(derived);
       renderPlayers(derived);
+      renderHowRankingWorks();
       renderSettings();
     }
 
@@ -2357,6 +2453,8 @@ function renderPlayers(derived) {
     document.getElementById("saveMatchBtn").addEventListener("click", saveMatch);
     document.getElementById("resetMatchForm").addEventListener("click", resetMatchForm);
     document.getElementById("savePlayerBtn").addEventListener("click", savePlayer);
+    document.getElementById("saveKnownIssuesBtn").addEventListener("click", saveKnownIssues);
+    document.getElementById("saveHowRankingWorksBtn").addEventListener("click", saveHowRankingWorks);
     document.getElementById("resetPlayerForm").addEventListener("click", resetPlayerForm);
     document.getElementById("bulkImportPlayersBtn").addEventListener("click", bulkImportPlayers);
     document.getElementById("bulkImportSampleBtn").addEventListener("click", () => {
