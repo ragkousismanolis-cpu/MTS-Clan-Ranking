@@ -1,0 +1,2417 @@
+
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MTS Clan Ranking v14</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121a2f;
+      --panel-2: #18223d;
+      --text: #eef2ff;
+      --muted: #9fb0d6;
+      --accent: #6ea8fe;
+      --accent-2: #7ef0c2;
+      --danger: #ff6b6b;
+      --warning: #ffd166;
+      --border: rgba(255,255,255,.09);
+      --chip: rgba(255,255,255,.06);
+      --shadow: 0 16px 38px rgba(0,0,0,.28);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(110,168,254,.16), transparent 26%),
+        radial-gradient(circle at top left, rgba(126,240,194,.1), transparent 20%),
+        linear-gradient(180deg, #0a0f1d 0%, #0b1020 100%);
+      min-height: 100vh;
+    }
+    .container { max-width: 1500px; margin: 0 auto; padding: 24px; }
+    .hero {
+      display: grid; gap: 18px; grid-template-columns: 1.5fr 1fr;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      backdrop-filter: blur(8px);
+    }
+    .title { font-size: 32px; font-weight: 800; margin: 0 0 8px; letter-spacing: -.03em; }
+    .subtitle { color: var(--muted); line-height: 1.5; margin: 0; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .stat {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      padding: 14px;
+      border-radius: 18px;
+    }
+    .stat-label { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+    .stat-value { font-size: 28px; font-weight: 800; }
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 18px 0 20px;
+    }
+    .tabs {
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .tab-btn, button, select, input, textarea {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      font: inherit;
+    }
+    .tab-btn {
+      padding: 11px 14px; cursor: pointer; font-weight: 700;
+    }
+    .tab-btn.active {
+      background: linear-gradient(180deg, rgba(110,168,254,.28), rgba(110,168,254,.14));
+      border-color: rgba(110,168,254,.35);
+    }
+    button {
+      cursor: pointer; padding: 10px 14px; font-weight: 700;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+    }
+    button.primary {
+      background: linear-gradient(180deg, rgba(110,168,254,.35), rgba(110,168,254,.18));
+      border-color: rgba(110,168,254,.5);
+    }
+    button.success {
+      background: linear-gradient(180deg, rgba(126,240,194,.32), rgba(126,240,194,.14));
+      border-color: rgba(126,240,194,.45);
+    }
+    button.danger {
+      background: linear-gradient(180deg, rgba(255,107,107,.35), rgba(255,107,107,.16));
+      border-color: rgba(255,107,107,.45);
+    }
+    button.ghost {
+      background: transparent;
+    }
+    .page { display: none; }
+    .page.active { display: block; }
+    .grid-2 { display: grid; gap: 18px; grid-template-columns: 1.08fr 1fr; }
+    .grid-3 { display: grid; gap: 18px; grid-template-columns: repeat(3, 1fr); }
+    .section-title { margin: 0 0 14px; font-size: 21px; font-weight: 800; }
+    .muted { color: var(--muted); }
+    .form-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    }
+    label {
+      display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px;
+    }
+    input, select, textarea {
+      width: 100%; padding: 11px 12px;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 18px;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    tr:hover td { background: rgba(255,255,255,.02); }
+    .team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 12px; }
+    .player-line {
+      display: grid; grid-template-columns: 1.4fr .7fr .7fr auto; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 10px; border-radius: 999px; background: var(--chip); border: 1px solid var(--border);
+      font-size: 12px; color: var(--muted);
+    }
+    .split {
+      display: flex; justify-content: space-between; gap: 12px; align-items: center;
+    }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .score-big {
+      font-size: 44px; font-weight: 900; line-height: 1;
+    }
+    .team-score-box {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px; border-radius: 18px; border: 1px solid var(--border); background: var(--chip);
+    }
+    .small { font-size: 12px; }
+    .empty {
+      padding: 26px; border: 1px dashed var(--border); border-radius: 16px; color: var(--muted); text-align: center;
+    }
+    .pill-win { color: var(--accent-2); }
+    .pill-loss { color: #ff9c9c; }
+    .topbar-right { display:flex; gap:10px; flex-wrap: wrap; margin-left:auto; }
+    .search-input { min-width: 280px; }
+    .footer-note { margin-top: 12px; color: var(--muted); font-size: 12px; }
+
+    .auth-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 8, 20, .72);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .auth-modal-backdrop.open { display: flex; }
+    .auth-modal {
+      width: min(460px, 100%);
+      background: linear-gradient(180deg, rgba(18,26,47,.96), rgba(12,18,34,.98));
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+    .auth-modal-header {
+      display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px;
+    }
+    .auth-modal-title { margin: 0; font-size: 22px; font-weight: 800; }
+    .auth-modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:14px; }
+    .auth-icon-btn {
+      width: 40px; height: 40px; padding: 0; display:inline-flex; align-items:center; justify-content:center;
+      border-radius: 12px;
+    }
+    .podium-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .podium-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.04), transparent);
+      opacity: .55;
+    }
+    .podium-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.08);
+      font-size: 16px;
+      margin-right: 8px;
+    }
+    .podium-rank-1 {
+      background: linear-gradient(180deg, rgba(255,215,0,.18), rgba(255,215,0,.07));
+      border-color: rgba(255,215,0,.32);
+      box-shadow: 0 8px 22px rgba(255,215,0,.08);
+    }
+    .podium-rank-2 {
+      background: linear-gradient(180deg, rgba(192,192,192,.16), rgba(192,192,192,.06));
+      border-color: rgba(192,192,192,.24);
+      box-shadow: 0 8px 22px rgba(192,192,192,.06);
+    }
+    .podium-rank-3 {
+      background: linear-gradient(180deg, rgba(205,127,50,.18), rgba(205,127,50,.07));
+      border-color: rgba(205,127,50,.28);
+      box-shadow: 0 8px 22px rgba(205,127,50,.08);
+    }
+    @media (max-width: 1180px) {
+      .hero, .grid-2, .grid-3, .team-grid, .form-grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 720px) {
+      .stats { grid-template-columns: 1fr; }
+      .player-line { grid-template-columns: 1fr 1fr 1fr auto; }
+      .container { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <div class="card">
+        <div class="badge">MTS Clan • Browser Front End</div>
+        <h1 class="title">MTS Clan Ranking</h1>
+      </div>
+      <div class="card">
+        <div class="stats" id="summaryStats"></div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+        <button class="tab-btn" data-tab="leaderboards">Leaderboards</button>
+        <button class="tab-btn" data-tab="matches">Matches</button>
+        <button class="tab-btn" data-tab="players">Players DB</button>
+        <button class="tab-btn" data-tab="settings">Settings / Data</button>
+      </div>
+      <div class="topbar-right">
+        <input id="globalSearch" class="search-input" type="hidden" value="" />
+        <button id="quickExport">Export JSON</button>
+        <span class="badge" id="authStatusBadge">Public View</span>
+        <button id="openAdminLoginBtn" class="primary">Log in</button>
+        <button id="adminLogoutBtn" class="ghost">Logout</button>
+      </div>
+    </div>
+
+    <section id="dashboard" class="page active">
+      <div class="grid-3">
+        <div class="card">
+          <div class="split">
+            <h2 class="section-title">Τελευταίοι Αγώνες</h2>
+            <button class="ghost" id="goToMatches">Άνοιγμα Matches</button>
+          </div>
+          <div id="recentMatches"></div>
+        </div>
+        <div class="card">
+          <h2 class="section-title">Top 10 ELO</h2>
+          <div id="topElo"></div>
+        </div>
+        <div class="card">
+          <h2 class="section-title">Top Killers</h2>
+          <div id="topKillers"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="leaderboards" class="page">
+      <div class="grid-2">
+        <div class="card">
+          <div class="toolbar" style="margin-top:0; margin-bottom:14px;">
+            <button class="tab-btn active" id="eloRankingBtn" type="button">ELO Ranking</button>
+            <button class="tab-btn" id="kdRankingBtn" type="button">K/D Ranking</button>
+          </div>
+          <div id="leaderboardTable"></div>
+        </div>
+        <div class="card">
+          <h2 class="section-title">Player Drilldown</h2>
+          <select id="playerDrilldownSelect"></select>
+          <div id="playerDrilldown" style="margin-top:14px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="matches" class="page">
+      <div class="grid-2">
+        <div class="card">
+          <div class="split">
+            <h2 class="section-title">Καταχώριση / Επεξεργασία Official Match</h2>
+            <span class="badge" id="editingBadge">Νέο official match</span>
+          </div>
+          <div class="form-grid">
+            <div>
+              <label>Ημερομηνία</label>
+              <input type="date" id="matchDate" />
+            </div>
+            <div>
+              <label>Map</label>
+              <input id="matchMap" placeholder="π.χ. Arica Harbor" />
+            </div>
+            <div>
+              <label>Mode</label>
+              <input id="matchMode" placeholder="π.χ. Conquest" />
+            </div>
+            <div>
+              <label>Notes</label>
+              <input id="matchNotes" placeholder="προαιρετικό" />
+            </div>
+          </div>
+
+          <div class="form-grid" style="grid-template-columns: 1fr 1fr; margin-top:12px;">
+            <div>
+              <label>Team A</label>
+              <input id="teamAName" placeholder="Team A" />
+            </div>
+            <div>
+              <label>Team B</label>
+              <input id="teamBName" placeholder="Team B" />
+            </div>
+          </div>
+
+          <div class="card" style="padding:14px; margin-top:12px;">
+            <div class="split">
+              <h3 style="margin:0;">Side 1</h3>
+              <div class="badge" id="side1TotalBadge">0 - 0</div>
+            </div>
+            <div class="team-grid">
+              <div class="card" style="padding:14px;">
+                <div class="form-grid" style="grid-template-columns: 1fr;">
+                  <div>
+                    <label>Team A Score</label>
+                    <input id="side1TeamAScore" type="number" min="0" value="0" />
+                  </div>
+                </div>
+                <h3>Roster & ατομικά stats</h3>
+                <div id="side1TeamAPlayers"></div>
+                <button type="button" id="addSide1PlayerA">+ Παίκτης στο Team A</button>
+              </div>
+              <div class="card" style="padding:14px;">
+                <div class="form-grid" style="grid-template-columns: 1fr;">
+                  <div>
+                    <label>Team B Score</label>
+                    <input id="side1TeamBScore" type="number" min="0" value="0" />
+                  </div>
+                </div>
+                <h3>Roster & ατομικά stats</h3>
+                <div id="side1TeamBPlayers"></div>
+                <button type="button" id="addSide1PlayerB">+ Παίκτης στο Team B</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="padding:14px; margin-top:12px;">
+            <div class="split">
+              <h3 style="margin:0;">Side 2</h3>
+              <div class="badge" id="side2TotalBadge">0 - 0</div>
+            </div>
+            <div class="team-grid">
+              <div class="card" style="padding:14px;">
+                <div class="form-grid" style="grid-template-columns: 1fr;">
+                  <div>
+                    <label>Team A Score</label>
+                    <input id="side2TeamAScore" type="number" min="0" value="0" />
+                  </div>
+                </div>
+                <h3>Roster & ατομικά stats</h3>
+                <div id="side2TeamAPlayers"></div>
+                <button type="button" id="addSide2PlayerA">+ Παίκτης στο Team A</button>
+              </div>
+              <div class="card" style="padding:14px;">
+                <div class="form-grid" style="grid-template-columns: 1fr;">
+                  <div>
+                    <label>Team B Score</label>
+                    <input id="side2TeamBScore" type="number" min="0" value="0" />
+                  </div>
+                </div>
+                <h3>Roster & ατομικά stats</h3>
+                <div id="side2TeamBPlayers"></div>
+                <button type="button" id="addSide2PlayerB">+ Παίκτης στο Team B</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="team-score-box" style="margin-top:12px;">
+            <div>
+              <div><strong>Συνολικό Official Score</strong></div>
+              <div class="muted small">Το leaderboard μετράει 1 official match από τα 2 sides.</div>
+            </div>
+            <div class="score-big" style="font-size:32px;" id="officialScorePreview">0 - 0</div>
+          </div>
+
+          <div class="toolbar">
+            <button class="primary" id="saveMatchBtn">Αποθήκευση Official Match</button>
+            <button id="resetMatchForm">Καθαρισμός φόρμας</button>
+          </div>
+          <div class="card" style="padding:14px; margin-top:12px;">
+            <h3 style="margin-top:0;">Μαζικό Import Matches</h3>
+            <p class="subtitle" style="margin-bottom:12px;">
+              Κάνε paste οριζόντια από Excel / Google Sheets. Το bulk import διαβάζει τις γραμμές <strong>ανά 2</strong>,
+              άρα <strong>2 γραμμές = 1 official match</strong>. Κάθε γραμμή έχει:
+              <strong>Match Code</strong>, <strong>Ημερομηνία</strong>, παίκτες Team A, κενές στήλες, παίκτες Team B, κενές στήλες, και στο τέλος <strong>Score A</strong> / <strong>Score B</strong>.
+            </p>
+            <textarea id="bulkImportMatchesInput" placeholder="M001	8/3/2026	PlayerA1	PlayerA2		PlayerB1	PlayerB2		11	44&#10;M002	8/3/2026	PlayerA1	PlayerA2		PlayerB1	PlayerB2		116	0"></textarea>
+            <div class="toolbar">
+              <button class="primary" id="bulkImportMatchesBtn">Import Matches</button>
+              <button id="bulkImportMatchesSampleBtn">Γέμισε παράδειγμα</button>
+              <button id="clearBulkImportMatchesBtn">Καθαρισμός πεδίου</button>
+            </div>
+            <div class="footer-note">
+              Όλοι οι παίκτες του import πρέπει να υπάρχουν ήδη στη βάση παικτών.
+              Το import διαβάζει τις γραμμές ανά 2 και τις μετράει ως 1 official match.
+              Υποστηρίζει 6v6, 5v5, 4v4 κλπ, αρκεί κάθε side να έχει τουλάχιστον έναν παίκτη ανά ομάδα.
+            </div>
+          </div>
+          <div class="footer-note">Στο ιστορικό μπορείς να κάνεις import stats ανά official match με format: username kills deaths. Το matching γίνεται με βάση το username, όχι τη σειρά.</div>
+          <div class="footer-note">Κάθε αποθήκευση ξαναϋπολογίζει αυτόματα όλο το leaderboard από την αρχή ώστε edits/deletes να μένουν σωστά.</div>
+        </div>
+
+        <div class="card">
+          <div class="split">
+            <h2 class="section-title">Ιστορικό Official Matches</h2>
+            <span class="badge" id="matchesCountBadge"></span>
+          </div>
+          <div id="matchesList"></div>
+        </div>
+      </div>
+    </section><section id="players" class="page">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title">Προσθήκη / Επεξεργασία Παίκτη</h2>
+          <div class="form-grid">
+            <div>
+              <label>Όνομα</label>
+              <input id="playerName" />
+            </div>
+            <div>
+              <label>Base ELO</label>
+              <input id="playerElo" type="number" value="1000" />
+            </div>
+            <div>
+              <label>Starting Kills</label>
+              <input id="playerKills" type="number" value="0" />
+            </div>
+            <div>
+              <label>Starting Deaths</label>
+              <input id="playerDeaths" type="number" value="0" />
+            </div>
+            <div>
+              <label>Starting Wins</label>
+              <input id="playerWins" type="number" value="0" />
+            </div>
+            <div>
+              <label>Starting Losses</label>
+              <input id="playerLosses" type="number" value="0" />
+            </div>
+            <div>
+              <label>Leaderboard Visibility</label>
+              <select id="playerVisibility">
+                <option value="visible" selected>Visible</option>
+                <option value="hidden">Not Visible</option>
+              </select>
+            </div>
+          </div>
+          <div class="toolbar">
+            <button class="success" id="savePlayerBtn">Αποθήκευση Παίκτη</button>
+            <button id="resetPlayerForm">Καθαρισμός</button>
+          </div>
+          <div class="card" style="padding:14px; margin-top:12px;">
+            <h3 style="margin-top:0;">Μαζικό Import Παικτών</h3>
+            <p class="subtitle" style="margin-bottom:12px;">
+              Κάνε paste από Excel / Google Sheets με 2 στήλες: <strong>USERNAME</strong> και <strong>Starting ELO</strong>.
+              Δέχεται tab, ελληνικό ή αγγλικό separator, και μία γραμμή ανά παίκτη.
+            </p>
+            <textarea id="bulkImportPlayersInput" placeholder="USERNAME	Starting ELO&#10;PlayerOne	1000&#10;PlayerTwo	1150"></textarea>
+            <div class="toolbar">
+              <button class="primary" id="bulkImportPlayersBtn">Import Players</button>
+              <button id="bulkImportSampleBtn">Γέμισε παράδειγμα</button>
+              <button id="clearBulkImportBtn">Καθαρισμός πεδίου</button>
+            </div>
+            <div class="footer-note">
+              Αν υπάρχει ήδη παίκτης με ίδιο όνομα, θα γίνει update μόνο στο Base ELO του και θα μείνουν ίδια τα υπόλοιπα starting stats.
+            </div>
+          </div>
+          <div class="footer-note">Αν σβήσεις παίκτη που υπάρχει ήδη σε match, τα παλιά matches μένουν αποθηκευμένα αλλά ο παίκτης δεν θα εμφανίζεται ξανά στις επιλογές.</div>
+        </div>
+        <div class="card">
+          <div class="split">
+            <h2 class="section-title">Database Παικτών</h2>
+            <span class="badge" id="playersCountBadge"></span>
+          </div>
+          <div id="playersTable"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="settings" class="page">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title">Data εργαλεία</h2>
+          <div class="toolbar">
+            <button id="exportJsonBtn">Export JSON</button>
+            <button id="importJsonBtn">Import JSON</button>
+            <input type="file" id="importJsonFile" accept=".json" style="display:none;" />
+          </div>
+          <div class="toolbar">
+            <button class="danger" id="clearMatchesBtn">Διαγραφή όλων των matches</button>
+            <button class="danger" id="resetAllBtn">Ολικό reset</button>
+            <button id="seedDefaultsBtn">Προσθήκη demo roster</button>
+          </div>
+          <div class="form-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div>
+              <label>Base ELO νέων παικτών</label>
+              <input id="defaultEloSetting" type="number" value="1000" />
+            </div>
+            <div>
+              <label>K-factor ανά match (legacy)</label>
+              <input id="kFactorSetting" type="number" value="24" />
+            </div>
+            <div>
+              <label>ELO Win/Loss Weight</label>
+              <input id="eloWinLossWeightSetting" type="number" step="0.1" value="5" />
+            </div>
+            <div>
+              <label>ELO KD Weight</label>
+              <input id="eloKdWeightSetting" type="number" step="0.1" value="5" />
+            </div>
+            <div>
+              <label>ELO Overall Scale</label>
+              <input id="eloOverallScaleSetting" type="number" step="0.1" value="0.5" />
+            </div>
+          </div>
+          <div class="toolbar">
+            <button class="primary" id="saveSettingsBtn">Αποθήκευση Settings</button>
+            <button id="recalculateBtn">Recalculate Ranking</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title">Πώς δουλεύει το ranking</h2>
+          <ul class="muted">
+            <li>Μπορείς να κάνεις edit/delete οποιοδήποτε match.</li>
+            <li>Με import/export κρατάς backup χωρίς server.</li>
+            <li>Μπορείς να κρύβεις παίκτες από το leaderboard χωρίς να τους αφαιρείς από matches.</li>
+            <li>Τα δεδομένα αποθηκεύονται τοπικά στον browser μέσω localStorage.</li>
+          </ul>
+          <div id="settingsPreview"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="authModalBackdrop" class="auth-modal-backdrop" aria-hidden="true">
+    <div class="auth-modal">
+      <div class="auth-modal-header">
+        <div>
+          <div class="badge">Admin Access</div>
+          <h3 class="auth-modal-title">Admin Login</h3>
+        </div>
+        <button id="closeAuthModalBtn" class="ghost auth-icon-btn" type="button" aria-label="Close">✕</button>
+      </div>
+      <p class="subtitle" style="margin-bottom:14px;">Μόνο ο admin μπορεί να κάνει προσθήκη, επεξεργασία ή διαγραφή δεδομένων.</p>
+      <div>
+        <label>Admin email</label>
+        <input id="adminEmail" placeholder="Admin email" />
+      </div>
+      <div style="margin-top:12px;">
+        <label>Admin password</label>
+        <input id="adminPassword" type="password" placeholder="Admin password" />
+      </div>
+      <div class="auth-modal-actions">
+        <button id="cancelAuthModalBtn" type="button">Cancel</button>
+        <button id="adminLoginBtn" class="primary" type="button">Log in</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://nymuzjczsihvwwrysebf.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_rkO-husHLu-bUaR8XrNJpQ_aJp8aSdT";
+    const ADMIN_USER_ID = "79fa115c-8f91-4262-bf18-3d048cd1b33c";
+    const SESSION_STORAGE_KEY = "mts_supabase_admin_session_v1";
+    const defaultSeedPlayers = [];
+
+    const state = {
+      data: null,
+      ui: {
+        activeTab: "dashboard",
+        editingMatchId: null,
+        editingPlayerId: null,
+        rankingMode: "elo"
+      }
+    };
+
+    function uid(prefix = "id") {
+      return prefix + "_" + Math.random().toString(36).slice(2, 10);
+    }
+
+    function initialData() {
+      return {
+        settings: {
+          defaultElo: 1000,
+          kFactor: 24,
+          eloWinLossWeight: 5,
+          eloKdWeight: 5,
+          eloOverallScale: 0.5
+        },
+        players: structuredClone(defaultSeedPlayers).map(p => ({
+          ...p,
+          visibleInLeaderboard: p.visibleInLeaderboard !== false,
+          startingMatches: (p.startingWins || 0) + (p.startingLosses || 0)
+        })),
+        matches: []
+      };
+    }
+
+    function getPublicHeaders() {
+      return {
+        apikey: SUPABASE_PUBLISHABLE_KEY,
+        Authorization: "Bearer " + SUPABASE_PUBLISHABLE_KEY
+      };
+    }
+
+    function getSession() {
+      try {
+        return JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY) || "null");
+      } catch {
+        return null;
+      }
+    }
+
+    function setSession(session) {
+      if (!session) {
+        localStorage.removeItem(SESSION_STORAGE_KEY);
+        return;
+      }
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+    }
+
+    function getAuthHeaders(json = false) {
+      const session = getSession();
+      if (!session || !session.access_token) {
+        throw new Error("Δεν υπάρχει ενεργό admin session.");
+      }
+      const headers = {
+        apikey: SUPABASE_PUBLISHABLE_KEY,
+        Authorization: "Bearer " + session.access_token
+      };
+      if (json) headers["Content-Type"] = "application/json";
+      return headers;
+    }
+
+    async function apiRequest(path, options = {}, requiresAuth = false) {
+      const headers = requiresAuth ? getAuthHeaders() : getPublicHeaders();
+      const finalHeaders = { ...headers, ...(options.headers || {}) };
+      const response = await fetch(SUPABASE_URL + path, { ...options, headers: finalHeaders });
+      const text = await response.text();
+      let data = null;
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch {
+        data = text;
+      }
+      if (!response.ok) {
+        const message = data && data.message ? data.message : (typeof data === "string" ? data : "Αποτυχία επικοινωνίας με Supabase.");
+        throw new Error(message);
+      }
+      return data;
+    }
+
+    async function validateStoredSession() {
+      const session = getSession();
+      if (!session || !session.access_token) return null;
+      try {
+        const user = await apiRequest("/auth/v1/user", { method: "GET" }, true);
+        return user;
+      } catch {
+        setSession(null);
+        return null;
+      }
+    }
+
+    function isAdminLoggedIn() {
+      const session = getSession();
+      return !!(session && session.user && session.user.id === ADMIN_USER_ID);
+    }
+
+    function openAuthModal() {
+      const backdrop = document.getElementById("authModalBackdrop");
+      backdrop.classList.add("open");
+      backdrop.setAttribute("aria-hidden", "false");
+      setTimeout(() => document.getElementById("adminEmail").focus(), 30);
+    }
+
+    function closeAuthModal() {
+      const backdrop = document.getElementById("authModalBackdrop");
+      backdrop.classList.remove("open");
+      backdrop.setAttribute("aria-hidden", "true");
+      document.getElementById("adminPassword").value = "";
+    }
+
+    function refreshAuthUi() {
+      const badge = document.getElementById("authStatusBadge");
+      const openBtn = document.getElementById("openAdminLoginBtn");
+      const logoutBtn = document.getElementById("adminLogoutBtn");
+      const session = getSession();
+      const loggedIn = isAdminLoggedIn();
+
+      if (loggedIn) {
+        badge.textContent = "Admin: " + (session.user.email || "logged in");
+        badge.className = "badge";
+        openBtn.style.display = "none";
+        logoutBtn.style.display = "inline-flex";
+        closeAuthModal();
+      } else {
+        badge.textContent = "Public View";
+        badge.className = "badge";
+        openBtn.style.display = "inline-flex";
+        logoutBtn.style.display = "none";
+      }
+    }
+
+    async function signInAdmin() {
+      const email = document.getElementById("adminEmail").value.trim();
+      const password = document.getElementById("adminPassword").value;
+      if (!email || !password) {
+        alert("Βάλε email και password για admin login.");
+        return;
+      }
+      try {
+        const data = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
+          method: "POST",
+          headers: {
+            apikey: SUPABASE_PUBLISHABLE_KEY,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password })
+        }).then(async res => {
+          const text = await res.text();
+          let json = null;
+          try { json = text ? JSON.parse(text) : null; } catch { json = text; }
+          if (!res.ok) throw new Error(json && json.msg ? json.msg : json && json.message ? json.message : "Απέτυχε το login.");
+          return json;
+        });
+
+        if (!data.user || data.user.id !== ADMIN_USER_ID) {
+          setSession(null);
+          refreshAuthUi();
+          throw new Error("Αυτός ο λογαριασμός δεν έχει admin δικαιώματα.");
+        }
+
+        setSession({ access_token: data.access_token, refresh_token: data.refresh_token, user: data.user });
+        document.getElementById("adminPassword").value = "";
+        refreshAuthUi();
+        alert("Έγινε admin login.");
+      } catch (err) {
+        alert(err.message || "Απέτυχε το login.");
+      }
+    }
+
+    function signOutAdmin() {
+      setSession(null);
+      refreshAuthUi();
+      alert("Έγινες logout.");
+    }
+
+    function requireAdmin() {
+      if (!isAdminLoggedIn()) {
+        alert("Αυτή η ενέργεια θέλει admin login.");
+        return false;
+      }
+      return true;
+    }
+
+    async function fetchCloudData() {
+      const [players, matches, sides, stats, settingsRows] = await Promise.all([
+        apiRequest("/rest/v1/players?select=*&order=created_at.asc"),
+        apiRequest("/rest/v1/matches?select=*&order=match_date.asc,created_at.asc"),
+        apiRequest("/rest/v1/match_sides?select=*&order=side_number.asc,created_at.asc"),
+        apiRequest("/rest/v1/match_player_stats?select=*&order=created_at.asc"),
+        apiRequest("/rest/v1/app_settings?select=*&id=eq.1")
+      ]);
+
+      const playersMapped = (players || []).map(p => ({
+        id: p.id,
+        name: p.name,
+        baseElo: Number(p.base_elo || 1000),
+        startingKills: Number(p.starting_kills || 0),
+        startingDeaths: Number(p.starting_deaths || 0),
+        startingWins: Number(p.starting_wins || 0),
+        startingLosses: Number(p.starting_losses || 0),
+        startingMatches: Number(p.starting_matches || 0),
+        visibleInLeaderboard: p.visible_in_leaderboard !== false,
+        createdAt: p.created_at || new Date().toISOString()
+      }));
+
+      const playerMap = new Map(playersMapped.map(p => [p.id, p]));
+      const sidesByMatch = new Map();
+      (sides || []).forEach(side => {
+        if (!sidesByMatch.has(side.match_id)) sidesByMatch.set(side.match_id, []);
+        sidesByMatch.get(side.match_id).push({
+          id: side.id,
+          label: "Side " + Number(side.side_number || 0),
+          sideNumber: Number(side.side_number || 0),
+          teamA: { name: "Team A", score: Number(side.team_a_score || 0), players: [] },
+          teamB: { name: "Team B", score: Number(side.team_b_score || 0), players: [] }
+        });
+      });
+
+      const sideLookup = new Map();
+      for (const arr of sidesByMatch.values()) {
+        arr.forEach(side => sideLookup.set(side.id, side));
+      }
+
+      (stats || []).forEach(row => {
+        const side = sideLookup.get(row.side_id);
+        if (!side) return;
+        const target = row.team_side === "A" ? side.teamA.players : side.teamB.players;
+        if (!playerMap.has(row.player_id)) return;
+        target.push({
+          playerId: row.player_id,
+          kills: Number(row.kills || 0),
+          deaths: Number(row.deaths || 0)
+        });
+      });
+
+      const matchesMapped = (matches || []).map(match => {
+        const matchSides = (sidesByMatch.get(match.id) || []).sort((a, b) => a.sideNumber - b.sideNumber);
+        matchSides.forEach(side => {
+          side.teamA.name = match.team_a_name || "Team A";
+          side.teamB.name = match.team_b_name || "Team B";
+        });
+        return {
+          id: match.id,
+          date: match.match_date,
+          map: match.map || "",
+          mode: match.mode || "",
+          notes: match.notes || "",
+          createdAt: match.created_at || new Date().toISOString(),
+          teamA: {
+            name: match.team_a_name || "Team A",
+            score: Number(match.team_a_score || 0),
+            players: aggregateRows(...matchSides.map(side => side.teamA.players))
+          },
+          teamB: {
+            name: match.team_b_name || "Team B",
+            score: Number(match.team_b_score || 0),
+            players: aggregateRows(...matchSides.map(side => side.teamB.players))
+          },
+          sides: matchSides
+        };
+      });
+
+      const settings = settingsRows && settingsRows[0] ? settingsRows[0] : null;
+
+      return {
+        settings: {
+          defaultElo: Number(settings?.default_elo ?? 1000),
+          kFactor: Number(settings?.k_factor ?? 24),
+          eloWinLossWeight: Number(settings?.elo_win_loss_weight ?? 5),
+          eloKdWeight: Number(settings?.elo_kd_weight ?? 5),
+          eloOverallScale: Number(settings?.elo_overall_scale ?? 0.5)
+        },
+        players: playersMapped,
+        matches: matchesMapped
+      };
+    }
+
+    async function clearTable(tableName) {
+      await apiRequest(`/rest/v1/${tableName}?id=not.is.null`, { method: "DELETE", headers: { Prefer: "return=minimal" } }, true);
+    }
+
+    async function saveState() {
+      if (!requireAdmin()) return;
+      try {
+        await apiRequest("/rest/v1/app_settings?id=eq.1", {
+          method: "DELETE",
+          headers: { Prefer: "return=minimal" }
+        }, true);
+
+        await apiRequest("/rest/v1/app_settings", {
+          method: "POST",
+          headers: {
+            ...getAuthHeaders(true),
+            Prefer: "return=minimal"
+          },
+          body: JSON.stringify([{
+            id: 1,
+            default_elo: Number(state.data.settings.defaultElo || 1000),
+            k_factor: Number(state.data.settings.kFactor || 24),
+            elo_win_loss_weight: Number(state.data.settings.eloWinLossWeight || 5),
+            elo_kd_weight: Number(state.data.settings.eloKdWeight || 5),
+            elo_overall_scale: Number(state.data.settings.eloOverallScale || 0.5)
+          }])
+        }, true);
+
+        await clearTable("match_player_stats");
+        await clearTable("match_sides");
+        await clearTable("matches");
+        await clearTable("players");
+
+        if (state.data.players.length) {
+          const playersPayload = state.data.players.map(p => ({
+            id: p.id,
+            name: p.name,
+            base_elo: Number(p.baseElo || 1000),
+            starting_kills: Number(p.startingKills || 0),
+            starting_deaths: Number(p.startingDeaths || 0),
+            starting_wins: Number(p.startingWins || 0),
+            starting_losses: Number(p.startingLosses || 0),
+            starting_matches: Number(p.startingMatches || ((p.startingWins || 0) + (p.startingLosses || 0))),
+            visible_in_leaderboard: p.visibleInLeaderboard !== false,
+            created_at: p.createdAt || new Date().toISOString()
+          }));
+          await apiRequest("/rest/v1/players", {
+            method: "POST",
+            headers: {
+              ...getAuthHeaders(true),
+              Prefer: "return=minimal"
+            },
+            body: JSON.stringify(playersPayload)
+          }, true);
+        }
+
+        for (const match of state.data.matches) {
+          await apiRequest("/rest/v1/matches", {
+            method: "POST",
+            headers: {
+              ...getAuthHeaders(true),
+              Prefer: "return=minimal"
+            },
+            body: JSON.stringify([{
+              id: match.id,
+              match_date: match.date,
+              map: match.map || null,
+              mode: match.mode || null,
+              notes: match.notes || null,
+              team_a_name: match.teamA?.name || "Team A",
+              team_b_name: match.teamB?.name || "Team B",
+              team_a_score: Number(match.teamA?.score || 0),
+              team_b_score: Number(match.teamB?.score || 0),
+              created_at: match.createdAt || new Date().toISOString()
+            }])
+          }, true);
+
+          const sideIdMap = new Map();
+          const matchSides = (match.sides || []).map((side, index) => {
+            const sideId = side.id || uid("side");
+            side.id = sideId;
+            sideIdMap.set(index, sideId);
+            return {
+              id: sideId,
+              match_id: match.id,
+              side_number: Number(side.sideNumber || index + 1),
+              team_a_score: Number(side.teamA?.score || 0),
+              team_b_score: Number(side.teamB?.score || 0),
+              created_at: new Date().toISOString()
+            };
+          });
+
+          if (matchSides.length) {
+            await apiRequest("/rest/v1/match_sides", {
+              method: "POST",
+              headers: {
+                ...getAuthHeaders(true),
+                Prefer: "return=minimal"
+              },
+              body: JSON.stringify(matchSides)
+            }, true);
+          }
+
+          const statsPayload = [];
+          (match.sides || []).forEach((side, index) => {
+            const sideId = sideIdMap.get(index);
+            (side.teamA?.players || []).forEach(row => {
+              if (!row.playerId) return;
+              statsPayload.push({
+                id: uid("mps"),
+                match_id: match.id,
+                side_id: sideId,
+                player_id: row.playerId,
+                team_side: "A",
+                kills: Number(row.kills || 0),
+                deaths: Number(row.deaths || 0),
+                created_at: new Date().toISOString()
+              });
+            });
+            (side.teamB?.players || []).forEach(row => {
+              if (!row.playerId) return;
+              statsPayload.push({
+                id: uid("mps"),
+                match_id: match.id,
+                side_id: sideId,
+                player_id: row.playerId,
+                team_side: "B",
+                kills: Number(row.kills || 0),
+                deaths: Number(row.deaths || 0),
+                created_at: new Date().toISOString()
+              });
+            });
+          });
+
+          if (statsPayload.length) {
+            await apiRequest("/rest/v1/match_player_stats", {
+              method: "POST",
+              headers: {
+                ...getAuthHeaders(true),
+                Prefer: "return=minimal"
+              },
+              body: JSON.stringify(statsPayload)
+            }, true);
+          }
+        }
+      } catch (err) {
+        alert(err.message || "Απέτυχε το cloud save.");
+        throw err;
+      }
+    }
+
+    async function loadState() {
+      try {
+        state.data = await fetchCloudData();
+      } catch (err) {
+        alert("Απέτυχε η φόρτωση από το cloud: " + (err.message || err));
+        state.data = initialData();
+      }
+
+      if (!state.data.settings) state.data.settings = { defaultElo: 1000, kFactor: 24, eloWinLossWeight: 5, eloKdWeight: 5, eloOverallScale: 0.5 };
+      if (state.data.settings.eloWinLossWeight == null) state.data.settings.eloWinLossWeight = 5;
+      if (state.data.settings.eloKdWeight == null) state.data.settings.eloKdWeight = 5;
+      if (state.data.settings.eloOverallScale == null) state.data.settings.eloOverallScale = 0.5;
+      if (!Array.isArray(state.data.players)) state.data.players = [];
+      if (!Array.isArray(state.data.matches)) state.data.matches = [];
+
+      state.data.players = state.data.players.map(p => ({
+        ...p,
+        visibleInLeaderboard: p.visibleInLeaderboard !== false,
+        startingMatches: Number(
+          p.startingMatches ??
+          ((p.startingWins || 0) + (p.startingLosses || 0))
+        )
+      }));
+    }
+
+    function getPlayerById(id) {
+      return state.data.players.find(p => p.id === id);
+    }
+
+    function getPlayerName(id) {
+      const p = getPlayerById(id);
+      return p ? p.name : "(διαγραμμένος παίκτης)";
+    }
+
+    function expectedScore(teamElo, oppElo) {
+      return 1 / (1 + Math.pow(10, (oppElo - teamElo) / 400));
+    }
+
+    
+    function computeDerived() {
+      const playerMap = new Map();
+      state.data.players.forEach(p => {
+        playerMap.set(p.id, {
+          ...p,
+          currentElo: Number(p.baseElo ?? state.data.settings.defaultElo),
+          kills: Number(p.startingKills || 0),
+          deaths: Number(p.startingDeaths || 0),
+          wins: Number(p.startingWins || 0),
+          losses: Number(p.startingLosses || 0),
+          matchesPlayed: Number(p.startingMatches || ((p.startingWins || 0) + (p.startingLosses || 0))),
+          kd: 0
+        });
+      });
+
+      const sortedMatches = [...state.data.matches].sort((a,b) => (a.date || "").localeCompare(b.date || "") || (a.createdAt || "").localeCompare(b.createdAt || ""));
+
+      function addPlayerSideStats(sideRows, officialTeamResult, seenInOfficialMatch) {
+        (sideRows || []).forEach(row => {
+          const p = playerMap.get(row.playerId);
+          if (!p) return;
+          p.kills += Number(row.kills || 0);
+          p.deaths += Number(row.deaths || 0);
+
+          if (!seenInOfficialMatch.has(row.playerId)) {
+            seenInOfficialMatch.add(row.playerId);
+            p.matchesPlayed += 1;
+            if (officialTeamResult === "W") p.wins += 1;
+            else if (officialTeamResult === "L") p.losses += 1;
+          }
+        });
+      }
+
+      for (const match of sortedMatches) {
+        const scoreA = Number(match.teamA && match.teamA.score || 0);
+        const scoreB = Number(match.teamB && match.teamB.score || 0);
+
+        let resultA = "D";
+        let resultB = "D";
+        if (scoreA > scoreB) {
+          resultA = "W";
+          resultB = "L";
+        } else if (scoreA < scoreB) {
+          resultA = "L";
+          resultB = "W";
+        }
+
+        const seenInOfficialMatch = new Set();
+
+        if (match.sides && match.sides.length) {
+          (match.sides || []).forEach(side => {
+            addPlayerSideStats(side.teamA && side.teamA.players, resultA, seenInOfficialMatch);
+            addPlayerSideStats(side.teamB && side.teamB.players, resultB, seenInOfficialMatch);
+          });
+        } else {
+          addPlayerSideStats(match.teamA && match.teamA.players, resultA, seenInOfficialMatch);
+          addPlayerSideStats(match.teamB && match.teamB.players, resultB, seenInOfficialMatch);
+        }
+
+        match._derived = {
+          teamAEloBefore: null,
+          teamBEloBefore: null,
+          deltaA: null,
+          deltaB: null
+        };
+      }
+
+      const eloWinLossWeight = Number(state.data.settings.eloWinLossWeight || 5);
+      const eloKdWeight = Number(state.data.settings.eloKdWeight || 5);
+      const eloOverallScale = Number(state.data.settings.eloOverallScale || 0.5);
+
+      const ranking = Array.from(playerMap.values()).map(p => {
+        const kd = p.deaths > 0 ? (p.kills / p.deaths) : p.kills;
+        const baseElo = Number((p.baseElo != null ? p.baseElo : state.data.settings.defaultElo) || 1000);
+        const winLossDelta = Number(p.wins || 0) - Number(p.losses || 0);
+
+        let currentElo = baseElo;
+        if (p.matchesPlayed > 0) {
+          currentElo = baseElo + (
+            eloOverallScale * (
+              (eloWinLossWeight * winLossDelta) +
+              (eloKdWeight * ((kd - 1) * 10))
+            )
+          );
+        }
+
+        return {
+          ...p,
+          currentElo,
+          kd,
+          winRate: p.matchesPlayed > 0 ? (p.wins / p.matchesPlayed) : 0
+        };
+      }).sort((a,b) => b.currentElo - a.currentElo || b.kills - a.kills);
+
+      ranking.forEach((p, idx) => p.rank = idx + 1);
+
+      const visibleRanking = ranking
+        .filter(p => p.visibleInLeaderboard !== false)
+        .map((p, idx) => ({ ...p, visibleRank: idx + 1 }));
+
+      const visibleRankingByKd = visibleRanking
+        .slice()
+        .sort((a,b) => b.kd - a.kd || b.kills - a.kills || b.currentElo - a.currentElo)
+        .map((p, idx) => ({ ...p, kdRank: idx + 1 }));
+
+      return {
+        ranking,
+        visibleRanking,
+        visibleRankingByKd,
+        matches: sortedMatches
+      };
+    }
+
+    function setTab(tab) {
+      state.ui.activeTab = tab;
+      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tab));
+      document.querySelectorAll(".page").forEach(page => page.classList.toggle("active", page.id === tab));
+    }
+
+    function playerOptions(selectedId = "") {
+      const opts = state.data.players
+        .slice()
+        .sort((a,b) => a.name.localeCompare(b.name))
+        .map(p => `<option value="${p.id}" ${p.id === selectedId ? "selected" : ""}>${escapeHtml(p.name)}</option>`)
+        .join("");
+      return `<option value="">-- επέλεξε παίκτη --</option>${opts}`;
+    }
+
+    function renderTeamRows(containerId, rows) {
+      const wrap = document.getElementById(containerId);
+      wrap.innerHTML = "";
+      rows.forEach((row, index) => {
+        const el = document.createElement("div");
+        el.className = "player-line";
+        el.innerHTML = `
+          <select data-field="playerId">${playerOptions(row.playerId)}</select>
+          <input type="number" min="0" data-field="kills" value="${Number(row.kills || 0)}" placeholder="Kills" />
+          <input type="number" min="0" data-field="deaths" value="${Number(row.deaths || 0)}" placeholder="Deaths" />
+          <button class="danger" type="button">✕</button>
+        `;
+        el.querySelectorAll("select, input").forEach(input => {
+          input.addEventListener("input", () => {
+            row[input.dataset.field] = input.type === "number" ? Number(input.value || 0) : input.value;
+          });
+        });
+        el.querySelector("button").addEventListener("click", () => {
+          rows.splice(index, 1);
+          renderMatchFormRows();
+        });
+        wrap.appendChild(el);
+      });
+      if (!rows.length) {
+        wrap.innerHTML = `<div class="empty">Δεν υπάρχουν παίκτες σε αυτό το team ακόμα.</div>`;
+      }
+    }
+
+    
+    function blankPlayerRow() {
+      return { playerId: "", kills: 0, deaths: 0 };
+    }
+
+    function cloneRows(rows) {
+      return (rows || []).map(row => ({
+        playerId: row.playerId || "",
+        kills: Number(row.kills || 0),
+        deaths: Number(row.deaths || 0)
+      }));
+    }
+
+    function aggregateRows(rowsA, rowsB) {
+      const map = new Map();
+      []
+        .concat(rowsA || [], rowsB || [])
+        .forEach(row => {
+          if (!row || !row.playerId) return;
+          if (!map.has(row.playerId)) {
+            map.set(row.playerId, { playerId: row.playerId, kills: 0, deaths: 0 });
+          }
+          const entry = map.get(row.playerId);
+          entry.kills += Number(row.kills || 0);
+          entry.deaths += Number(row.deaths || 0);
+        });
+      return Array.from(map.values());
+    }
+
+    function updateOfficialScorePreview() {
+      const s1a = Number(document.getElementById("side1TeamAScore").value || 0);
+      const s1b = Number(document.getElementById("side1TeamBScore").value || 0);
+      const s2a = Number(document.getElementById("side2TeamAScore").value || 0);
+      const s2b = Number(document.getElementById("side2TeamBScore").value || 0);
+      document.getElementById("side1TotalBadge").textContent = s1a + " - " + s1b;
+      document.getElementById("side2TotalBadge").textContent = s2a + " - " + s2b;
+      document.getElementById("officialScorePreview").textContent = (s1a + s2a) + " - " + (s1b + s2b);
+    }
+
+    function parseBulkMatchLine(line) {
+      const parts = line.split("\t").map(x => x.trim());
+      const nonEmpty = parts.filter(Boolean);
+
+      if (nonEmpty.length < 6) {
+        throw new Error("Πολύ λίγα δεδομένα.");
+      }
+
+      const matchCode = String(parts[0] || "").trim();
+      const dateRaw = String(parts[1] || "").trim();
+
+      if (!matchCode) {
+        throw new Error("Λείπει ο κωδικός side (π.χ. M001).");
+      }
+      if (!dateRaw) {
+        throw new Error("Λείπει η ημερομηνία.");
+      }
+
+      const lastNonEmpty = nonEmpty[nonEmpty.length - 1];
+      const secondLastNonEmpty = nonEmpty[nonEmpty.length - 2];
+
+      if (Number.isNaN(Number(String(secondLastNonEmpty).replace(",", "."))) || Number.isNaN(Number(String(lastNonEmpty).replace(",", ".")))) {
+        throw new Error("Τα τελευταία 2 πεδία πρέπει να είναι Score A και Score B.");
+      }
+
+      const scoreA = Number(String(secondLastNonEmpty).replace(",", "."));
+      const scoreB = Number(String(lastNonEmpty).replace(",", "."));
+
+      const coreParts = parts.slice(2);
+      let trailingScoresFound = 0;
+      let contentEnd = coreParts.length - 1;
+      for (let i = coreParts.length - 1; i >= 0; i--) {
+        if (coreParts[i] === "") continue;
+        trailingScoresFound += 1;
+        if (trailingScoresFound === 2) {
+          contentEnd = i - 1;
+          break;
+        }
+      }
+
+      if (trailingScoresFound < 2) {
+        throw new Error("Δεν βρέθηκαν σωστά τα scores.");
+      }
+
+      const rosterParts = coreParts.slice(0, contentEnd + 1);
+
+      let separatorIndex = -1;
+      let seenTeamAPlayer = false;
+      for (let i = 0; i < rosterParts.length; i++) {
+        if (rosterParts[i]) {
+          seenTeamAPlayer = true;
+          continue;
+        }
+        if (seenTeamAPlayer) {
+          separatorIndex = i;
+          break;
+        }
+      }
+
+      if (separatorIndex === -1) {
+        throw new Error("Δεν βρέθηκε separator ομάδων.");
+      }
+
+      const teamANames = rosterParts.slice(0, separatorIndex).filter(Boolean);
+      const teamBNames = rosterParts.slice(separatorIndex + 1).filter(Boolean);
+
+      if (!teamANames.length || !teamBNames.length) {
+        throw new Error("Κάθε ομάδα πρέπει να έχει τουλάχιστον έναν παίκτη.");
+      }
+
+      return { matchCode, dateRaw, teamANames, teamBNames, scoreA, scoreB };
+    }
+
+    function validateOfficialSides(sides) {
+      for (let i = 0; i < sides.length; i++) {
+        const side = sides[i];
+        const sideLabel = "Side " + (i + 1);
+        const sideAIds = (side.teamA.players || []).map(x => x.playerId).filter(Boolean);
+        const sideBIds = (side.teamB.players || []).map(x => x.playerId).filter(Boolean);
+
+        if (!sideAIds.length || !sideBIds.length) {
+          return sideLabel + ": κάθε ομάδα πρέπει να έχει τουλάχιστον έναν παίκτη.";
+        }
+
+        const sideUnique = new Set(sideAIds.concat(sideBIds));
+        if (sideUnique.size !== sideAIds.length + sideBIds.length) {
+          return sideLabel + ": ο ίδιος παίκτης δεν γίνεται να υπάρχει δύο φορές στο ίδιο side.";
+        }
+      }
+      return null;
+    }
+
+    
+    function validateMatchPayload(payload) {
+      const teamAIds = ((payload.teamA && payload.teamA.players ? payload.teamA.players : []).map(x => x.playerId).filter(Boolean));
+      const teamBIds = ((payload.teamB && payload.teamB.players ? payload.teamB.players : []).map(x => x.playerId).filter(Boolean));
+
+      if (!(payload.teamA && payload.teamA.players && payload.teamA.players.length) ||
+          !(payload.teamB && payload.teamB.players && payload.teamB.players.length)) {
+        return "Κάθε ομάδα πρέπει να έχει τουλάχιστον έναν παίκτη.";
+      }
+
+      if (!payload.sides || !payload.sides.length) {
+        const ids = [].concat(teamAIds, teamBIds);
+        const unique = new Set(ids);
+        if (ids.length !== unique.size) {
+          return "Ο ίδιος παίκτης δεν γίνεται να υπάρχει δύο φορές στο ίδιο official match.";
+        }
+      }
+
+      if (!payload.date) {
+        return "Βάλε ημερομηνία αγώνα.";
+      }
+      return null;
+    }
+
+async function bulkImportMatches() {
+      const raw = document.getElementById("bulkImportMatchesInput").value || "";
+      const lines = raw.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+
+      if (!lines.length) {
+        alert("Κάνε paste τουλάχιστον 2 γραμμές.");
+        return;
+      }
+
+      if (lines.length % 2 !== 0) {
+        alert("Το bulk import θέλει ζυγό αριθμό γραμμών. Κάθε 2 γραμμές = 1 official match.");
+        return;
+      }
+
+      const importedMatches = [];
+      const errors = [];
+
+      function normalizeDateForInput(dateRaw) {
+        const value = String(dateRaw || "").trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+        const slashMatch = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (slashMatch) {
+          const day = slashMatch[1].padStart(2, "0");
+          const month = slashMatch[2].padStart(2, "0");
+          const year = slashMatch[3];
+          return year + "-" + month + "-" + day;
+        }
+        return new Date().toISOString().slice(0,10);
+      }
+
+      function getPlayerIdByName(name) {
+        const player = state.data.players.find(p => p.name.toLowerCase() === String(name).toLowerCase());
+        return player ? player.id : "";
+      }
+
+      function buildRows(names) {
+        return names.map(name => ({ playerId: getPlayerIdByName(name), kills: 0, deaths: 0 })).filter(row => row.playerId);
+      }
+
+      for (let i = 0; i < lines.length; i += 2) {
+        try {
+          const side1 = parseBulkMatchLine(lines[i]);
+          const side2 = parseBulkMatchLine(lines[i + 1]);
+
+          const allNames = [].concat(side1.teamANames, side1.teamBNames, side2.teamANames, side2.teamBNames);
+          const missingNames = Array.from(new Set(allNames.filter(name =>
+            !state.data.players.some(p => p.name.toLowerCase() === String(name).toLowerCase())
+          )));
+
+          if (missingNames.length) {
+            throw new Error("Οι παρακάτω παίκτες δεν υπάρχουν στη βάση: " + missingNames.join(", "));
+          }
+
+          const sides = [
+            {
+              label: "Side 1",
+              code: side1.matchCode,
+              rawDate: side1.dateRaw,
+              teamA: { name: "Team A", score: Number(side1.scoreA), players: buildRows(side1.teamANames) },
+              teamB: { name: "Team B", score: Number(side1.scoreB), players: buildRows(side1.teamBNames) }
+            },
+            {
+              label: "Side 2",
+              code: side2.matchCode,
+              rawDate: side2.dateRaw,
+              teamA: { name: "Team A", score: Number(side2.scoreA), players: buildRows(side2.teamANames) },
+              teamB: { name: "Team B", score: Number(side2.scoreB), players: buildRows(side2.teamBNames) }
+            }
+          ];
+
+          const payload = {
+            id: uid("match"),
+            date: normalizeDateForInput(side1.dateRaw),
+            map: "",
+            mode: "",
+            notes: "Bulk official match: " + side1.matchCode + " + " + side2.matchCode,
+            createdAt: new Date().toISOString(),
+            teamA: {
+              name: "Team A",
+              score: Number(side1.scoreA) + Number(side2.scoreA),
+              players: aggregateRows(sides[0].teamA.players, sides[1].teamA.players)
+            },
+            teamB: {
+              name: "Team B",
+              score: Number(side1.scoreB) + Number(side2.scoreB),
+              players: aggregateRows(sides[0].teamB.players, sides[1].teamB.players)
+            },
+            sides: sides,
+            importMeta: {
+              type: "bulk_pair",
+              sideCodes: [side1.matchCode, side2.matchCode],
+              sideDates: [side1.dateRaw, side2.dateRaw]
+            }
+          };
+
+          const sideError = validateOfficialSides(payload.sides || []);
+          if (sideError) throw new Error(sideError);
+
+          const error = validateMatchPayload(payload);
+          if (error) throw new Error(error);
+
+          importedMatches.push(payload);
+        } catch (err) {
+          errors.push("Γραμμές " + (i + 1) + "-" + (i + 2) + ": " + err.message);
+        }
+      }
+
+      if (!importedMatches.length) {
+        alert("Δεν έγινε import κανενός official match.\n\n" + errors.join("\n"));
+        return;
+      }
+
+      state.data.matches.push(...importedMatches);
+      await saveState();
+      renderAll();
+
+      let message = "Το import ολοκληρώθηκε.\nOfficial matches: " + importedMatches.length;
+      if (errors.length) {
+        message += "\n\nPairs που αγνοήθηκαν:\n" + errors.join("\n");
+      }
+      alert(message);
+    }
+
+    function resetMatchForm() {
+      state.ui.editingMatchId = null;
+      document.getElementById("editingBadge").textContent = "Νέο official match";
+      document.getElementById("matchDate").value = new Date().toISOString().slice(0,10);
+      document.getElementById("matchMap").value = "";
+      document.getElementById("matchMode").value = "";
+      document.getElementById("matchNotes").value = "";
+      document.getElementById("teamAName").value = "Team A";
+      document.getElementById("teamBName").value = "Team B";
+      document.getElementById("side1TeamAScore").value = 0;
+      document.getElementById("side1TeamBScore").value = 0;
+      document.getElementById("side2TeamAScore").value = 0;
+      document.getElementById("side2TeamBScore").value = 0;
+      window.matchFormRows = {
+        side1: {
+          teamA: [blankPlayerRow(), blankPlayerRow(), blankPlayerRow(), blankPlayerRow(), blankPlayerRow()],
+          teamB: [blankPlayerRow(), blankPlayerRow(), blankPlayerRow(), blankPlayerRow(), blankPlayerRow()]
+        },
+        side2: {
+          teamA: [blankPlayerRow(), blankPlayerRow(), blankPlayerRow(), blankPlayerRow(), blankPlayerRow()],
+          teamB: [blankPlayerRow(), blankPlayerRow(), blankPlayerRow(), blankPlayerRow(), blankPlayerRow()]
+        }
+      };
+      renderMatchFormRows();
+      updateOfficialScorePreview();
+    }
+
+    function renderMatchFormRows() {
+      renderTeamRows("side1TeamAPlayers", window.matchFormRows.side1.teamA);
+      renderTeamRows("side1TeamBPlayers", window.matchFormRows.side1.teamB);
+      renderTeamRows("side2TeamAPlayers", window.matchFormRows.side2.teamA);
+      renderTeamRows("side2TeamBPlayers", window.matchFormRows.side2.teamB);
+      updateOfficialScorePreview();
+    }
+
+    function collectMatchForm() {
+      const teamAName = document.getElementById("teamAName").value.trim() || "Team A";
+      const teamBName = document.getElementById("teamBName").value.trim() || "Team B";
+
+      const sides = [
+        {
+          label: "Side 1",
+          teamA: {
+            name: teamAName,
+            score: Number(document.getElementById("side1TeamAScore").value || 0),
+            players: cloneRows(window.matchFormRows.side1.teamA.filter(x => x.playerId))
+          },
+          teamB: {
+            name: teamBName,
+            score: Number(document.getElementById("side1TeamBScore").value || 0),
+            players: cloneRows(window.matchFormRows.side1.teamB.filter(x => x.playerId))
+          }
+        },
+        {
+          label: "Side 2",
+          teamA: {
+            name: teamAName,
+            score: Number(document.getElementById("side2TeamAScore").value || 0),
+            players: cloneRows(window.matchFormRows.side2.teamA.filter(x => x.playerId))
+          },
+          teamB: {
+            name: teamBName,
+            score: Number(document.getElementById("side2TeamBScore").value || 0),
+            players: cloneRows(window.matchFormRows.side2.teamB.filter(x => x.playerId))
+          }
+        }
+      ];
+
+      return {
+        id: state.ui.editingMatchId || uid("match"),
+        date: document.getElementById("matchDate").value,
+        map: document.getElementById("matchMap").value.trim(),
+        mode: document.getElementById("matchMode").value.trim(),
+        notes: document.getElementById("matchNotes").value.trim(),
+        createdAt: new Date().toISOString(),
+        teamA: {
+          name: teamAName,
+          score: Number(sides[0].teamA.score) + Number(sides[1].teamA.score),
+          players: aggregateRows(sides[0].teamA.players, sides[1].teamA.players)
+        },
+        teamB: {
+          name: teamBName,
+          score: Number(sides[0].teamB.score) + Number(sides[1].teamB.score),
+          players: aggregateRows(sides[0].teamB.players, sides[1].teamB.players)
+        },
+        sides: sides
+      };
+    }
+
+    async function saveMatch() {
+      if (!requireAdmin()) return;
+      const payload = collectMatchForm();
+      const sideError = validateOfficialSides(payload.sides || []);
+      if (sideError) return alert(sideError);
+
+      const error = validateMatchPayload(payload);
+      if (error) return alert(error);
+
+      const idx = state.data.matches.findIndex(m => m.id === payload.id);
+      if (idx >= 0) {
+        payload.createdAt = state.data.matches[idx].createdAt;
+        state.data.matches[idx] = payload;
+      } else {
+        state.data.matches.push(payload);
+      }
+      await saveState();
+      resetMatchForm();
+      renderAll();
+      setTab("matches");
+    }
+
+    function editMatch(id) {
+      if (!requireAdmin()) return;
+      const match = state.data.matches.find(m => m.id === id);
+      if (!match) return;
+      state.ui.editingMatchId = id;
+      document.getElementById("editingBadge").textContent = "Editing official match";
+      document.getElementById("matchDate").value = match.date || "";
+      document.getElementById("matchMap").value = match.map || "";
+      document.getElementById("matchMode").value = match.mode || "";
+      document.getElementById("matchNotes").value = match.notes || "";
+      document.getElementById("teamAName").value = match.teamA.name || "Team A";
+      document.getElementById("teamBName").value = match.teamB.name || "Team B";
+
+      const side1 = match.sides && match.sides[0] ? match.sides[0] : { teamA: { score: match.teamA.score || 0, players: cloneRows(match.teamA.players || []) }, teamB: { score: match.teamB.score || 0, players: cloneRows(match.teamB.players || []) } };
+      const side2 = match.sides && match.sides[1] ? match.sides[1] : { teamA: { score: 0, players: [] }, teamB: { score: 0, players: [] } };
+
+      document.getElementById("side1TeamAScore").value = Number(side1.teamA.score || 0);
+      document.getElementById("side1TeamBScore").value = Number(side1.teamB.score || 0);
+      document.getElementById("side2TeamAScore").value = Number(side2.teamA.score || 0);
+      document.getElementById("side2TeamBScore").value = Number(side2.teamB.score || 0);
+
+      window.matchFormRows = {
+        side1: {
+          teamA: cloneRows(side1.teamA.players || []),
+          teamB: cloneRows(side1.teamB.players || [])
+        },
+        side2: {
+          teamA: cloneRows(side2.teamA.players || []),
+          teamB: cloneRows(side2.teamB.players || [])
+        }
+      };
+
+      renderMatchFormRows();
+      setTab("matches");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+
+    function syncMatchAggregatesFromSides(match) {
+      if (!match || !Array.isArray(match.sides)) return;
+
+      function aggregateForTeams(teamKey) {
+        const map = new Map();
+        match.sides.forEach(side => {
+          const team = side && side[teamKey];
+          const rows = team && Array.isArray(team.players) ? team.players : [];
+          rows.forEach(row => {
+            if (!row || !row.playerId) return;
+            if (!map.has(row.playerId)) {
+              map.set(row.playerId, { playerId: row.playerId, kills: 0, deaths: 0 });
+            }
+            const entry = map.get(row.playerId);
+            entry.kills += Number(row.kills || 0);
+            entry.deaths += Number(row.deaths || 0);
+          });
+        });
+        return Array.from(map.values());
+      }
+
+      match.teamA = match.teamA || { name: "Team A", score: 0, players: [] };
+      match.teamB = match.teamB || { name: "Team B", score: 0, players: [] };
+
+      match.teamA.score = (match.sides || []).reduce((sum, side) => sum + Number(side && side.teamA ? side.teamA.score || 0 : 0), 0);
+      match.teamB.score = (match.sides || []).reduce((sum, side) => sum + Number(side && side.teamB ? side.teamB.score || 0 : 0), 0);
+      match.teamA.players = aggregateForTeams("teamA");
+      match.teamB.players = aggregateForTeams("teamB");
+    }
+
+    function parseSideStatsImport(raw) {
+      const lines = String(raw || "").split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+      if (!lines.length) {
+        throw new Error("Δεν βρέθηκαν γραμμές για import.");
+      }
+
+      const entries = [];
+      lines.forEach((line, index) => {
+        const parts = line.split(/\s+/).filter(Boolean);
+        if (parts.length < 3) {
+          throw new Error("Γραμμή " + (index + 1) + ": χρειάζονται 3 πεδία (username kills deaths).");
+        }
+        const deathsRaw = parts[parts.length - 1].replace(",", ".");
+        const killsRaw = parts[parts.length - 2].replace(",", ".");
+        const username = parts.slice(0, parts.length - 2).join(" ").trim();
+
+        if (!username) {
+          throw new Error("Γραμμή " + (index + 1) + ": λείπει το username.");
+        }
+        if (!Number.isFinite(Number(killsRaw)) || !Number.isFinite(Number(deathsRaw))) {
+          throw new Error("Γραμμή " + (index + 1) + ": kills/deaths πρέπει να είναι αριθμοί.");
+        }
+
+        entries.push({
+          username: username,
+          kills: Number(killsRaw),
+          deaths: Number(deathsRaw)
+        });
+      });
+      return entries;
+    }
+
+    async function importMatchStats(id) {
+      if (!requireAdmin()) return;
+      const match = state.data.matches.find(m => m.id === id);
+      if (!match) return;
+
+      if (!Array.isArray(match.sides) || match.sides.length < 2) {
+        alert("Αυτό το match δεν έχει διαθέσιμα 2 sides για import stats.");
+        return;
+      }
+
+      const sideChoice = prompt("Σε ποιο side θες import; Γράψε 1 ή 2.");
+      if (sideChoice === null) return;
+
+      const sideIndex = Number(String(sideChoice).trim()) - 1;
+      if (![0, 1].includes(sideIndex)) {
+        alert("Μη έγκυρο side. Δώσε 1 ή 2.");
+        return;
+      }
+
+      const side = match.sides[sideIndex];
+      const example = "username kills deaths\nPlayerOne 25 14\nPlayerTwo 18 20";
+      const raw = prompt("Κάνε paste stats για " + (side.label || ("Side " + (sideIndex + 1))) + " με format:\nusername kills deaths\n\nΠαράδειγμα:\n" + example);
+      if (raw === null) return;
+
+      try {
+        const entries = parseSideStatsImport(raw);
+
+        const rosterRows = []
+          .concat(side.teamA && Array.isArray(side.teamA.players) ? side.teamA.players : [])
+          .concat(side.teamB && Array.isArray(side.teamB.players) ? side.teamB.players : []);
+
+        const rosterMap = new Map();
+        rosterRows.forEach(row => {
+          const player = getPlayerById(row.playerId);
+          if (!player) return;
+          rosterMap.set(String(player.name).toLowerCase(), row);
+        });
+
+        const unknown = [];
+        entries.forEach(entry => {
+          const row = rosterMap.get(String(entry.username).toLowerCase());
+          if (!row) {
+            unknown.push(entry.username);
+            return;
+          }
+          row.kills = Number(entry.kills || 0);
+          row.deaths = Number(entry.deaths || 0);
+        });
+
+        if (unknown.length) {
+          throw new Error("Δεν βρέθηκαν στο selected side οι παίκτες: " + unknown.join(", "));
+        }
+
+        syncMatchAggregatesFromSides(match);
+        await saveState();
+        renderAll();
+        alert("Το import stats ολοκληρώθηκε για " + (side.label || ("Side " + (sideIndex + 1))) + ".");
+      } catch (err) {
+        alert(err.message || "Αποτυχία στο import stats.");
+      }
+    }
+
+
+    async function deleteMatch(id) {
+      if (!requireAdmin()) return;
+      if (!confirm("Να διαγραφεί το συγκεκριμένο official match;")) return;
+      state.data.matches = state.data.matches.filter(m => m.id !== id);
+      await saveState();
+      renderAll();
+    }
+
+function resetPlayerForm() {
+      state.ui.editingPlayerId = null;
+      document.getElementById("playerName").value = "";
+      document.getElementById("playerElo").value = state.data.settings.defaultElo;
+      document.getElementById("playerKills").value = 0;
+      document.getElementById("playerDeaths").value = 0;
+      document.getElementById("playerWins").value = 0;
+      document.getElementById("playerLosses").value = 0;
+      document.getElementById("playerVisibility").value = "visible";
+    }
+
+    async function savePlayer() {
+      if (!requireAdmin()) return;
+      const payload = {
+        id: state.ui.editingPlayerId || uid("player"),
+        name: document.getElementById("playerName").value.trim(),
+        baseElo: Number(document.getElementById("playerElo").value || state.data.settings.defaultElo),
+        startingKills: Number(document.getElementById("playerKills").value || 0),
+        startingDeaths: Number(document.getElementById("playerDeaths").value || 0),
+        startingWins: Number(document.getElementById("playerWins").value || 0),
+        startingLosses: Number(document.getElementById("playerLosses").value || 0),
+        visibleInLeaderboard: document.getElementById("playerVisibility").value !== "hidden"
+      };
+      payload.startingMatches = payload.startingWins + payload.startingLosses;
+
+      if (!payload.name) return alert("Βάλε όνομα παίκτη.");
+      const duplicate = state.data.players.find(p => p.name.toLowerCase() === payload.name.toLowerCase() && p.id !== payload.id);
+      if (duplicate) return alert("Υπάρχει ήδη παίκτης με αυτό το όνομα.");
+
+      const idx = state.data.players.findIndex(p => p.id === payload.id);
+      if (idx >= 0) state.data.players[idx] = payload;
+      else state.data.players.push(payload);
+
+      await saveState();
+      resetPlayerForm();
+      renderAll();
+    }
+
+    function parseBulkPlayerImport(raw) {
+      const lines = String(raw || "")
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(Boolean);
+
+      if (!lines.length) {
+        return { entries: [], skippedHeader: false };
+      }
+
+      const entries = [];
+      let skippedHeader = false;
+
+      lines.forEach((line, index) => {
+        const parts = line.includes("\t")
+          ? line.split("\t")
+          : line.split(/[;,|]/);
+
+        if (parts.length < 2) {
+          throw new Error(`Γραμμή ${index + 1}: χρειάζονται 2 στήλες (USERNAME και Starting ELO).`);
+        }
+
+        const name = String(parts[0] || "").trim();
+        const eloRaw = String(parts[1] || "").trim().replace(",", ".");
+        const normalizedName = name.toLowerCase();
+        const normalizedElo = eloRaw.toLowerCase();
+
+        const looksLikeHeader = ["username", "user", "player", "όνομα", "ονομα", "παίκτης", "παικτης"].includes(normalizedName)
+          && ["starting elo", "elo", "base elo", "start elo", "startingelo"].includes(normalizedElo.replace(/\s+/g, " "));
+
+        if (looksLikeHeader) {
+          skippedHeader = true;
+          return;
+        }
+
+        if (!name) {
+          throw new Error(`Γραμμή ${index + 1}: λείπει το username.`);
+        }
+
+        const elo = Number(eloRaw);
+        if (!Number.isFinite(elo)) {
+          throw new Error(`Γραμμή ${index + 1}: το Starting ELO δεν είναι έγκυρος αριθμός.`);
+        }
+
+        entries.push({ name, baseElo: Math.round(elo) });
+      });
+
+      return { entries, skippedHeader };
+    }
+
+    async function bulkImportPlayers() {
+      if (!requireAdmin()) return;
+      const raw = document.getElementById("bulkImportPlayersInput").value;
+
+      try {
+        const { entries } = parseBulkPlayerImport(raw);
+        if (!entries.length) {
+          alert("Δεν βρέθηκαν γραμμές για import.");
+          return;
+        }
+
+        let created = 0;
+        let updated = 0;
+
+        entries.forEach(entry => {
+          const existing = state.data.players.find(p => p.name.toLowerCase() === entry.name.toLowerCase());
+          if (existing) {
+            existing.baseElo = entry.baseElo;
+            updated += 1;
+            return;
+          }
+
+          state.data.players.push({
+            id: uid("player"),
+            name: entry.name,
+            baseElo: entry.baseElo,
+            startingKills: 0,
+            startingDeaths: 0,
+            startingWins: 0,
+            startingLosses: 0,
+            startingMatches: 0,
+            visibleInLeaderboard: true
+          });
+          created += 1;
+        });
+
+        await saveState();
+        renderAll();
+        resetPlayerForm();
+        alert(`Το import ολοκληρώθηκε. Νέοι παίκτες: ${created} | Updates: ${updated}`);
+      } catch (err) {
+        alert(err.message || "Αποτυχία στο import παικτών.");
+      }
+    }
+
+    function editPlayer(id) {
+      if (!requireAdmin()) return;
+      const p = getPlayerById(id);
+      if (!p) return;
+      state.ui.editingPlayerId = id;
+      document.getElementById("playerName").value = p.name;
+      document.getElementById("playerElo").value = p.baseElo;
+      document.getElementById("playerKills").value = p.startingKills || 0;
+      document.getElementById("playerDeaths").value = p.startingDeaths || 0;
+      document.getElementById("playerWins").value = p.startingWins || 0;
+      document.getElementById("playerLosses").value = p.startingLosses || 0;
+      document.getElementById("playerVisibility").value = p.visibleInLeaderboard === false ? "hidden" : "visible";
+      setTab("players");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    async function deletePlayer(id) {
+      if (!requireAdmin()) return;
+      const inMatches = state.data.matches.some(m => [...m.teamA.players, ...m.teamB.players].some(p => p.playerId === id));
+      if (inMatches) {
+        alert("Ο παίκτης υπάρχει ήδη σε historical matches. Στο cloud version δεν επιτρέπεται delete αν χρησιμοποιείται ήδη σε match. Κρύψψτε τον από το leaderboard αν χρειάζεται.");
+        return;
+      }
+      if (!confirm("Να διαγραφεί ο παίκτης;")) return;
+      state.data.players = state.data.players.filter(p => p.id !== id);
+      await saveState();
+      renderAll();
+    }
+
+
+    async function togglePlayerVisibility(id) {
+      if (!requireAdmin()) return;
+      const player = getPlayerById(id);
+      if (!player) return;
+      player.visibleInLeaderboard = player.visibleInLeaderboard === false;
+      await saveState();
+      renderAll();
+    }
+
+    function exportJson() {
+      const blob = new Blob([JSON.stringify(state.data, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "mts-clan-data.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    async function importJson(file) {
+      if (!requireAdmin()) return;
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          if (!parsed.players || !parsed.matches || !parsed.settings) throw new Error("bad shape");
+          state.data = parsed;
+          await saveState();
+          renderAll();
+          alert("Το import ολοκληρώθηκε.");
+        } catch {
+          alert("Μη έγκυρο JSON αρχείο.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    async function saveSettings() {
+      if (!requireAdmin()) return;
+      state.data.settings.defaultElo = Number(document.getElementById("defaultEloSetting").value || 1000);
+      state.data.settings.kFactor = Number(document.getElementById("kFactorSetting").value || 24);
+      state.data.settings.eloWinLossWeight = Number(document.getElementById("eloWinLossWeightSetting").value || 5);
+      state.data.settings.eloKdWeight = Number(document.getElementById("eloKdWeightSetting").value || 5);
+      state.data.settings.eloOverallScale = Number(document.getElementById("eloOverallScaleSetting").value || 0.5);
+      await saveState();
+      renderAll();
+      alert("Τα settings αποθηκεύτηκαν.");
+    }
+
+    async function recalculateRankings() {
+      await saveState();
+      renderAll();
+      alert("Έγινε recalculate του ranking με τη φόρμουλα του Excel.");
+    }
+
+    async function seedDefaults() {
+      if (!requireAdmin()) return;
+      if (!confirm("Να γίνει επαναφορά του αρχικού roster από το αρχείο που έδωσες;")) return;
+      state.data.players = initialData().players;
+      await saveState();
+      renderAll();
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "").replace(/[&<>"']/g, s => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[s]));
+    }
+
+    function formatKd(val) {
+      return Number(val || 0).toFixed(2);
+    }
+
+    function formatElo(val) {
+      return String(Math.round(Number(val || 0)));
+    }
+
+    function renderSummary(derived) {
+      const visiblePlayersCount = state.data.players.filter(p => p.visibleInLeaderboard !== false).length;
+      const top10 = derived.visibleRanking.slice(0, 10);
+      const topTierKd = top10.length
+        ? (top10.reduce((sum, p) => sum + Number(p.kd || 0), 0) / top10.length)
+        : 0;
+      const stats = [
+        ["Players", visiblePlayersCount],
+        ["Matches", state.data.matches.length],
+        ["Top tier KD", formatKd(topTierKd)]
+      ];
+      document.getElementById("summaryStats").innerHTML = stats.map(([label, value]) => `
+        <div class="stat">
+          <div class="stat-label">${label}</div>
+          <div class="stat-value">${value}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderDashboard(derived) {
+      const recent = derived.matches.slice(-5).reverse();
+      document.getElementById("recentMatches").innerHTML = recent.length ? recent.map(m => `
+        <div class="team-score-box" style="margin-bottom:10px;">
+          <div>
+            <div><strong>${escapeHtml(m.teamA.name)}</strong> vs <strong>${escapeHtml(m.teamB.name)}</strong></div>
+            <div class="muted small">${escapeHtml(m.date || "")} • ${escapeHtml(m.map || "No map")} • ${escapeHtml(m.mode || "No mode")}</div>
+          </div>
+          <div class="score-big">${m.teamA.score} - ${m.teamB.score}</div>
+        </div>
+      `).join("") : `<div class="empty">Δεν υπάρχουν αγώνες ακόμα.</div>`;
+
+      document.getElementById("topElo").innerHTML = leaderboardMini(derived.visibleRanking.slice(0,10), "currentElo", x => x.currentElo);
+      document.getElementById("topKillers").innerHTML = leaderboardMini([...derived.visibleRanking].sort((a,b) => b.kills - a.kills).slice(0,10), "kills", x => x.kills);
+    }
+
+    function leaderboardMini(items, key, formatter) {
+      const podiumIcons = ["🥇", "🥈", "🥉"];
+      return items.map((p, idx) => {
+        const isPodium = key === "currentElo" && idx < 3;
+        const podiumClass = isPodium ? ` podium-card podium-rank-${idx + 1}` : "";
+        const titleHtml = isPodium
+          ? `<div><span class="podium-badge">${podiumIcons[idx]}</span><strong>${escapeHtml(p.name)}</strong></div>`
+          : `<div><strong>#${idx+1} ${escapeHtml(p.name)}</strong></div>`;
+
+        return `
+        <div class="team-score-box${podiumClass}" style="margin-bottom:10px;">
+          <div>
+            ${titleHtml}
+            <div class="muted small">#${idx+1} • KD ${formatKd(p.kd)} • W/L ${p.wins}/${p.losses}</div>
+          </div>
+          <div class="score-big" style="font-size:28px;">${key === "currentElo" ? formatElo(formatter(p)) : formatter(p)}</div>
+        </div>
+      `}).join("") || `<div class="empty">Δεν υπάρχουν δεδομένα.</div>`;
+    }
+
+    function renderLeaderboards(derived) {
+      const rankingMode = state.ui.rankingMode || "elo";
+      const rowsSource = rankingMode === "kd"
+        ? derived.visibleRankingByKd
+        : derived.visibleRanking;
+
+      document.getElementById("eloRankingBtn").classList.toggle("active", rankingMode === "elo");
+      document.getElementById("kdRankingBtn").classList.toggle("active", rankingMode === "kd");
+
+      document.getElementById("leaderboardTable").innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th>ELO</th>
+              <th>Kills</th>
+              <th>Deaths</th>
+              <th>KD</th>
+              <th>Wins</th>
+              <th>Losses</th>
+              <th>Matches</th>
+              <th>Win Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${
+              rowsSource.map(p => `
+                <tr>
+                  <td>#${rankingMode === "kd" ? p.kdRank : p.visibleRank}</td>
+                  <td><strong>${escapeHtml(p.name)}</strong></td>
+                  <td>${formatElo(p.currentElo)}</td>
+                  <td>${p.kills}</td>
+                  <td>${p.deaths}</td>
+                  <td>${formatKd(p.kd)}</td>
+                  <td>${p.wins}</td>
+                  <td>${p.losses}</td>
+                  <td>${p.matchesPlayed}</td>
+                  <td>${(p.winRate*100).toFixed(1)}%</td>
+                </tr>
+              `).join("")
+            }
+          </tbody>
+        </table>
+      `;
+
+      const select = document.getElementById("playerDrilldownSelect");
+      const current = select.value;
+      select.innerHTML = `<option value="">-- επίλεξε παίκτη --</option>` + state.data.players
+        .slice().sort((a,b)=>a.name.localeCompare(b.name))
+        .map(p => `<option value="${p.id}" ${p.id === current ? "selected" : ""}>${escapeHtml(p.name)}</option>`).join("");
+      if (!select.value && state.data.players[0]) select.value = state.data.players[0].id;
+      renderPlayerDrilldown(derived, select.value);
+    }
+
+    function renderPlayerDrilldown(derived, playerId) {
+      const player = derived.ranking.find(p => p.id === playerId);
+      const box = document.getElementById("playerDrilldown");
+      if (!player) {
+        box.innerHTML = `<div class="empty">Επίλεξε παίκτη.</div>`;
+        return;
+      }
+      const logs = derived.matches
+        .filter(m => [...m.teamA.players, ...m.teamB.players].some(x => x.playerId === playerId))
+        .reverse()
+        .map(m => {
+          const inA = m.teamA.players.find(x => x.playerId === playerId);
+          const row = inA || m.teamB.players.find(x => x.playerId === playerId);
+          const team = inA ? m.teamA : m.teamB;
+          const opp = inA ? m.teamB : m.teamA;
+          const win = Number(team.score) > Number(opp.score);
+          const loss = Number(team.score) < Number(opp.score);
+          return `
+            <tr>
+              <td>${escapeHtml(m.date || "")}</td>
+              <td>${escapeHtml(team.name)} vs ${escapeHtml(opp.name)}</td>
+              <td>${team.score} - ${opp.score}</td>
+              <td>${row.kills}</td>
+              <td>${row.deaths}</td>
+              <td class="${win ? "pill-win" : loss ? "pill-loss" : ""}">${win ? "Win" : loss ? "Loss" : "Draw"}</td>
+            </tr>
+          `;
+        }).join("");
+
+      box.innerHTML = `
+        <div class="grid-3">
+          <div class="stat"><div class="stat-label">Current ELO</div><div class="stat-value">${formatElo(player.currentElo)}</div></div>
+          <div class="stat"><div class="stat-label">KD</div><div class="stat-value">${formatKd(player.kd)}</div></div>
+          <div class="stat"><div class="stat-label">Win Rate</div><div class="stat-value">${(player.winRate*100).toFixed(1)}%</div></div>
+        </div>
+        <div style="margin-top:14px;">
+          <table>
+            <thead><tr><th>Date</th><th>Match</th><th>Score</th><th>K</th><th>D</th><th>Result</th></tr></thead>
+            <tbody>${logs || `<tr><td colspan="6">Δεν υπάρχουν match logs.</td></tr>`}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    
+    function renderMatches(derived) {
+      document.getElementById("matchesCountBadge").textContent = state.data.matches.length + " official matches";
+      const search = document.getElementById("globalSearch").value.trim().toLowerCase();
+
+      const filtered = derived.matches.slice().reverse().filter(m => {
+        if (!search) return true;
+        const sideText = (m.sides || []).map(side => {
+          return []
+            .concat(side.label || "", side.code || "",
+              (side.teamA && side.teamA.players ? side.teamA.players.map(x => getPlayerName(x.playerId)) : []),
+              (side.teamB && side.teamB.players ? side.teamB.players.map(x => getPlayerName(x.playerId)) : []))
+            .join(" ");
+        }).join(" ");
+
+        const hay = [
+          m.date, m.map, m.mode, m.notes, m.teamA.name, m.teamB.name,
+          ...m.teamA.players.map(x => getPlayerName(x.playerId)),
+          ...m.teamB.players.map(x => getPlayerName(x.playerId)),
+          sideText
+        ].join(" ").toLowerCase();
+        return hay.includes(search);
+      });
+
+      document.getElementById("matchesList").innerHTML = filtered.length ? filtered.map(m => `
+        <div class="card" style="margin-bottom:12px; padding:14px;">
+          <div class="split">
+            <div>
+              <div><strong>${escapeHtml(m.teamA.name)}</strong> vs <strong>${escapeHtml(m.teamB.name)}</strong></div>
+              <div class="muted small">${escapeHtml(m.date || "")} • ${escapeHtml(m.map || "No map")} • ${escapeHtml(m.mode || "No mode")}</div>
+              <div class="muted small">ELO πριν: ${m._derived?.teamAEloBefore != null ? formatElo(m._derived?.teamAEloBefore) : "-"} / ${m._derived?.teamBEloBefore != null ? formatElo(m._derived?.teamBEloBefore) : "-"} • ΔELO: ${formatElo(m._derived?.deltaA ?? 0)} / ${formatElo(m._derived?.deltaB ?? 0)}</div>
+            </div>
+            <div class="score-big">${m.teamA.score} - ${m.teamB.score}</div>
+          </div>
+          ${(m.sides || []).map((side, idx) => `
+            <div class="card" style="padding:12px; margin-top:12px;">
+              <div class="split">
+                <div>
+                  <strong>${escapeHtml(side.label || ("Side " + (idx + 1)))}</strong>
+                  ${(side.code || (m.importMeta && m.importMeta.sideCodes && m.importMeta.sideCodes[idx])) ? `<span class="badge">${escapeHtml(side.code || m.importMeta.sideCodes[idx])}</span>` : ""}
+                </div>
+                <div class="badge">${Number(side.teamA.score || 0)} - ${Number(side.teamB.score || 0)}</div>
+              </div>
+              <div class="grid-2" style="margin-top:10px;">
+                <div>
+                  <div class="badge">${escapeHtml((side.teamA && side.teamA.name) || m.teamA.name)}</div>
+                  <table>
+                    <thead><tr><th>Player</th><th>K</th><th>D</th></tr></thead>
+                    <tbody>${(side.teamA.players || []).map(r => `<tr><td>${escapeHtml(getPlayerName(r.playerId))}</td><td>${r.kills}</td><td>${r.deaths}</td></tr>`).join("") || `<tr><td colspan="3">Δεν υπάρχουν δεδομένα.</td></tr>`}</tbody>
+                  </table>
+                </div>
+                <div>
+                  <div class="badge">${escapeHtml((side.teamB && side.teamB.name) || m.teamB.name)}</div>
+                  <table>
+                    <thead><tr><th>Player</th><th>K</th><th>D</th></tr></thead>
+                    <tbody>${(side.teamB.players || []).map(r => `<tr><td>${escapeHtml(getPlayerName(r.playerId))}</td><td>${r.kills}</td><td>${r.deaths}</td></tr>`).join("") || `<tr><td colspan="3">Δεν υπάρχουν δεδομένα.</td></tr>`}</tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          `).join("")}
+          ${m.notes ? `<div class="footer-note">Notes: ${escapeHtml(m.notes)}</div>` : ""}
+          <div class="toolbar">
+            <button onclick="editMatch('${m.id}')">Edit</button>
+            <button onclick="importMatchStats('${m.id}')">Import Stats</button>
+            <button class="danger" onclick="deleteMatch('${m.id}')">Delete</button>
+          </div>
+        </div>
+      `).join("") : `<div class="empty">Δεν βρέθηκαν matches.</div>`;
+    }
+
+function renderPlayers(derived) {
+      document.getElementById("playersCountBadge").textContent = `${state.data.players.length} players`;
+      const rankingMap = new Map(derived.ranking.map(p => [p.id, p]));
+      const rows = state.data.players.slice().sort((a,b) => a.name.localeCompare(b.name)).map(p => {
+        const live = rankingMap.get(p.id);
+        const isVisible = p.visibleInLeaderboard !== false;
+        return `
+          <tr>
+            <td><strong>${escapeHtml(p.name)}</strong></td>
+            <td>${p.baseElo}</td>
+            <td>${formatElo(live?.currentElo ?? p.baseElo)}</td>
+            <td>${live?.kills ?? p.startingKills ?? 0}</td>
+            <td>${live?.deaths ?? p.startingDeaths ?? 0}</td>
+            <td>${formatKd(live?.kd ?? 0)}</td>
+            <td><span class="badge">${isVisible ? "Visible" : "Not Visible"}</span></td>
+            <td class="actions">
+              <button onclick="togglePlayerVisibility('${p.id}')">${isVisible ? "Hide" : "Show"}</button>
+              <button onclick="editPlayer('${p.id}')">Edit</button>
+              <button class="danger" onclick="deletePlayer('${p.id}')">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+      document.getElementById("playersTable").innerHTML = `
+        <table>
+          <thead>
+            <tr><th>Player</th><th>Base ELO</th><th>Current ELO</th><th>Kills</th><th>Deaths</th><th>KD</th><th>Leaderboard</th><th>Actions</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function renderSettings() {
+      document.getElementById("defaultEloSetting").value = state.data.settings.defaultElo;
+      document.getElementById("kFactorSetting").value = state.data.settings.kFactor;
+      document.getElementById("eloWinLossWeightSetting").value = state.data.settings.eloWinLossWeight;
+      document.getElementById("eloKdWeightSetting").value = state.data.settings.eloKdWeight;
+      document.getElementById("eloOverallScaleSetting").value = state.data.settings.eloOverallScale;
+      document.getElementById("settingsPreview").innerHTML = `
+        <div class="team-score-box" style="margin-top:12px;">
+          <div>
+            <div><strong>Τρέχον config</strong></div>
+            <div class="muted small">Default ELO: ${state.data.settings.defaultElo} • Win/Loss Weight: ${state.data.settings.eloWinLossWeight} • KD Weight: ${state.data.settings.eloKdWeight} • Overall Scale: ${state.data.settings.eloOverallScale}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAll() {
+      const derived = computeDerived();
+      renderSummary(derived);
+      renderDashboard(derived);
+      renderLeaderboards(derived);
+      renderMatches(derived);
+      renderPlayers(derived);
+      renderSettings();
+    }
+
+    document.querySelectorAll(".tab-btn[data-tab]").forEach(btn => btn.addEventListener("click", () => setTab(btn.dataset.tab)));
+    document.getElementById("addSide1PlayerA").addEventListener("click", () => { window.matchFormRows.side1.teamA.push(blankPlayerRow()); renderMatchFormRows(); });
+    document.getElementById("addSide1PlayerB").addEventListener("click", () => { window.matchFormRows.side1.teamB.push(blankPlayerRow()); renderMatchFormRows(); });
+    document.getElementById("addSide2PlayerA").addEventListener("click", () => { window.matchFormRows.side2.teamA.push(blankPlayerRow()); renderMatchFormRows(); });
+    document.getElementById("addSide2PlayerB").addEventListener("click", () => { window.matchFormRows.side2.teamB.push(blankPlayerRow()); renderMatchFormRows(); });
+    document.getElementById("saveMatchBtn").addEventListener("click", saveMatch);
+    document.getElementById("resetMatchForm").addEventListener("click", resetMatchForm);
+    document.getElementById("savePlayerBtn").addEventListener("click", savePlayer);
+    document.getElementById("resetPlayerForm").addEventListener("click", resetPlayerForm);
+    document.getElementById("bulkImportPlayersBtn").addEventListener("click", bulkImportPlayers);
+    document.getElementById("bulkImportSampleBtn").addEventListener("click", () => {
+      document.getElementById("bulkImportPlayersInput").value = "USERNAME	Starting ELO\nPlayerOne	1000\nPlayerTwo	1125\nPlayerThree	980";
+    });
+    document.getElementById("clearBulkImportBtn").addEventListener("click", () => {
+      document.getElementById("bulkImportPlayersInput").value = "";
+    });
+    document.getElementById("goToMatches").addEventListener("click", () => setTab("matches"));
+    document.getElementById("eloRankingBtn").addEventListener("click", () => {
+      state.ui.rankingMode = "elo";
+      renderLeaderboards(computeDerived());
+    });
+    document.getElementById("kdRankingBtn").addEventListener("click", () => {
+      state.ui.rankingMode = "kd";
+      renderLeaderboards(computeDerived());
+    });
+    document.getElementById("playerDrilldownSelect").addEventListener("change", (e) => renderPlayerDrilldown(computeDerived(), e.target.value));
+    document.getElementById("exportJsonBtn").addEventListener("click", exportJson);
+    document.getElementById("quickExport").addEventListener("click", exportJson);
+    document.getElementById("importJsonBtn").addEventListener("click", () => document.getElementById("importJsonFile").click());
+    document.getElementById("importJsonFile").addEventListener("change", (e) => {
+      if (e.target.files[0]) importJson(e.target.files[0]);
+      e.target.value = "";
+    });
+    document.getElementById("clearMatchesBtn").addEventListener("click", async () => {
+      if (!confirm("Να διαγραφούν όλα τα matches;")) return;
+      state.data.matches = [];
+      await saveState();
+      renderAll();
+    });
+    document.getElementById("resetAllBtn").addEventListener("click", async () => {
+      if (!confirm("Ολικό reset; Θα χαθούν players, matches και settings.")) return;
+      state.data = initialData();
+      await saveState();
+      resetMatchForm();
+      resetPlayerForm();
+      renderAll();
+    });
+    document.getElementById("seedDefaultsBtn").addEventListener("click", seedDefaults);
+    document.getElementById("saveSettingsBtn").addEventListener("click", saveSettings);
+    document.getElementById("recalculateBtn").addEventListener("click", recalculateRankings);
+
+    document.getElementById("bulkImportMatchesBtn").addEventListener("click", bulkImportMatches);
+    document.getElementById("bulkImportMatchesSampleBtn").addEventListener("click", () => {
+      document.getElementById("bulkImportMatchesInput").value = `M001	8/3/2026	MTS_JTxGR	MTS_Manos35	luckylouk96		zipfero0	einaifilosm	_WOLV3RIN2_CY		11	44
+M002	8/3/2026	MTS_JTxGR	MTS_Manos35	luckylouk96		zipfero0	einaifilosm	_WOLV3RIN2_CY		116	0`;
+    });
+    document.getElementById("clearBulkImportMatchesBtn").addEventListener("click", () => {
+      document.getElementById("bulkImportMatchesInput").value = "";
+    });
+
+    document.getElementById("globalSearch").addEventListener("input", () => renderMatches(computeDerived()));
+    ["side1TeamAScore","side1TeamBScore","side2TeamAScore","side2TeamBScore"].forEach(id => document.getElementById(id).addEventListener("input", updateOfficialScorePreview));
+    document.getElementById("openAdminLoginBtn").addEventListener("click", openAuthModal);
+    document.getElementById("closeAuthModalBtn").addEventListener("click", closeAuthModal);
+    document.getElementById("cancelAuthModalBtn").addEventListener("click", closeAuthModal);
+    document.getElementById("authModalBackdrop").addEventListener("click", (e) => {
+      if (e.target.id === "authModalBackdrop") closeAuthModal();
+    });
+    document.getElementById("adminPassword").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") signInAdmin();
+      if (e.key === "Escape") closeAuthModal();
+    });
+    document.getElementById("adminEmail").addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeAuthModal();
+    });
+    document.getElementById("adminLoginBtn").addEventListener("click", signInAdmin);
+    document.getElementById("adminLogoutBtn").addEventListener("click", signOutAdmin);
+
+    async function bootstrapApp() {
+      await validateStoredSession();
+      refreshAuthUi();
+      await loadState();
+      resetMatchForm();
+      resetPlayerForm();
+      renderAll();
+      setTab("dashboard");
+    }
+
+    bootstrapApp();
+
+    window.editMatch = editMatch;
+    window.importMatchStats = importMatchStats;
+    window.deleteMatch = deleteMatch;
+    window.editPlayer = editPlayer;
+    window.deletePlayer = deletePlayer;
+    window.togglePlayerVisibility = togglePlayerVisibility;
+  </script>
+</body>
+</html>
