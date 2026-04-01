@@ -96,6 +96,8 @@
     }
     .page { display: none; }
     .page.active { display: block; }
+    .admin-only-hidden { display: none !important; }
+    .matches-public-layout { grid-template-columns: 1fr !important; }
     .grid-2 { display: grid; gap: 18px; grid-template-columns: 1.08fr 1fr; }
     .grid-3 { display: grid; gap: 18px; grid-template-columns: repeat(3, 1fr); }
     .section-title { margin: 0 0 14px; font-size: 21px; font-weight: 800; }
@@ -257,8 +259,8 @@
         <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
         <button class="tab-btn" data-tab="leaderboards">Leaderboards</button>
         <button class="tab-btn" data-tab="matches">Matches</button>
-        <button class="tab-btn" data-tab="players">Players DB</button>
-        <button class="tab-btn" data-tab="settings">Settings / Data</button>
+        <button class="tab-btn" data-tab="players" id="playersTabBtn">Players DB</button>
+        <button class="tab-btn" data-tab="settings" id="settingsTabBtn">Settings / Data</button>
       </div>
       <div class="topbar-right">
         <input id="globalSearch" class="search-input" type="hidden" value="" />
@@ -307,8 +309,8 @@
     </section>
 
     <section id="matches" class="page">
-      <div class="grid-2">
-        <div class="card">
+      <div class="grid-2" id="matchesGrid">
+        <div class="card" id="matchesAdminCard">
           <div class="split">
             <h2 class="section-title">Καταχώριση / Επεξεργασία Official Match</h2>
             <span class="badge" id="editingBadge">Νέο official match</span>
@@ -440,7 +442,7 @@
           <div class="footer-note">Κάθε αποθήκευση ξαναϋπολογίζει αυτόματα όλο το leaderboard από την αρχή ώστε edits/deletes να μένουν σωστά.</div>
         </div>
 
-        <div class="card">
+        <div class="card" id="matchesHistoryCard">
           <div class="split">
             <h2 class="section-title">Ιστορικό Official Matches</h2>
             <span class="badge" id="matchesCountBadge"></span>
@@ -750,6 +752,25 @@
       }
     }
 
+    function refreshPublicUi() {
+      const loggedIn = isAdminLoggedIn();
+      const playersTabBtn = document.getElementById("playersTabBtn");
+      const settingsTabBtn = document.getElementById("settingsTabBtn");
+      const quickExportBtn = document.getElementById("quickExport");
+      const matchesAdminCard = document.getElementById("matchesAdminCard");
+      const matchesGrid = document.getElementById("matchesGrid");
+
+      if (playersTabBtn) playersTabBtn.style.display = loggedIn ? "inline-flex" : "none";
+      if (settingsTabBtn) settingsTabBtn.style.display = loggedIn ? "inline-flex" : "none";
+      if (quickExportBtn) quickExportBtn.style.display = loggedIn ? "inline-flex" : "none";
+      if (matchesAdminCard) matchesAdminCard.style.display = loggedIn ? "" : "none";
+      if (matchesGrid) matchesGrid.classList.toggle("matches-public-layout", !loggedIn);
+
+      if (!loggedIn && (state.ui.activeTab === "players" || state.ui.activeTab === "settings")) {
+        setTab("dashboard");
+      }
+    }
+
     async function signInAdmin() {
       const email = document.getElementById("adminEmail").value.trim();
       const password = document.getElementById("adminPassword").value;
@@ -782,6 +803,8 @@
         setSession({ access_token: data.access_token, refresh_token: data.refresh_token, user: data.user });
         document.getElementById("adminPassword").value = "";
         refreshAuthUi();
+        refreshPublicUi();
+        renderAll();
         alert("Έγινε admin login.");
       } catch (err) {
         alert(err.message || "Απέτυχε το login.");
@@ -791,6 +814,8 @@
     function signOutAdmin() {
       setSession(null);
       refreshAuthUi();
+      refreshPublicUi();
+      renderAll();
       alert("Έγινες logout.");
     }
 
@@ -2255,11 +2280,11 @@ function resetPlayerForm() {
             </div>
           `).join("")}
           ${m.notes ? `<div class="footer-note">Notes: ${escapeHtml(m.notes)}</div>` : ""}
-          <div class="toolbar">
+          ${isAdminLoggedIn() ? `<div class="toolbar">
             <button onclick="editMatch('${m.id}')">Edit</button>
             <button onclick="importMatchStats('${m.id}')">Import Stats</button>
             <button class="danger" onclick="deleteMatch('${m.id}')">Delete</button>
-          </div>
+          </div>` : ""}
         </div>
       `).join("") : `<div class="empty">Δεν βρέθηκαν matches.</div>`;
     }
@@ -2314,6 +2339,7 @@ function renderPlayers(derived) {
     }
 
     function renderAll() {
+      refreshPublicUi();
       const derived = computeDerived();
       renderSummary(derived);
       renderDashboard(derived);
@@ -2404,6 +2430,7 @@ M002	8/3/2026	MTS_JTxGR	MTS_Manos35	luckylouk96		zipfero0	einaifilosm	_WOLV3RIN2
     async function bootstrapApp() {
       await validateStoredSession();
       refreshAuthUi();
+      refreshPublicUi();
       await loadState();
       resetMatchForm();
       resetPlayerForm();
