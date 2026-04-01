@@ -250,6 +250,65 @@
     .admin-only { display: none; }
     .logged-in .admin-only { display: block; }
 
+    .ocr-panel {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+    }
+    .ocr-preview-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1fr 1fr;
+      margin-top: 12px;
+    }
+    .ocr-side-box {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,.03);
+    }
+    .ocr-side-box h4 {
+      margin: 0 0 10px;
+    }
+    .ocr-list {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+    .ocr-list li {
+      margin-bottom: 6px;
+    }
+    .ocr-warning-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(241,194,50,.45);
+      background: rgba(241,194,50,.08);
+    }
+    .ocr-danger-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,66,0,.45);
+      background: rgba(255,66,0,.08);
+    }
+    .ocr-preview-text {
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(0,0,0,.22);
+      margin-top: 12px;
+    }
+    .ocr-hidden {
+      display: none !important;
+    }
+
     @media (max-width: 1180px) {
       .hero, .grid-2, .grid-3, .team-grid, .form-grid { grid-template-columns: 1fr; }
       .stats { grid-template-columns: repeat(2, 1fr); }
@@ -442,10 +501,58 @@
           <div class="card" style="padding:14px; margin-top:12px;">
             <h3 style="margin-top:0;">Μαζικό Import Matches</h3>
             <p class="subtitle" style="margin-bottom:12px;">
-              Κάνε paste οριζόντια από Excel / Google Sheets. Το bulk import διαβάζει τις γραμμές <strong>ανά 2</strong>,
-              άρα <strong>2 γραμμές = 1 official match</strong>. Κάθε γραμμή έχει:
-              <strong>Match Code</strong>, <strong>Ημερομηνία</strong>, παίκτες Team A, κενές στήλες, παίκτες Team B, κενές στήλες, και στο τέλος <strong>Score A</strong> / <strong>Score B</strong>.
+              Κάνε paste οριζόντια από Excel / Google Sheets ή ανέβασε εικόνες scoreboard.
+              Το bulk import διαβάζει τις γραμμές <strong>ανά 2</strong>, άρα <strong>2 γραμμές = 1 official match</strong>.
             </p>
+
+            <div class="ocr-panel">
+              <div class="form-grid" style="grid-template-columns: 1fr 180px;">
+                <div>
+                  <label>Εικόνα / εικόνες scoreboard</label>
+                  <input id="bulkImportMatchesImageFiles" type="file" accept="image/*" multiple />
+                </div>
+                <div>
+                  <label>Ημερομηνία OCR import</label>
+                  <input id="bulkImportMatchesImageDate" type="date" />
+                </div>
+              </div>
+
+              <div class="toolbar">
+                <button class="primary" id="parseBulkImportImagesBtn" type="button">OCR Parse Images</button>
+                <button id="clearBulkImportImagesBtn" type="button">Καθαρισμός OCR</button>
+              </div>
+
+              <div class="footer-note">
+                Το OCR κρατάει μόνο παίκτες που υπάρχουν ήδη στο Player DB.
+                Άγνωστα ή μη ακριβή ονόματα εμφανίζονται σε warnings για manual διόρθωση.
+                Τα team names δεν διαβάζονται από την εικόνα.
+              </div>
+
+              <div id="ocrBulkImportPreviewWrap" class="ocr-hidden">
+                <div class="ocr-preview-grid">
+                  <div class="ocr-side-box">
+                    <h4>Side 1</h4>
+                    <div class="badge" id="ocrSide1ScoreBadge">0 - 0</div>
+                    <ul class="ocr-list" id="ocrSide1List"></ul>
+                  </div>
+                  <div class="ocr-side-box">
+                    <h4>Side 2</h4>
+                    <div class="badge" id="ocrSide2ScoreBadge">0 - 0</div>
+                    <ul class="ocr-list" id="ocrSide2List"></ul>
+                  </div>
+                </div>
+
+                <div id="ocrWarningsBox" class="ocr-warning-box ocr-hidden"></div>
+                <div id="ocrUnknownBox" class="ocr-danger-box ocr-hidden"></div>
+
+                <div class="toolbar">
+                  <button class="success" id="applyOcrToBulkTextareaBtn" type="button">Γέμισε το Bulk Import πεδίο</button>
+                </div>
+
+                <div id="ocrBulkImportPreviewText" class="ocr-preview-text"></div>
+              </div>
+            </div>
+
             <textarea id="bulkImportMatchesInput" placeholder="M001	8/3/2026	PlayerA1	PlayerA2		PlayerB1	PlayerB2		11	44&#10;M002	8/3/2026	PlayerA1	PlayerA2		PlayerB1	PlayerB2		116	0"></textarea>
             <div class="toolbar">
               <button class="primary" id="bulkImportMatchesBtn">Import Matches</button>
@@ -453,7 +560,6 @@
               <button id="clearBulkImportMatchesBtn">Καθαρισμός πεδίου</button>
             </div>
             <div class="footer-note">
-              Όλοι οι παίκτες του import πρέπει να υπάρχουν ήδη στη βάση παικτών.
               Το import διαβάζει τις γραμμές ανά 2 και τις μετράει ως 1 official match.
               Υποστηρίζει 6v6, 5v5, 4v4 κλπ, αρκεί κάθε side να έχει τουλάχιστον έναν παίκτη ανά ομάδα.
             </div>
@@ -647,6 +753,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script>
     const SUPABASE_URL = "https://nymuzjczsihvwwrysebf.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_rkO-husHLu-bUaR8XrNJpQ_aJp8aSdT";
@@ -661,7 +768,8 @@
         activeTab: "dashboard",
         editingMatchId: null,
         editingPlayerId: null,
-        rankingMode: "elo"
+        rankingMode: "elo",
+        ocrBulkPreview: null
       }
     };
 
@@ -1481,6 +1589,334 @@
         return "Βάλε ημερομηνία αγώνα.";
       }
       return null;
+    }
+
+function normalizePlayerNameForCompare(value) {
+      return String(value || "")
+        .toLowerCase()
+        .trim()
+        .replace(/[_\-\.]+/g, "")
+        .replace(/\s+/g, "")
+        .replace(/[|]/g, "i");
+    }
+
+    function levenshtein(a, b) {
+      const s = String(a || "");
+      const t = String(b || "");
+      const dp = Array.from({ length: s.length + 1 }, () => Array(t.length + 1).fill(0));
+      for (let i = 0; i <= s.length; i++) dp[i][0] = i;
+      for (let j = 0; j <= t.length; j++) dp[0][j] = j;
+      for (let i = 1; i <= s.length; i++) {
+        for (let j = 1; j <= t.length; j++) {
+          const cost = s[i - 1] === t[j - 1] ? 0 : 1;
+          dp[i][j] = Math.min(
+            dp[i - 1][j] + 1,
+            dp[i][j - 1] + 1,
+            dp[i - 1][j - 1] + cost
+          );
+        }
+      }
+      return dp[s.length][t.length];
+    }
+
+    function findPlayerMatchFromDb(rawName) {
+      const original = String(rawName || "").trim();
+      if (!original) return { status: "unknown", rawName: original, matchedPlayer: null, suggestions: [] };
+
+      const exact = state.data.players.find(p => p.name.toLowerCase() === original.toLowerCase());
+      if (exact) return { status: "exact", rawName: original, matchedPlayer: exact, suggestions: [] };
+
+      const normalized = normalizePlayerNameForCompare(original);
+      const normalizedExact = state.data.players.find(p => normalizePlayerNameForCompare(p.name) === normalized);
+      if (normalizedExact) {
+        return { status: "possible", rawName: original, matchedPlayer: normalizedExact, suggestions: [normalizedExact.name] };
+      }
+
+      const ranked = state.data.players.map(p => {
+        const target = normalizePlayerNameForCompare(p.name);
+        const dist = levenshtein(normalized, target);
+        const maxLen = Math.max(normalized.length, target.length, 1);
+        return { player: p, ratio: 1 - (dist / maxLen) };
+      }).sort((a, b) => b.ratio - a.ratio);
+
+      if (ranked[0] && ranked[0].ratio >= 0.72) {
+        return {
+          status: "possible",
+          rawName: original,
+          matchedPlayer: ranked[0].player,
+          suggestions: ranked.slice(0, 3).map(x => x.player.name)
+        };
+      }
+
+      return {
+        status: "unknown",
+        rawName: original,
+        matchedPlayer: null,
+        suggestions: ranked.slice(0, 3).map(x => x.player.name)
+      };
+    }
+
+    function cleanOcrLine(line) {
+      return String(line || "")
+        .replace(/[“”]/g, '"')
+        .replace(/[‘’]/g, "'")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function extractScoreFromOcrText(text) {
+      const compact = String(text || "").replace(/\s+/g, " ").trim();
+      let match = compact.match(/FINAL\s*SCORE[\s:]*([0-9]{1,3})\s*[-–—_]\s*([0-9]{1,3})/i);
+      if (match) return { left: Number(match[1]), right: Number(match[2]) };
+
+      match = compact.match(/([0-9]{1,3})\s*[-–—_]\s*([0-9]{1,3})/);
+      if (match) return { left: Number(match[1]), right: Number(match[2]) };
+
+      const nums = compact.match(/\d{1,3}/g) || [];
+      if (nums.length >= 2) return { left: Number(nums[0]), right: Number(nums[1]) };
+      return { left: 0, right: 0 };
+    }
+
+    function parseRowFragment(fragment) {
+      const line = cleanOcrLine(fragment);
+      if (!line) return null;
+      const low = line.toLowerCase();
+      if (low.includes("player") && low.includes("kills") && low.includes("deaths")) return null;
+      if (low.includes("final score")) return null;
+      const m = line.match(/^(.*?)(\d+)\s+(\d+)\s+(\d+)$/);
+      if (!m) return null;
+      const rawName = cleanOcrLine(m[1]);
+      if (!rawName || rawName.length < 2) return null;
+      return {
+        rawName,
+        score: Number(m[2] || 0),
+        kills: Number(m[3] || 0),
+        deaths: Number(m[4] || 0)
+      };
+    }
+
+    function parseScoreboardOcrText(text) {
+      const score = extractScoreFromOcrText(text);
+      const normalizedText = String(text || "")
+        .replace(/\r/g, "\n")
+        .replace(/[\t]+/g, " ")
+        .replace(/Player\s+Score\s+Kills\s+Deaths/gi, "\nHEADER\n")
+        .replace(/FINAL\s*SCORE/gi, "\nFINAL SCORE\n");
+
+      let fragments = normalizedText.split(/\n+/).map(cleanOcrLine).filter(Boolean);
+      let rows = fragments.map(parseRowFragment).filter(Boolean);
+
+      if (!rows.length) {
+        const fallback = normalizedText
+          .replace(/HEADER/g, "\n")
+          .replace(/FINAL SCORE/gi, "\n")
+          .split(/(?=[A-Za-z_])/)
+          .map(cleanOcrLine)
+          .filter(Boolean);
+        rows = fallback.map(parseRowFragment).filter(Boolean);
+      }
+
+      const half = Math.ceil(rows.length / 2);
+      return {
+        scoreLeft: score.left,
+        scoreRight: score.right,
+        leftRows: rows.slice(0, half),
+        rightRows: rows.slice(half)
+      };
+    }
+
+    function mapOcrRowsToDb(rows) {
+      const keptRows = [];
+      const warnings = [];
+      const unknowns = [];
+
+      for (const row of (rows || [])) {
+        const match = findPlayerMatchFromDb(row.rawName);
+        if (match.status === "exact") {
+          keptRows.push({
+            playerId: match.matchedPlayer.id,
+            playerName: match.matchedPlayer.name,
+            kills: Number(row.kills || 0),
+            deaths: Number(row.deaths || 0)
+          });
+          continue;
+        }
+        if (match.status === "possible") {
+          warnings.push({ rawName: row.rawName, suggested: match.matchedPlayer ? match.matchedPlayer.name : "", suggestions: match.suggestions || [] });
+          if (match.matchedPlayer) {
+            keptRows.push({
+              playerId: match.matchedPlayer.id,
+              playerName: match.matchedPlayer.name,
+              kills: Number(row.kills || 0),
+              deaths: Number(row.deaths || 0)
+            });
+          }
+          continue;
+        }
+        unknowns.push({ rawName: row.rawName, suggestions: match.suggestions || [] });
+      }
+
+      const uniqueMap = new Map();
+      keptRows.forEach(row => {
+        if (!uniqueMap.has(row.playerId)) uniqueMap.set(row.playerId, { ...row });
+        else {
+          const existing = uniqueMap.get(row.playerId);
+          existing.kills += Number(row.kills || 0);
+          existing.deaths += Number(row.deaths || 0);
+        }
+      });
+
+      return { rows: Array.from(uniqueMap.values()), warnings, unknowns };
+    }
+
+    function buildBulkImportLineFromOcr({ code, dateRaw, sideScoreA, sideScoreB, teamARows, teamBRows }) {
+      const namesA = (teamARows || []).map(x => x.playerName);
+      const namesB = (teamBRows || []).map(x => x.playerName);
+      return [code, dateRaw, ...namesA, "", ...namesB, "", String(sideScoreA), String(sideScoreB)].join("	");
+    }
+
+    function renderOcrBulkPreview(preview) {
+      const wrap = document.getElementById("ocrBulkImportPreviewWrap");
+      const side1List = document.getElementById("ocrSide1List");
+      const side2List = document.getElementById("ocrSide2List");
+      const side1Score = document.getElementById("ocrSide1ScoreBadge");
+      const side2Score = document.getElementById("ocrSide2ScoreBadge");
+      const warningsBox = document.getElementById("ocrWarningsBox");
+      const unknownBox = document.getElementById("ocrUnknownBox");
+      const previewText = document.getElementById("ocrBulkImportPreviewText");
+
+      wrap.classList.remove("ocr-hidden");
+      const firstPair = (preview.pairs && preview.pairs[0]) || null;
+      if (!firstPair) return;
+
+      side1Score.textContent = `${firstPair.side1.scoreA} - ${firstPair.side1.scoreB}`;
+      side2Score.textContent = `${firstPair.side2.scoreA} - ${firstPair.side2.scoreB}`;
+
+      side1List.innerHTML = [
+        ...firstPair.side1.teamA.map(x => `<li>A: ${escapeHtml(x.playerName)} — ${x.kills}/${x.deaths}</li>`),
+        ...firstPair.side1.teamB.map(x => `<li>B: ${escapeHtml(x.playerName)} — ${x.kills}/${x.deaths}</li>`)
+      ].join("") || '<li>Δεν βρέθηκαν παίκτες από το DB.</li>';
+
+      side2List.innerHTML = [
+        ...firstPair.side2.teamA.map(x => `<li>A: ${escapeHtml(x.playerName)} — ${x.kills}/${x.deaths}</li>`),
+        ...firstPair.side2.teamB.map(x => `<li>B: ${escapeHtml(x.playerName)} — ${x.kills}/${x.deaths}</li>`)
+      ].join("") || '<li>Δεν βρέθηκαν παίκτες από το DB.</li>';
+
+      const warnings = preview.warnings || [];
+      if (warnings.length) {
+        warningsBox.classList.remove("ocr-hidden");
+        warningsBox.innerHTML = `<strong>Πιθανές διορθώσεις ονομάτων</strong><ul class="ocr-list">${warnings.map(w => `<li>${escapeHtml(w.rawName)} → ${escapeHtml(w.suggested || "-")}${w.suggestions && w.suggestions.length ? ` (πιθανά: ${escapeHtml(w.suggestions.join(", "))})` : ""}</li>`).join("")}</ul>`;
+      } else {
+        warningsBox.classList.add("ocr-hidden");
+        warningsBox.innerHTML = "";
+      }
+
+      const unknowns = preview.unknowns || [];
+      if (unknowns.length) {
+        unknownBox.classList.remove("ocr-hidden");
+        unknownBox.innerHTML = `<strong>Παίκτες εκτός DB ή χωρίς ασφαλές match</strong><ul class="ocr-list">${unknowns.map(u => `<li>${escapeHtml(u.rawName)}${u.suggestions && u.suggestions.length ? ` (πιθανά: ${escapeHtml(u.suggestions.join(", "))})` : ""}</li>`).join("")}</ul>`;
+      } else {
+        unknownBox.classList.add("ocr-hidden");
+        unknownBox.innerHTML = "";
+      }
+
+      previewText.textContent = preview.bulkText || "";
+    }
+
+    function clearOcrBulkPreview() {
+      state.ui.ocrBulkPreview = null;
+      document.getElementById("bulkImportMatchesImageFiles").value = "";
+      document.getElementById("ocrBulkImportPreviewWrap").classList.add("ocr-hidden");
+      document.getElementById("ocrSide1List").innerHTML = "";
+      document.getElementById("ocrSide2List").innerHTML = "";
+      document.getElementById("ocrWarningsBox").innerHTML = "";
+      document.getElementById("ocrUnknownBox").innerHTML = "";
+      document.getElementById("ocrWarningsBox").classList.add("ocr-hidden");
+      document.getElementById("ocrUnknownBox").classList.add("ocr-hidden");
+      document.getElementById("ocrBulkImportPreviewText").textContent = "";
+    }
+
+    async function runOcrOnImageFile(file) {
+      const result = await Tesseract.recognize(file, "eng", { logger: () => {} });
+      return result && result.data && result.data.text ? result.data.text : "";
+    }
+
+    async function parseBulkImportImages() {
+      if (!requireAdmin()) return;
+      const files = Array.from(document.getElementById("bulkImportMatchesImageFiles").files || []);
+      const dateInput = document.getElementById("bulkImportMatchesImageDate").value || new Date().toISOString().slice(0, 10);
+      if (!files.length) {
+        alert("Διάλεξε τουλάχιστον 2 εικόνες.");
+        return;
+      }
+      if (files.length % 2 !== 0) {
+        alert("Το OCR import θέλει ζυγό αριθμό εικόνων. Κάθε 2 εικόνες = 1 official match.");
+        return;
+      }
+
+      const pairs = [];
+      const warnings = [];
+      const unknowns = [];
+      const allLines = [];
+
+      try {
+        for (let i = 0; i < files.length; i += 2) {
+          const pairNumber = (i / 2) + 1;
+          const text1 = await runOcrOnImageFile(files[i]);
+          const text2 = await runOcrOnImageFile(files[i + 1]);
+
+          const parsed1 = parseScoreboardOcrText(text1);
+          const parsed2 = parseScoreboardOcrText(text2);
+
+          const left1 = mapOcrRowsToDb(parsed1.leftRows);
+          const right1 = mapOcrRowsToDb(parsed1.rightRows);
+          const left2 = mapOcrRowsToDb(parsed2.leftRows);
+          const right2 = mapOcrRowsToDb(parsed2.rightRows);
+
+          warnings.push(...left1.warnings, ...right1.warnings, ...left2.warnings, ...right2.warnings);
+          unknowns.push(...left1.unknowns, ...right1.unknowns, ...left2.unknowns, ...right2.unknowns);
+
+          const side1 = {
+            scoreA: Number(parsed1.scoreLeft || 0),
+            scoreB: Number(parsed1.scoreRight || 0),
+            teamA: left1.rows,
+            teamB: right1.rows
+          };
+          const side2 = {
+            scoreA: Number(parsed2.scoreLeft || 0),
+            scoreB: Number(parsed2.scoreRight || 0),
+            teamA: left2.rows,
+            teamB: right2.rows
+          };
+
+          const line1 = buildBulkImportLineFromOcr({
+            code: `OCR${String(pairNumber).padStart(3, "0")}A`,
+            dateRaw: `${new Date(dateInput).getDate()}/${new Date(dateInput).getMonth() + 1}/${new Date(dateInput).getFullYear()}`,
+            sideScoreA: side1.scoreA,
+            sideScoreB: side1.scoreB,
+            teamARows: side1.teamA,
+            teamBRows: side1.teamB
+          });
+
+          const line2 = buildBulkImportLineFromOcr({
+            code: `OCR${String(pairNumber).padStart(3, "0")}B`,
+            dateRaw: `${new Date(dateInput).getDate()}/${new Date(dateInput).getMonth() + 1}/${new Date(dateInput).getFullYear()}`,
+            sideScoreA: side2.scoreA,
+            sideScoreB: side2.scoreB,
+            teamARows: side2.teamA,
+            teamBRows: side2.teamB
+          });
+
+          allLines.push(line1, line2);
+          pairs.push({ side1, side2 });
+        }
+
+        const preview = { pairs, warnings, unknowns, bulkText: allLines.join("\n") };
+        state.ui.ocrBulkPreview = preview;
+        renderOcrBulkPreview(preview);
+      } catch (err) {
+        alert(err.message || "Απέτυχε το OCR parse.");
+      }
     }
 
 async function bulkImportMatches() {
@@ -2506,6 +2942,16 @@ M002	8/3/2026	MTS_JTxGR	MTS_Manos35	luckylouk96		zipfero0	einaifilosm	_WOLV3RIN2
     document.getElementById("clearBulkImportMatchesBtn").addEventListener("click", () => {
       document.getElementById("bulkImportMatchesInput").value = "";
     });
+    document.getElementById("parseBulkImportImagesBtn").addEventListener("click", parseBulkImportImages);
+    document.getElementById("clearBulkImportImagesBtn").addEventListener("click", clearOcrBulkPreview);
+    document.getElementById("applyOcrToBulkTextareaBtn").addEventListener("click", () => {
+      if (!state.ui.ocrBulkPreview || !state.ui.ocrBulkPreview.bulkText) {
+        alert("Δεν υπάρχει OCR preview για μεταφορά.");
+        return;
+      }
+      document.getElementById("bulkImportMatchesInput").value = state.ui.ocrBulkPreview.bulkText;
+      alert("Το OCR preview μεταφέρθηκε στο Bulk Import πεδίο.");
+    });
 
     document.getElementById("globalSearch").addEventListener("input", () => renderMatches(computeDerived()));
     ["side1TeamAScore","side1TeamBScore","side2TeamAScore","side2TeamBScore"].forEach(id => document.getElementById(id).addEventListener("input", updateOfficialScorePreview));
@@ -2532,6 +2978,8 @@ M002	8/3/2026	MTS_JTxGR	MTS_Manos35	luckylouk96		zipfero0	einaifilosm	_WOLV3RIN2
       await loadState();
       resetMatchForm();
       resetPlayerForm();
+      const ocrDateInput = document.getElementById("bulkImportMatchesImageDate");
+      if (ocrDateInput) ocrDateInput.value = new Date().toISOString().slice(0, 10);
       renderAll();
       setTab("dashboard");
     }
