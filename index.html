@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MTS Clan Ranking v15.6</title>
+  <title>MTS Clan Ranking v15.7</title>
   <style>
     :root {
       --bg: #000000;
@@ -324,7 +324,7 @@
   <div class="container">
     <div class="hero">
       <div class="card">
-        <div class="badge" id="versionBadge">MTS Clan Website version 15.6</div>
+        <div class="badge" id="versionBadge">MTS Clan Website version 15.7</div>
         <h1 class="title">MTS Clan Ranking</h1>
       </div>
       <div class="card">
@@ -757,9 +757,11 @@
   <script>
     const SUPABASE_URL = "https://nymuzjczsihvwwrysebf.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_rkO-husHLu-bUaR8XrNJpQ_aJp8aSdT";
-    const ADMIN_USER_ID = "79fa115c-8f91-4262-bf18-3d048cd1b33c";
+    const ADMIN_USER_IDS = [
+      "79fa115c-8f91-4262-bf18-3d048cd1b33c"
+    ];
     const SESSION_STORAGE_KEY = "mts_supabase_admin_session_v1";
-    const APP_VERSION = "15.6";
+    const APP_VERSION = "15.7";
     const defaultSeedPlayers = [];
 
     const state = {
@@ -873,7 +875,7 @@
 
     function isAdminLoggedIn() {
       const session = getSession();
-      return !!(session && session.user && session.user.id === ADMIN_USER_ID);
+      return !!(session && session.user && ADMIN_USER_IDS.includes(session.user.id));
     }
 
     function openAuthModal() {
@@ -954,7 +956,7 @@
           return json;
         });
 
-        if (!data.user || data.user.id !== ADMIN_USER_ID) {
+        if (!data.user || !ADMIN_USER_IDS.includes(data.user.id)) {
           setSession(null);
           refreshAuthUi();
           throw new Error("Αυτός ο λογαριασμός δεν έχει admin δικαιώματα.");
