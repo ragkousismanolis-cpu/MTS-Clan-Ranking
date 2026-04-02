@@ -1255,7 +1255,7 @@
       if (state.data.settings.eloOverallScale == null) state.data.settings.eloOverallScale = 0.5;
       if (state.data.settings.knownIssues == null) state.data.settings.knownIssues = initialData().settings.knownIssues;
       if (state.data.settings.howRankingWorks == null) state.data.settings.howRankingWorks = initialData().settings.howRankingWorks;
-      if (state.data.settings.liveVersion == null) state.data.settings.liveVersion = APP_VERSION;
+      state.data.settings.liveVersion = APP_VERSION;
       if (!Array.isArray(state.data.players)) state.data.players = [];
       if (!Array.isArray(state.data.matches)) state.data.matches = [];
 
