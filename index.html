@@ -7,17 +7,17 @@
   <title>MTS Clan Ranking v15.7</title>
   <style>
     :root {
-      --bg: #000000;
-      --panel: #0c0c0c;
-      --panel-2: #151515;
-      --text: #f7f7f7;
-      --muted: #cfcfcf;
-      --accent: #ff4200;
-      --accent-2: #f1c232;
-      --danger: #ff4200;
-      --warning: #f1c232;
-      --border: rgba(255,255,255,.12);
-      --chip: rgba(255,255,255,.05);
+      --bg: #03050b;
+      --panel: #0b0f1c;
+      --panel-2: #101628;
+      --text: #f4f6fb;
+      --muted: #b7bfd2;
+      --accent: #6b4dff;
+      --accent-2: #3b82f6;
+      --danger: #7c3aed;
+      --warning: #60a5fa;
+      --border: rgba(255,255,255,.10);
+      --chip: rgba(255,255,255,.04);
       --shadow: 0 18px 38px rgba(0,0,0,.38);
     }
     * { box-sizing: border-box; }
@@ -25,7 +25,7 @@
       margin: 0;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
-      background: #000;
+      background: radial-gradient(circle at top, rgba(74,37,166,.24), transparent 28%), #03050b;
       min-height: 100vh;
     }
     .container { max-width: 1500px; margin: 0 auto; padding: 24px; }
@@ -34,7 +34,7 @@
       margin-bottom: 20px;
     }
     .card {
-      background: linear-gradient(180deg, rgba(255,66,0,.10), rgba(255,255,255,.02));
+      background: linear-gradient(180deg, rgba(12,18,36,.94), rgba(7,10,20,.94));
       border: 1px solid var(--border);
       border-radius: 22px;
       box-shadow: var(--shadow);
@@ -69,26 +69,26 @@
       padding: 11px 14px; cursor: pointer; font-weight: 700;
     }
     .tab-btn.active {
-      background: linear-gradient(180deg, rgba(255,66,0,.36), rgba(255,66,0,.16));
-      border-color: rgba(255,66,0,.55);
-      box-shadow: 0 0 0 1px rgba(255,66,0,.18) inset;
+      background: linear-gradient(180deg, rgba(78,56,189,.65), rgba(25,45,95,.78));
+      border-color: rgba(117,132,255,.55);
+      box-shadow: 0 0 0 1px rgba(122,103,255,.20) inset;
     }
     button {
       cursor: pointer; padding: 10px 14px; font-weight: 700;
       background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
     }
     button.primary {
-      background: linear-gradient(180deg, rgba(255,66,0,.45), rgba(255,66,0,.22));
-      border-color: rgba(255,66,0,.65);
+      background: linear-gradient(180deg, rgba(87,64,255,.88), rgba(34,51,120,.92));
+      border-color: rgba(129,141,255,.48);
     }
     button.success {
-      background: linear-gradient(180deg, rgba(241,194,50,.40), rgba(241,194,50,.18));
-      border-color: rgba(241,194,50,.65);
-      color: #171717;
+      background: linear-gradient(180deg, rgba(59,130,246,.70), rgba(67,56,202,.78));
+      border-color: rgba(96,165,250,.42);
+      color: #f6f8ff;
     }
     button.danger {
-      background: linear-gradient(180deg, rgba(255,66,0,.48), rgba(255,66,0,.22));
-      border-color: rgba(255,66,0,.65);
+      background: linear-gradient(180deg, rgba(91,65,188,.82), rgba(45,26,91,.86));
+      border-color: rgba(129,141,255,.48);
     }
     button.ghost {
       background: transparent;
@@ -326,12 +326,12 @@
     }
 
     .panel-accent {
-      border-color: rgba(255,66,0,.35);
-      background: linear-gradient(180deg, rgba(255,66,0,.10), rgba(255,255,255,.02));
+      border-color: rgba(107,77,255,.24);
+      background: linear-gradient(180deg, rgba(12,18,36,.94), rgba(7,10,20,.94));
     }
     .gold-card {
-      border-color: rgba(241,194,50,.35);
-      background: linear-gradient(180deg, rgba(241,194,50,.10), rgba(255,255,255,.02));
+      border-color: rgba(96,165,250,.22);
+      background: linear-gradient(180deg, rgba(16,24,46,.96), rgba(9,12,24,.96));
     }
     .content-block {
       padding: 16px 18px;
@@ -378,15 +378,15 @@
       margin-top: 12px;
       padding: 12px;
       border-radius: 14px;
-      border: 1px solid rgba(241,194,50,.45);
-      background: rgba(241,194,50,.08);
+      border: 1px solid rgba(96,165,250,.30);
+      background: rgba(96,165,250,.08);
     }
     .ocr-danger-box {
       margin-top: 12px;
       padding: 12px;
       border-radius: 14px;
-      border: 1px solid rgba(255,66,0,.45);
-      background: rgba(255,66,0,.08);
+      border: 1px solid rgba(107,77,255,.30);
+      background: rgba(107,77,255,.08);
     }
     .ocr-preview-text {
       white-space: pre-wrap;
@@ -425,6 +425,77 @@
       .hero-logo-large { width: min(300px, 82vw); }
       .main-nav .tabs { width: 100%; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
     }
+  </style>
+
+  <style>
+    .card,
+    .team-score-box,
+    .content-block,
+    .ocr-panel,
+    .ocr-side-box,
+    .ocr-preview-text,
+    .auth-modal {
+      background-image:
+        linear-gradient(180deg, rgba(11,15,28,.96), rgba(7,10,20,.96)),
+        radial-gradient(circle at top right, rgba(99,102,241,.18), transparent 32%),
+        radial-gradient(circle at bottom left, rgba(59,130,246,.10), transparent 28%);
+      background-blend-mode: normal, screen, screen;
+    }
+
+    .podium-rank-1,
+    .podium-rank-2,
+    .podium-rank-3 {
+      background: linear-gradient(180deg, rgba(17,24,39,.96), rgba(12,18,36,.96)) !important;
+      border-color: rgba(129,141,255,.24) !important;
+      box-shadow: 0 8px 22px rgba(49,46,129,.12) !important;
+    }
+
+    .tab-btn,
+    button,
+    select,
+    input,
+    textarea {
+      background-color: rgba(9,14,27,.92);
+    }
+
+    .tab-btn:not(.active):hover,
+    button:not(.primary):not(.success):not(.danger):hover {
+      border-color: rgba(129,141,255,.28);
+      background: linear-gradient(180deg, rgba(22,28,48,.95), rgba(10,14,26,.95));
+    }
+
+    table tbody tr td {
+      background:
+        linear-gradient(90deg, rgba(11,16,30,.96), rgba(16,22,42,.94) 52%, rgba(31,20,52,.82)) !important;
+      border-top: 1px solid rgba(99,102,241,.18) !important;
+      border-bottom: 1px solid rgba(59,130,246,.12) !important;
+    }
+
+    table tbody tr:hover td {
+      background:
+        linear-gradient(90deg, rgba(15,20,38,.99), rgba(22,28,54,.97) 52%, rgba(43,24,71,.88)) !important;
+    }
+
+    #recentMatches .card,
+    #topElo .card,
+    #topKillers .card,
+    #matchesList .card,
+    #playerDrilldown .card {
+      background-image:
+        linear-gradient(180deg, rgba(12,16,30,.96), rgba(8,10,20,.96)),
+        radial-gradient(circle at right center, rgba(109,40,217,.12), transparent 28%);
+    }
+
+    .pill-win { color: #93c5fd; }
+    .pill-loss { color: #c4b5fd; }
+    .badge {
+      background: linear-gradient(180deg, rgba(15,20,35,.90), rgba(10,13,24,.90));
+      border-color: rgba(129,141,255,.20);
+      color: #d5dbeb;
+    }
+    .section-title,
+    .title,
+    h1,h2,h3,h4 { color: #f7f9ff; }
   </style>
 </head>
 <body>
