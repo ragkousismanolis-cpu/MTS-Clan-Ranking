@@ -51,7 +51,7 @@
       border-radius: 18px;
     }
     .stat-label { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
-    .stat-value { font-size: 28px; font-weight: 800; }
+    .stat-value { font-size: 28px; font-weight: 800; text-align: center; width: 100%; }
     .toolbar {
       display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 18px 0 20px;
     }
@@ -184,17 +184,6 @@
     .brand-subtitle { font-size: 11px; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
     .header-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .header-actions .badge { white-space: nowrap; }
-    .header-nav { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-left: 14px; }
-    .header-nav .tab-btn {
-      padding: 9px 12px; border-radius: 999px; background: rgba(255,255,255,.04);
-      border-color: rgba(255,255,255,.10); font-size: 13px;
-    }
-    .header-nav .tab-btn.active {
-      background: linear-gradient(180deg, rgba(255,66,0,.32), rgba(114,82,255,.18));
-      border-color: rgba(255,255,255,.18);
-      box-shadow: 0 0 0 1px rgba(255,255,255,.06) inset;
-    }
-    .header-nav .tab-btn[data-tab="dashboard"] { display:none !important; }
     .hero {
       position: relative; overflow: hidden; min-height: 235px; margin-bottom: 12px;
       display:flex; align-items:flex-end; justify-content:center;
@@ -218,14 +207,14 @@
       opacity:.95;
       pointer-events:none;
     }
-    .hero-content { position:relative; z-index:1; width:100%; display:flex; flex-direction:column; align-items:center; gap:16px; }
-    .hero-logo-large { width:min(420px, 62vw); height:auto; display:block; filter: drop-shadow(0 10px 24px rgba(0,0,0,.45)); }
-    .hero-summary { width:100%; max-width: 940px; padding: 12px 14px; background: rgba(6,8,16,.48); border:1px solid rgba(255,255,255,.10); border-radius: 20px; backdrop-filter: blur(8px); }
+    .hero-content { position:relative; z-index:1; width:100%; min-height: 100%; display:flex; align-items:center; justify-content:space-between; gap:28px; padding: 26px 32px 18px; }
+    .hero-logo-large { width:min(360px, 34vw); max-width:100%; height:auto; display:block; filter: drop-shadow(0 10px 24px rgba(0,0,0,.45)); flex: 0 0 auto; }
+    .hero-summary { width:min(720px, 100%); margin-left:auto; padding: 12px 14px; background: rgba(6,8,16,.48); border:1px solid rgba(255,255,255,.10); border-radius: 20px; backdrop-filter: blur(8px); }
     .hero-summary .stats { grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .hero-summary .stat { background: rgba(255,255,255,.04); border-radius: 14px; padding: 12px 14px; }
     .hero-summary .stat-value { font-size: 24px; }
     #versionBadge { display:none; }
-    .main-nav { display:none !important; }
+    .main-nav { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
     .main-nav .tabs { gap:8px; }
     .main-nav .tab-btn {
       padding: 10px 14px; border-radius: 999px; background: rgba(255,255,255,.04);
@@ -405,8 +394,6 @@
       .header-actions { justify-content: flex-start; }
       .brand-copy { display:none; }
       .hero-logo-large { width: min(300px, 82vw); }
-      .header-nav { width: 100%; overflow-x: auto; flex-wrap: nowrap; order: 3; margin-left: 0; padding-bottom: 4px; }
-      .header-nav .tab-btn { white-space: nowrap; }
       .main-nav .tabs { width: 100%; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
     }
   </style>
@@ -421,12 +408,6 @@
           <span class="brand-subtitle">Clan ranking & match tracking</span>
         </div>
       </button>
-      <div class="header-nav">
-        <button class="tab-btn" data-tab="matches">Matches</button>
-        <button class="tab-btn" data-tab="leaderboards">Rankings</button>
-        <button class="tab-btn" data-tab="howRankingWorks">How Ranking Works</button>
-        <button class="tab-btn" data-tab="gametools">GameTools Stats</button>
-      </div>
       <div class="header-actions">
         <input id="globalSearch" class="search-input" type="hidden" value="" />
         <button id="quickExport">Export JSON</button>
