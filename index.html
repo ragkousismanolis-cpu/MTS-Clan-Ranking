@@ -2893,6 +2893,31 @@ function normalizeExternalName(value) {
         .replace(/[-_]+/g, "");
     }
 
+    function normalizeGameToolsPlatform(value) {
+      const raw = String(value || "pc").trim().toLowerCase();
+      const map = {
+        pc: "pc",
+        computer: "pc",
+        steam: "pc",
+        origin: "pc",
+        eaapp: "pc",
+        ea: "pc",
+        playstation: "psn",
+        ps: "psn",
+        psn: "psn",
+        ps4: "ps4",
+        ps5: "ps5",
+        xbox: "xbox",
+        xboxone: "xboxone",
+        'xbox one': "xboxone",
+        xboxeseries: "xboxeseries",
+        'xbox series': "xboxeseries",
+        'xbox series x': "xboxeseries",
+        'xbox series s': "xboxeseries"
+      };
+      return map[raw] || "pc";
+    }
+
     function clearGameToolsFields(player) {
       if (!player) return;
       player.gtLinkedUserName = "";
