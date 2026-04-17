@@ -580,49 +580,52 @@
     </section>
 
     <section id="gametools" class="page">
-      <div class="grid-2">
-        <div class="card">
-          <div class="split">
-            <h2 class="section-title">GameTools Sync</h2>
-            <span class="badge" id="gtPreviewStatusBadge">Not fetched</span>
+      <div class="card admin-only">
+        <div class="split">
+          <h2 class="section-title">GameTools Sync</h2>
+          <span class="badge" id="gtPreviewStatusBadge">Not fetched</span>
+        </div>
+        <div class="form-grid" style="grid-template-columns: 1fr 180px 180px;">
+          <div>
+            <label>GameTools Username</label>
+            <input id="gtLookupName" placeholder="π.χ. MTS_Manos35" />
           </div>
-          <div class="form-grid" style="grid-template-columns: 1fr 180px 180px;">
-            <div>
-              <label>GameTools Username</label>
-              <input id="gtLookupName" placeholder="π.χ. MTS_Manos35" />
-            </div>
-            <div>
-              <label>Platform</label>
-              <select id="gtLookupPlatform">
-                <option value="pc" selected>PC</option>
-                <option value="psn">PlayStation</option>
-                <option value="ps5">PlayStation 5</option>
-                <option value="ps4">PlayStation 4</option>
-                <option value="xbox">Xbox</option>
-                <option value="xboxone">Xbox One</option>
-                <option value="xboxeseries">Xbox Series</option>
-              </select>
-            </div>
-            <div>
-              <label>Battlelog fallback</label>
-              <select id="gtSkipBattlelog">
-                <option value="true" selected>Skip battlelog</option>
-                <option value="false">Use battlelog</option>
-              </select>
-            </div>
+          <div>
+            <label>Platform</label>
+            <select id="gtLookupPlatform">
+              <option value="pc" selected>PC</option>
+              <option value="psn">PlayStation</option>
+              <option value="ps5">PlayStation 5</option>
+              <option value="ps4">PlayStation 4</option>
+              <option value="xbox">Xbox</option>
+              <option value="xboxone">Xbox One</option>
+              <option value="xboxeseries">Xbox Series</option>
+            </select>
           </div>
-          <div class="toolbar">
-            <button class="primary" id="gtFetchBtn">Fetch Stats</button>
-            <button id="gtClearPreviewBtn">Clear Preview</button>
+          <div>
+            <label>Battlelog fallback</label>
+            <select id="gtSkipBattlelog">
+              <option value="true" selected>Skip battlelog</option>
+              <option value="false">Use battlelog</option>
+            </select>
           </div>
-
-          <div id="gtPreviewWrap"></div>
+        </div>
+        <div class="toolbar">
+          <button class="primary" id="gtFetchBtn">Fetch Stats</button>
+          <button id="gtClearPreviewBtn">Clear Preview</button>
         </div>
 
-        <div class="card">
-          <h2 class="section-title">Linked Players</h2>
-          <div id="gtLinkedPlayersTable"></div>
+        <div id="gtPreviewWrap"></div>
+      </div>
+
+      <div class="card" style="margin-top:18px;">
+        <div class="split">
+          <h2 class="section-title">GameTools Leaderboard</h2>
+          <div class="actions admin-only">
+            <button class="primary" id="gtSyncAllBtn">Sync όλους</button>
+          </div>
         </div>
+        <div id="gtLinkedPlayersTable"></div>
       </div>
     </section>
 
@@ -3037,29 +3040,71 @@ function normalizeExternalName(value) {
       alert(`Ο player ${player.name} έγινε link με το GameTools profile ${preview.data.userName}.`);
     }
 
-    async function syncLinkedGameToolsPlayer(playerId) {
+    async function syncGameToolsDataForPlayer(player) {
+      const url = new URL("https://api.gametools.network/bf6/stats/");
+      url.searchParams.set("name", player.gtLinkedUserName);
+      url.searchParams.set("platform", normalizeGameToolsPlatform(player.gtPlatform || "pc"));
+      url.searchParams.set("skip_battlelog", "true");
+      const res = await fetch(url.toString(), { method: "GET" });
+      const text = await res.text();
+      let data = null;
+      try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+      if (!res.ok) {
+        throw new Error(formatGameToolsError(data, `Αποτυχία GameTools sync για ${player.name}.`));
+      }
+      applyGameToolsStatsToPlayer(player, data, player.gtPlatform || "pc");
+      state.ui.gametoolsPreview = { queryName: player.gtLinkedUserName, platform: player.gtPlatform || "pc", skipBattlelog: "true", data, fetchedAt: new Date().toISOString() };
+    }
+
+    async function syncLinkedGameToolsPlayer(playerId, silent = false) {
       if (!requireAdmin()) return;
       const player = getPlayerById(playerId);
-      if (!player || !player.gtLinkedUserName) return alert("Ο player δεν έχει linked GameTools profile.");
+      if (!player || !player.gtLinkedUserName) {
+        if (!silent) alert("Ο player δεν έχει linked GameTools profile.");
+        return;
+      }
       try {
-        const url = new URL("https://api.gametools.network/bf6/stats/");
-        url.searchParams.set("name", player.gtLinkedUserName);
-        url.searchParams.set("platform", player.gtPlatform || "pc");
-        url.searchParams.set("skip_battlelog", "true");
-        const res = await fetch(url.toString(), { method: "GET" });
-        const text = await res.text();
-        let data = null;
-        try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-        if (!res.ok) {
-          throw new Error(formatGameToolsError(data, "Αποτυχία GameTools sync."));
-        }
-        applyGameToolsStatsToPlayer(player, data, player.gtPlatform || "pc");
-        state.ui.gametoolsPreview = { queryName: player.gtLinkedUserName, platform: player.gtPlatform || "pc", skipBattlelog: "true", data, fetchedAt: new Date().toISOString() };
+        await syncGameToolsDataForPlayer(player);
         await saveState();
         renderAll();
-        alert(`Έγινε sync για τον player ${player.name}.`);
+        if (!silent) alert(`Έγινε sync για τον player ${player.name}.`);
       } catch (err) {
-        alert(err.message || "Αποτυχία sync από GameTools.");
+        if (!silent) alert(err.message || "Αποτυχία sync από GameTools.");
+        throw err;
+      }
+    }
+
+    async function syncAllLinkedGameToolsPlayers() {
+      if (!requireAdmin()) return;
+      const linkedPlayers = state.data.players.filter(p => p.gtLinkedUserName);
+      if (!linkedPlayers.length) return alert("Δεν υπάρχουν linked players για sync.");
+      const btn = document.getElementById("gtSyncAllBtn");
+      const previousText = btn ? btn.textContent : "";
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Γίνεται sync...";
+      }
+      const failures = [];
+      try {
+        for (const player of linkedPlayers) {
+          try {
+            await syncGameToolsDataForPlayer(player);
+          } catch (err) {
+            failures.push(`${player.name}: ${err.message || "Αποτυχία sync."}`);
+          }
+        }
+        await saveState();
+        renderAll();
+        if (failures.length) {
+          alert(`Το bulk sync ολοκληρώθηκε με ${failures.length} πρόβλημα/προβλήματα.\n\n${failures.join("\n")}`);
+        } else {
+          alert(`Έγινε sync σε ${linkedPlayers.length} linked player(s).`);
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = previousText || "Sync όλους";
+        }
       }
     }
 
@@ -3142,11 +3187,22 @@ function normalizeExternalName(value) {
         .slice()
         .sort((a, b) => a.name.localeCompare(b.name));
 
-      document.getElementById("gtLinkedPlayersTable").innerHTML = linked.length ? `
+      const linkedSorted = linked.slice().sort((a, b) => {
+        const humanA = parsePercentValue(a.gtHumanPrecentage);
+        const humanB = parsePercentValue(b.gtHumanPrecentage);
+        if (humanB !== humanA) return humanB - humanA;
+        const kdA = Number(a.gtInfantryKillDeath || 0);
+        const kdB = Number(b.gtInfantryKillDeath || 0);
+        if (kdB !== kdA) return kdB - kdA;
+        return a.name.localeCompare(b.name);
+      });
+
+      document.getElementById("gtLinkedPlayersTable").innerHTML = linkedSorted.length ? `
         <table>
           <thead>
             <tr>
-              <th>Player DB</th>
+              <th>Rank</th>
+              <th>Player</th>
               <th>GameTools</th>
               <th>Human %</th>
               <th>Infantry KD</th>
@@ -3155,12 +3211,13 @@ function normalizeExternalName(value) {
               <th>Squadmate Revive</th>
               <th>Headshots</th>
               <th>Last Sync</th>
-              <th>Actions</th>
+              ${state.ui.loggedIn ? `<th>Actions</th>` : ``}
             </tr>
           </thead>
           <tbody>
-            ${linked.map(p => `
+            ${linkedSorted.map((p, index) => `
               <tr>
+                <td><strong>#${index + 1}</strong></td>
                 <td><strong>${escapeHtml(p.name)}</strong></td>
                 <td>${escapeHtml(p.gtLinkedUserName || "-")}<div class="muted small">${escapeHtml((p.gtPlatform || "pc").toUpperCase())}</div></td>
                 <td>${escapeHtml(p.gtHumanPrecentage || "-")}</td>
@@ -3170,15 +3227,18 @@ function normalizeExternalName(value) {
                 <td>${p.gtSquadmateRevive == null ? "-" : escapeHtml(String(p.gtSquadmateRevive))}</td>
                 <td>${escapeHtml(p.gtHeadshots || "-")}</td>
                 <td>${formatDateTime(p.gtLastSyncAt)}</td>
-                <td class="actions">
-                  <button onclick="syncLinkedGameToolsPlayer('${p.id}')">Sync now</button>
-                  <button class="danger" onclick="unlinkGameToolsPlayer('${p.id}')">Unlink</button>
-                </td>
+                ${state.ui.loggedIn ? `<td class="actions"><button onclick="syncLinkedGameToolsPlayer('${p.id}')">Sync</button><button class="danger" onclick="unlinkGameToolsPlayer('${p.id}')">Unlink</button></td>` : ``}
               </tr>
             `).join("")}
           </tbody>
         </table>
       ` : `<div class="empty">Δεν υπάρχουν linked players ακόμα.</div>`;
+    }
+
+    function parsePercentValue(value) {
+      if (value == null) return 0;
+      const numeric = parseFloat(String(value).replace("%", "").replace(",", ".").trim());
+      return Number.isFinite(numeric) ? numeric : 0;
     }
 
     function formatDateTime(value) {
@@ -3303,6 +3363,7 @@ function renderPlayers(derived) {
     document.getElementById("savePlayerBtn").addEventListener("click", savePlayer);
     document.getElementById("gtFetchBtn").addEventListener("click", fetchGameToolsStats);
     document.getElementById("gtClearPreviewBtn").addEventListener("click", clearGameToolsPreview);
+    document.getElementById("gtSyncAllBtn").addEventListener("click", syncAllLinkedGameToolsPlayers);
     document.getElementById("saveKnownIssuesBtn").addEventListener("click", saveKnownIssues);
     document.getElementById("saveHowRankingWorksBtn").addEventListener("click", saveHowRankingWorks);
     document.getElementById("resetPlayerForm").addEventListener("click", resetPlayerForm);
