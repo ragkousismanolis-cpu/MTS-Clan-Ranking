@@ -621,7 +621,7 @@
       <div class="card" style="margin-top:18px;">
         <div class="split">
           <h2 class="section-title">GameTools Leaderboard</h2>
-          <div class="actions admin-only">
+          <div class="actions">
             <button class="primary" id="gtSyncAllBtn">Sync όλους</button>
           </div>
         </div>
@@ -826,7 +826,8 @@
         editingPlayerId: null,
         rankingMode: "elo",
         ocrBulkPreview: null,
-        gametoolsPreview: null
+        gametoolsPreview: null,
+        gametoolsSort: { key: "human", dir: "desc" }
       }
     };
 
@@ -3184,18 +3185,36 @@ function normalizeExternalName(value) {
 
       const linked = state.data.players
         .filter(p => p.gtLinkedUserName)
-        .slice()
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .slice();
+
+      const sortKey = state.ui.gametoolsSort?.key || "human";
+      const sortDir = state.ui.gametoolsSort?.dir || "desc";
+      const multiplier = sortDir === "asc" ? 1 : -1;
+
+      const sortValue = (player, key) => {
+        switch (key) {
+          case "human": return parsePercentValue(player.gtHumanPrecentage);
+          case "infantryKd": return Number(player.gtInfantryKillDeath || 0);
+          case "timePlayed": return parseTimePlayedValue(player.gtTimePlayed);
+          case "revives": return Number(player.gtRevives || 0);
+          case "squadmateRevive": return Number(player.gtSquadmateRevive || 0);
+          case "headshots": return parsePercentValue(player.gtHeadshots);
+          default: return parsePercentValue(player.gtHumanPrecentage);
+        }
+      };
 
       const linkedSorted = linked.slice().sort((a, b) => {
+        const valueA = sortValue(a, sortKey);
+        const valueB = sortValue(b, sortKey);
+        if (valueA !== valueB) return (valueA - valueB) * multiplier;
         const humanA = parsePercentValue(a.gtHumanPrecentage);
         const humanB = parsePercentValue(b.gtHumanPrecentage);
-        if (humanB !== humanA) return humanB - humanA;
-        const kdA = Number(a.gtInfantryKillDeath || 0);
-        const kdB = Number(b.gtInfantryKillDeath || 0);
-        if (kdB !== kdA) return kdB - kdA;
+        if (humanA !== humanB) return (humanA - humanB) * -1;
         return a.name.localeCompare(b.name);
       });
+
+      const sortIndicator = (key) => state.ui.gametoolsSort?.key === key ? (state.ui.gametoolsSort.dir === "asc" ? " ↑" : " ↓") : "";
+      const sortableHeader = (label, key) => `<th><button class="ghost" style="padding:0; font:inherit; font-weight:800; color:inherit;" onclick="setGameToolsSort('${key}')">${label}${sortIndicator(key)}</button></th>`;
 
       document.getElementById("gtLinkedPlayersTable").innerHTML = linkedSorted.length ? `
         <table>
@@ -3204,14 +3223,14 @@ function normalizeExternalName(value) {
               <th>Rank</th>
               <th>Player</th>
               <th>GameTools</th>
-              <th>Human %</th>
-              <th>Infantry KD</th>
-              <th>Time Played</th>
-              <th>Revives</th>
-              <th>Squadmate Revive</th>
-              <th>Headshots</th>
+              ${sortableHeader("Human %", "human")}
+              ${sortableHeader("Infantry KD", "infantryKd")}
+              ${sortableHeader("Time Played", "timePlayed")}
+              ${sortableHeader("Revives", "revives")}
+              ${sortableHeader("Squadmate Revive", "squadmateRevive")}
+              ${sortableHeader("Headshots", "headshots")}
               <th>Last Sync</th>
-              ${state.ui.loggedIn ? `<th>Actions</th>` : ``}
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -3227,12 +3246,21 @@ function normalizeExternalName(value) {
                 <td>${p.gtSquadmateRevive == null ? "-" : escapeHtml(String(p.gtSquadmateRevive))}</td>
                 <td>${escapeHtml(p.gtHeadshots || "-")}</td>
                 <td>${formatDateTime(p.gtLastSyncAt)}</td>
-                ${state.ui.loggedIn ? `<td class="actions"><button onclick="syncLinkedGameToolsPlayer('${p.id}')">Sync</button><button class="danger" onclick="unlinkGameToolsPlayer('${p.id}')">Unlink</button></td>` : ``}
+                <td class="actions"><button onclick="syncLinkedGameToolsPlayer('${p.id}')">Sync</button>${state.ui.loggedIn ? `<button class="danger" onclick="unlinkGameToolsPlayer('${p.id}')">Unlink</button>` : ``}</td>
               </tr>
             `).join("")}
           </tbody>
         </table>
       ` : `<div class="empty">Δεν υπάρχουν linked players ακόμα.</div>`;
+    }
+
+    function setGameToolsSort(key) {
+      if (!state.ui.gametoolsSort || state.ui.gametoolsSort.key !== key) {
+        state.ui.gametoolsSort = { key, dir: "desc" };
+      } else {
+        state.ui.gametoolsSort.dir = state.ui.gametoolsSort.dir === "desc" ? "asc" : "desc";
+      }
+      renderGameTools();
     }
 
     function parsePercentValue(value) {
@@ -3246,6 +3274,18 @@ function normalizeExternalName(value) {
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return escapeHtml(String(value));
       return date.toLocaleString("el-GR");
+    }
+
+    function parseTimePlayedValue(value) {
+      if (!value) return 0;
+      const text = String(value).trim();
+      const match = text.match(/(?:(\d+)\s+days?,\s*)?(\d{1,2}):(\d{2}):(\d{2})/i);
+      if (!match) return 0;
+      const days = Number(match[1] || 0);
+      const hours = Number(match[2] || 0);
+      const minutes = Number(match[3] || 0);
+      const seconds = Number(match[4] || 0);
+      return (((days * 24) + hours) * 60 + minutes) * 60 + seconds;
     }
 
 function renderPlayers(derived) {
