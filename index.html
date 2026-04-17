@@ -2927,6 +2927,46 @@ function normalizeExternalName(value) {
       return exact ? exact.id : "";
     }
 
+    function formatGameToolsError(data, fallback = "Αποτυχία GameTools request.") {
+      if (!data) return fallback;
+
+      if (typeof data === "string") return data;
+
+      if (typeof data.message === "string" && data.message.trim()) {
+        return data.message;
+      }
+
+      if (typeof data.detail === "string" && data.detail.trim()) {
+        return data.detail;
+      }
+
+      if (Array.isArray(data.detail)) {
+        return data.detail.map((item) => {
+          if (typeof item === "string") return item;
+          if (item && typeof item === "object") {
+            const loc = Array.isArray(item.loc) ? item.loc.join(" > ") : "";
+            const msg = item.msg || JSON.stringify(item);
+            return loc ? `${loc}: ${msg}` : msg;
+          }
+          return String(item);
+        }).join("\n");
+      }
+
+      if (data.detail && typeof data.detail === "object") {
+        try {
+          return JSON.stringify(data.detail, null, 2);
+        } catch {
+          return fallback;
+        }
+      }
+
+      try {
+        return JSON.stringify(data, null, 2);
+      } catch {
+        return fallback;
+      }
+    }
+
     async function fetchGameToolsStats() {
       const name = document.getElementById("gtLookupName").value.trim();
       const platform = document.getElementById("gtLookupPlatform").value;
@@ -2942,8 +2982,7 @@ function normalizeExternalName(value) {
         let data = null;
         try { data = text ? JSON.parse(text) : null; } catch { data = text; }
         if (!res.ok) {
-          const msg = data && data.detail ? data.detail : data && data.message ? data.message : (typeof data === "string" ? data : "Αποτυχία GameTools fetch.");
-          throw new Error(msg);
+          throw new Error(formatGameToolsError(data, "Αποτυχία GameTools fetch."));
         }
         if (!data || typeof data !== "object") throw new Error("Το GameTools δεν επέστρεψε έγκυρο JSON.");
         state.ui.gametoolsPreview = { queryName: name, platform, skipBattlelog, data, fetchedAt: new Date().toISOString() };
@@ -2983,8 +3022,7 @@ function normalizeExternalName(value) {
         let data = null;
         try { data = text ? JSON.parse(text) : null; } catch { data = text; }
         if (!res.ok) {
-          const msg = data && data.detail ? data.detail : data && data.message ? data.message : (typeof data === "string" ? data : "Αποτυχία GameTools sync.");
-          throw new Error(msg);
+          throw new Error(formatGameToolsError(data, "Αποτυχία GameTools sync."));
         }
         applyGameToolsStatsToPlayer(player, data, player.gtPlatform || "pc");
         state.ui.gametoolsPreview = { queryName: player.gtLinkedUserName, platform: player.gtPlatform || "pc", skipBattlelog: "true", data, fetchedAt: new Date().toISOString() };
