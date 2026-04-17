@@ -478,7 +478,19 @@
       z-index: 30; flex-direction: column; align-items:flex-start; }
     }
 
-  </style>
+  
+    .site-header { padding: 12px 18px; }
+    .brand-wrap { align-items:center; }
+    .brand-copy p:empty { display:none; }
+    .header-nav { margin-top: 10px; gap: 10px; }
+    .header-nav .tab-btn { padding: 10px 14px; }
+    .hero-shell { min-height: 330px; margin-top: 10px; }
+    .hero-content { min-height: 330px; padding: 12px; align-items:end; }
+    .hero-center-logo { width:min(430px, 52vw); top:45%; left:50%; transform:translate(-50%, -50%); opacity:.96; filter:drop-shadow(0 18px 44px rgba(0,0,0,.58)); }
+    .hero-stats-panel { max-width: 430px; margin: 0 0 0 12px; }
+    @media (max-width: 1024px){ .hero-center-logo { width:min(320px, 62vw); top:42%; } .hero-stats-panel{margin-left:0;} }
+
+</style>
 </head>
 <body>
   <div class="container site-shell">
@@ -490,7 +502,7 @@
           </button>
           <div class="brand-copy">
             <div class="brand-kicker">MISSEDTHESPOT COMPETITIVE HUB</div>
-            <div class="brand-sub">Battlefield clan portal • rankings • matches • synced profiles</div>
+            <div class="brand-sub"></div>
           </div>
         </div>
         <div class="topbar-right header-actions">
@@ -500,7 +512,7 @@
         </div>
       </div>
       <nav class="header-nav" aria-label="Primary">
-        <button class="tab-btn active" data-tab="dashboard" type="button">Dashboard</button>
+        <button class="tab-btn active" data-tab="dashboard" type="button">Home</button>
         <button class="tab-btn" data-tab="matches" type="button">Matches</button>
         <button class="tab-btn" data-tab="leaderboards" type="button">Rankings</button>
         <button class="tab-btn" data-tab="howRankingWorks" type="button">How Ranking Works</button>
