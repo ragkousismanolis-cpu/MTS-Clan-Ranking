@@ -3222,7 +3222,7 @@ function normalizeExternalName(value) {
             <tr>
               <th>Rank</th>
               <th>Player</th>
-              <th>GameTools</th>
+              <th>Platform</th>
               ${sortableHeader("Human %", "human")}
               ${sortableHeader("Infantry KD", "infantryKd")}
               ${sortableHeader("Time Played", "timePlayed")}
@@ -3238,7 +3238,7 @@ function normalizeExternalName(value) {
               <tr>
                 <td><strong>#${index + 1}</strong></td>
                 <td><strong>${escapeHtml(p.name)}</strong></td>
-                <td>${escapeHtml(p.gtLinkedUserName || "-")}<div class="muted small">${escapeHtml((p.gtPlatform || "pc").toUpperCase())}</div></td>
+                <td>${escapeHtml((p.gtPlatform || "pc").toUpperCase())}</td>
                 <td>${escapeHtml(p.gtHumanPrecentage || "-")}</td>
                 <td>${p.gtInfantryKillDeath == null ? "-" : escapeHtml(String(p.gtInfantryKillDeath))}</td>
                 <td>${escapeHtml(p.gtTimePlayed || "-")}</td>
