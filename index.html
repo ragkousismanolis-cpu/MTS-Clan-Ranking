@@ -595,8 +595,12 @@
               <label>Platform</label>
               <select id="gtLookupPlatform">
                 <option value="pc" selected>PC</option>
-                <option value="ps">PlayStation</option>
-                <option value="xboxone">Xbox</option>
+                <option value="psn">PlayStation</option>
+                <option value="ps5">PlayStation 5</option>
+                <option value="ps4">PlayStation 4</option>
+                <option value="xbox">Xbox</option>
+                <option value="xboxone">Xbox One</option>
+                <option value="xboxeseries">Xbox Series</option>
               </select>
             </div>
             <div>
@@ -1070,7 +1074,7 @@
         gtLinkedUserName: String(p.gt_linked_username || ""),
         gtLinkedUserId: String(p.gt_linked_user_id || ""),
         gtLinkedProfileId: String(p.gt_linked_profile_id || ""),
-        gtPlatform: String(p.gt_platform || "pc"),
+        gtPlatform: normalizeGameToolsPlatform(p.gt_platform || "pc"),
         gtLastSyncAt: String(p.gt_last_sync_at || ""),
         gtHumanPrecentage: String(p.gt_human_precentage || ""),
         gtInfantryKillDeath: p.gt_infantry_kill_death == null ? null : Number(p.gt_infantry_kill_death),
@@ -1349,7 +1353,7 @@
         gtLinkedUserName: String(p.gtLinkedUserName || ""),
         gtLinkedUserId: String(p.gtLinkedUserId || ""),
         gtLinkedProfileId: String(p.gtLinkedProfileId || ""),
-        gtPlatform: String(p.gtPlatform || "pc"),
+        gtPlatform: normalizeGameToolsPlatform(p.gtPlatform || "pc"),
         gtLastSyncAt: String(p.gtLastSyncAt || ""),
         gtHumanPrecentage: String(p.gtHumanPrecentage || ""),
         gtInfantryKillDeath: p.gtInfantryKillDeath == null || p.gtInfantryKillDeath === "" ? null : Number(p.gtInfantryKillDeath),
@@ -2909,7 +2913,7 @@ function normalizeExternalName(value) {
       player.gtLinkedUserName = String(data.userName || "");
       player.gtLinkedUserId = String(data.userId || "");
       player.gtLinkedProfileId = String(data.id || "");
-      player.gtPlatform = String(platform || "pc");
+      player.gtPlatform = normalizeGameToolsPlatform(platform || "pc");
       player.gtLastSyncAt = new Date().toISOString();
       player.gtHumanPrecentage = String(data.humanPrecentage || "");
       player.gtInfantryKillDeath = data.infantryKillDeath == null ? null : Number(data.infantryKillDeath);
@@ -2969,7 +2973,7 @@ function normalizeExternalName(value) {
 
     async function fetchGameToolsStats() {
       const name = document.getElementById("gtLookupName").value.trim();
-      const platform = document.getElementById("gtLookupPlatform").value;
+      const platform = normalizeGameToolsPlatform(document.getElementById("gtLookupPlatform").value);
       const skipBattlelog = document.getElementById("gtSkipBattlelog").value;
       if (!name) return alert("Βάλε GameTools username.");
       try {
