@@ -863,7 +863,8 @@
       -webkit-backdrop-filter: blur(14px);
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: center;
+      align-items: center;
       gap: 14px;
     }
     .player-glass-stat::before {
@@ -878,7 +879,8 @@
     .player-glass-stat .stat-value {
       position: relative;
       z-index: 1;
-      text-align: left;
+      text-align: center;
+      width: 100%;
     }
     .player-glass-stat .stat-label {
       margin: 0;
@@ -886,12 +888,14 @@
       letter-spacing: .1em;
       color: #b6c3df;
       font-size: 11px;
+      text-align: center;
     }
     .player-glass-stat .stat-value {
       font-size: clamp(28px, 2.8vw, 36px);
       font-weight: 900;
       line-height: 1;
       letter-spacing: -.03em;
+      text-align: center;
     }
 
     @media (max-width: 1180px) {
@@ -3557,8 +3561,7 @@ function resetPlayerForm() {
               </div>
               <div class="player-avatar-meta">
                 <div class="badge">MTS Clan Member</div>
-                <div class="muted small">Avatar is admin-editable with placeholder fallback.</div>
-              </div>
+                              </div>
             </div>
             <div class="player-main-panel">
               <div>
