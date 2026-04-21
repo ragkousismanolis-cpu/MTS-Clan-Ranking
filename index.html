@@ -849,10 +849,16 @@
       position: relative;
       z-index: 1;
       width: 100%;
+      max-width: 100%;
+      display: block;
       margin: 0;
       text-align: center;
-      font-size: clamp(34px, 4.2vw, 64px);
+      font-size: var(--player-name-size, clamp(29px, 3.8vw, 59px));
       line-height: .95;
+      letter-spacing: var(--player-name-letter-spacing, -.05em);
+      transform: scaleX(var(--player-name-scale, 1));
+      transform-origin: center center;
+      white-space: nowrap;
       text-shadow: 0 10px 26px rgba(0,0,0,.28);
     }
     .player-main-panel .player-subcopy {
@@ -3688,6 +3694,24 @@ function resetPlayerForm() {
       const rankLabel = visiblePlayer ? `#${visiblePlayer.visibleRank}` : "Hidden";
       const kdRankLabel = kdRankPlayer ? `#${kdRankPlayer.kdRank}` : "N/A";
       const avatarSrc = getPlayerAvatarSrc(player);
+      const playerNameLength = String(player.name || "").length;
+      let playerNameSize = "clamp(29px, 3.8vw, 59px)";
+      let playerNameScale = 1;
+      let playerNameLetterSpacing = "-.05em";
+      if (playerNameLength >= 14) playerNameScale = 0.97;
+      if (playerNameLength >= 18) {
+        playerNameScale = 0.93;
+        playerNameSize = "clamp(27px, 3.5vw, 55px)";
+      }
+      if (playerNameLength >= 22) {
+        playerNameScale = 0.89;
+        playerNameSize = "clamp(25px, 3.2vw, 50px)";
+      }
+      if (playerNameLength >= 26) {
+        playerNameScale = 0.85;
+        playerNameSize = "clamp(22px, 2.9vw, 45px)";
+        playerNameLetterSpacing = "-.07em";
+      }
 
       box.innerHTML = `
         <div class="player-glass-shell">
@@ -3703,7 +3727,7 @@ function resetPlayerForm() {
             </div>
             <div class="player-main-panel">
               <div class="player-name-showcase">
-                <h1 class="player-main-name">${escapeHtml(player.name)}</h1>
+                <h1 class="player-main-name" style="--player-name-size:${playerNameSize};--player-name-scale:${playerNameScale};--player-name-letter-spacing:${playerNameLetterSpacing};">${escapeHtml(player.name)}</h1>
               </div>
               <button class="player-glass-cta" type="button" id="backToRankingsBtn">Back to Rankings</button>
             </div>
