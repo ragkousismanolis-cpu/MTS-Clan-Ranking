@@ -996,6 +996,38 @@
     .title,
     h1,h2,h3,h4 { color: #f7f9ff; }
   </style>
+
+  <style>
+    /* v42.1: ultra-light radius + no visible borders */
+    .card, .stat, .tab-btn, button, select, input, textarea, table,
+    .team-score-box, .empty, .site-header, .hero, .hero-summary, .hero-summary .stat,
+    .auth-modal, .auth-icon-btn, .content-block, .ocr-panel, .ocr-side-box,
+    .ocr-warning-box, .ocr-danger-box, .ocr-preview-text, .player-form-grid > div,
+    .player-rank-box, .player-side-card, .player-glass-hero, .player-avatar-panel,
+    .player-glass-cta, .player-glass-stat, .bulk-player-import-card,
+    tbody tr td:first-child, tbody tr td:last-child, .main-nav .tab-btn, .badge,
+    .player-side-panel > *, .player-profile-stats .stat, .player-hero-card {
+      border-width: 0 !important;
+      border-color: transparent !important;
+      border-style: solid !important;
+      border-radius: 2px !important;
+      box-shadow: inherit;
+    }
+
+    .hero, .site-header, .auth-modal, .player-glass-hero, .player-hero-card,
+    .player-avatar-panel, .player-side-card, .player-glass-stat, .player-glass-cta {
+      box-shadow: none !important;
+    }
+
+    .player-avatar-ring, .player-avatar-ring img {
+      border-radius: 50% !important;
+    }
+
+    .brand-link, .player-link-btn, .ghost {
+      border-width: 0 !important;
+      border-color: transparent !important;
+    }
+  </style>
 </head>
 <body>
   <div class="site-shell">
