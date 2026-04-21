@@ -4,7 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MTS Clan Ranking v15.7</title>
+  <title>MTS Clan Ranking v15.8</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #03050b;
@@ -16,27 +19,48 @@
       --accent-2: #3b82f6;
       --danger: #7c3aed;
       --warning: #60a5fa;
-      --border: rgba(255,255,255,.10);
+      --border: transparent;
       --chip: rgba(255,255,255,.04);
       --shadow: 0 18px 38px rgba(0,0,0,.38);
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: "Rajdhani", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
       background: radial-gradient(circle at top, rgba(74,37,166,.24), transparent 28%), #03050b;
       min-height: 100vh;
     }
     .container { max-width: 1500px; margin: 0 auto; padding: 24px; }
+    .title,
+    .section-title,
+    .brand-title,
+    .brand-subtitle,
+    .tab-btn,
+    button,
+    th,
+    .stat-label,
+    .badge,
+    .podium-badge,
+    .auth-modal-title,
+    #versionBadge {
+      font-family: "Orbitron", "Rajdhani", Inter, sans-serif;
+      letter-spacing: .04em;
+    }
+    .title,
+    .section-title,
+    .brand-title,
+    .auth-modal-title {
+      text-transform: uppercase;
+    }
     .hero {
       display: grid; gap: 18px; grid-template-columns: 1.5fr 1fr;
       margin-bottom: 20px;
     }
     .card {
       background: linear-gradient(180deg, rgba(12,18,36,.94), rgba(7,10,20,.94));
-      border: 1px solid var(--border);
-      border-radius: 22px;
+      border: none;
+      border-radius: 6px;
       box-shadow: var(--shadow);
       padding: 18px;
       backdrop-filter: blur(8px);
@@ -46,9 +70,9 @@
     .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
     .stat {
       background: var(--chip);
-      border: 1px solid var(--border);
+      border: none;
       padding: 14px;
-      border-radius: 18px;
+      border-radius: 6px;
     }
     .stat-label { color: var(--muted); font-size: 13px; margin-bottom: 8px; text-align: center; width: 100%; }
     .stat-value { font-size: 28px; font-weight: 800; text-align: center; width: 100%; }
@@ -59,8 +83,8 @@
       display: flex; gap: 10px; flex-wrap: wrap;
     }
     .tab-btn, button, select, input, textarea {
-      border-radius: 12px;
-      border: 1px solid var(--border);
+      border-radius: 6px;
+      border: none;
       background: var(--panel);
       color: var(--text);
       font: inherit;
@@ -70,7 +94,7 @@
     }
     .tab-btn.active {
       background: linear-gradient(180deg, rgba(78,56,189,.65), rgba(25,45,95,.78));
-      border-color: rgba(117,132,255,.55);
+      border-color: transparent;
       box-shadow: 0 0 0 1px rgba(122,103,255,.20) inset;
     }
     button {
@@ -79,16 +103,16 @@
     }
     button.primary {
       background: linear-gradient(180deg, rgba(87,64,255,.88), rgba(34,51,120,.92));
-      border-color: rgba(129,141,255,.48);
+      border-color: transparent;
     }
     button.success {
       background: linear-gradient(180deg, rgba(59,130,246,.70), rgba(67,56,202,.78));
-      border-color: rgba(96,165,250,.42);
+      border-color: transparent;
       color: #f6f8ff;
     }
     button.danger {
       background: linear-gradient(180deg, rgba(91,65,188,.82), rgba(45,26,91,.86));
-      border-color: rgba(129,141,255,.48);
+      border-color: transparent;
     }
     button.ghost {
       background: transparent;
@@ -116,7 +140,7 @@
       border-collapse: separate;
       border-spacing: 0 10px;
       overflow: visible;
-      border-radius: 18px;
+      border-radius: 6px;
       font-size: 14px;
       background: transparent;
     }
@@ -136,16 +160,16 @@
     tbody tr td {
       background:
         linear-gradient(90deg, rgba(9,14,28,.92), rgba(16,20,38,.88) 52%, rgba(42,14,24,.78));
-      border-top: 1px solid rgba(134, 105, 255, .16);
-      border-bottom: 1px solid rgba(255, 102, 64, .12);
+      border-top: none;
+      border-bottom: none;
     }
     tbody tr td:first-child {
-      border-left: 1px solid rgba(255,255,255,.08);
+      border-left: none;
       border-top-left-radius: 16px;
       border-bottom-left-radius: 16px;
     }
     tbody tr td:last-child {
-      border-right: 1px solid rgba(255,255,255,.08);
+      border-right: none;
       border-top-right-radius: 16px;
       border-bottom-right-radius: 16px;
     }
@@ -161,7 +185,7 @@
     }
     .badge {
       display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 10px; border-radius: 999px; background: var(--chip); border: 1px solid var(--border);
+      padding: 6px 10px; border-radius: 999px; background: var(--chip); border: none;
       font-size: 12px; color: var(--muted);
     }
     .split {
@@ -173,11 +197,11 @@
     }
     .team-score-box {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 14px; border-radius: 18px; border: 1px solid var(--border); background: var(--chip);
+      padding: 14px; border-radius: 6px; border: none; background: var(--chip);
     }
     .small { font-size: 12px; }
     .empty {
-      padding: 26px; border: 1px dashed var(--border); border-radius: 16px; color: var(--muted); text-align: center;
+      padding: 26px; border: none; border-radius: 6px; color: var(--muted); text-align: center;
     }
     .pill-win { color: var(--accent-2); }
     .pill-loss { color: #ff9c9c; }
@@ -192,8 +216,8 @@
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
       padding: 12px 18px; margin-bottom: 10px;
       background: linear-gradient(180deg, rgba(8,10,18,.92), rgba(8,10,18,.76));
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 20px;
+      border: none;
+      border-radius: 6px;
       backdrop-filter: blur(10px);
       box-shadow: 0 14px 28px rgba(0,0,0,.34);
     }
@@ -210,7 +234,7 @@
     .hero {
       position: relative; overflow: hidden; min-height: 235px; margin-bottom: 12px;
       display:flex; align-items:flex-end; justify-content:center;
-      padding: 22px; border-radius: 26px;
+      padding: 22px; border-radius: 6px;
       border: 1px solid rgba(255,255,255,.12);
       box-shadow: var(--shadow);
       background:
@@ -232,25 +256,25 @@
     }
     .hero-content { position:relative; z-index:1; width:100%; min-height: 100%; display:flex; align-items:center; justify-content:space-between; gap:28px; padding: 26px 32px 18px; }
     .hero-logo-large { width:min(360px, 34vw); max-width:100%; height:auto; display:block; filter: drop-shadow(0 10px 24px rgba(0,0,0,.45)); flex: 0 0 auto; }
-    .hero-summary { width:min(720px, 100%); margin-left:auto; padding: 12px 14px; background: rgba(6,8,16,.48); border:1px solid rgba(255,255,255,.10); border-radius: 20px; backdrop-filter: blur(8px); }
+    .hero-summary { width:min(720px, 100%); margin-left:auto; padding: 12px 14px; background: rgba(6,8,16,.48); border:none; border-radius: 6px; backdrop-filter: blur(8px); }
     .hero-summary .stats { grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .hero-summary .stat { background: rgba(255,255,255,.04); border-radius: 14px; padding: 12px 14px; }
+    .hero-summary .stat { background: rgba(255,255,255,.04); border-radius: 6px; padding: 12px 14px; }
     .hero-summary .stat-value { font-size: 24px; }
     #versionBadge { display:none; }
     .main-nav { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
     .main-nav .tabs { gap:8px; }
     .main-nav .tab-btn {
       padding: 10px 14px; border-radius: 999px; background: rgba(255,255,255,.04);
-      border-color: rgba(255,255,255,.10);
+      border-color: transparent;
     }
     .main-nav .tab-btn.active {
       background: linear-gradient(180deg, rgba(255,66,0,.32), rgba(114,82,255,.18));
-      border-color: rgba(255,255,255,.18);
+      border-color: transparent;
       box-shadow: 0 0 0 1px rgba(255,255,255,.06) inset;
     }
     .main-nav .tab-btn[data-tab="dashboard"] { display:none !important; }
     .grid-3 { grid-template-columns: 1.15fr .92fr .92fr; }
-    .card { border-radius: 20px; padding: 16px; }
+    .card { border-radius: 6px; padding: 16px; }
     .title { font-size: 28px; }
     .section-title { font-size: 19px; margin-bottom: 12px; }
     .toolbar { margin: 14px 0 16px; }
@@ -271,8 +295,8 @@
     .auth-modal {
       width: min(460px, 100%);
       background: linear-gradient(180deg, rgba(18,26,47,.96), rgba(12,18,34,.98));
-      border: 1px solid var(--border);
-      border-radius: 22px;
+      border: none;
+      border-radius: 6px;
       box-shadow: var(--shadow);
       padding: 20px;
     }
@@ -283,7 +307,7 @@
     .auth-modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:14px; }
     .auth-icon-btn {
       width: 40px; height: 40px; padding: 0; display:inline-flex; align-items:center; justify-content:center;
-      border-radius: 12px;
+      border-radius: 6px;
     }
     .podium-card {
       position: relative;
@@ -304,39 +328,39 @@
       min-width: 34px;
       height: 34px;
       border-radius: 999px;
-      border: 1px solid var(--border);
+      border: none;
       background: rgba(255,255,255,.08);
       font-size: 16px;
       margin-right: 8px;
     }
     .podium-rank-1 {
       background: linear-gradient(180deg, rgba(255,215,0,.18), rgba(255,215,0,.07));
-      border-color: rgba(255,215,0,.32);
+      border-color: transparent;
       box-shadow: 0 8px 22px rgba(255,215,0,.08);
     }
     .podium-rank-2 {
       background: linear-gradient(180deg, rgba(192,192,192,.16), rgba(192,192,192,.06));
-      border-color: rgba(192,192,192,.24);
+      border-color: transparent;
       box-shadow: 0 8px 22px rgba(192,192,192,.06);
     }
     .podium-rank-3 {
       background: linear-gradient(180deg, rgba(205,127,50,.18), rgba(205,127,50,.07));
-      border-color: rgba(205,127,50,.28);
+      border-color: transparent;
       box-shadow: 0 8px 22px rgba(205,127,50,.08);
     }
 
     .panel-accent {
-      border-color: rgba(107,77,255,.24);
+      border-color: transparent;
       background: linear-gradient(180deg, rgba(12,18,36,.94), rgba(7,10,20,.94));
     }
     .gold-card {
-      border-color: rgba(96,165,250,.22);
+      border-color: transparent;
       background: linear-gradient(180deg, rgba(16,24,46,.96), rgba(9,12,24,.96));
     }
     .content-block {
       padding: 16px 18px;
-      border-radius: 18px;
-      border: 1px solid var(--border);
+      border-radius: 6px;
+      border: none;
       background: rgba(255,255,255,.03);
       line-height: 1.7;
       white-space: pre-wrap;
@@ -347,8 +371,8 @@
     .ocr-panel {
       margin-top: 14px;
       padding: 14px;
-      border-radius: 18px;
-      border: 1px solid var(--border);
+      border-radius: 6px;
+      border: none;
       background: rgba(255,255,255,.03);
     }
     .ocr-preview-grid {
@@ -358,8 +382,8 @@
       margin-top: 12px;
     }
     .ocr-side-box {
-      border: 1px solid var(--border);
-      border-radius: 16px;
+      border: none;
+      border-radius: 6px;
       padding: 12px;
       background: rgba(255,255,255,.03);
     }
@@ -377,15 +401,15 @@
     .ocr-warning-box {
       margin-top: 12px;
       padding: 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(96,165,250,.30);
+      border-radius: 6px;
+      border: none;
       background: rgba(96,165,250,.08);
     }
     .ocr-danger-box {
       margin-top: 12px;
       padding: 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(107,77,255,.30);
+      border-radius: 6px;
+      border: none;
       background: rgba(107,77,255,.08);
     }
     .ocr-preview-text {
@@ -393,8 +417,8 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 13px;
       line-height: 1.5;
-      border: 1px solid var(--border);
-      border-radius: 14px;
+      border: none;
+      border-radius: 6px;
       padding: 12px;
       background: rgba(0,0,0,.22);
       margin-top: 12px;
@@ -409,8 +433,230 @@
       margin-top: 6px;
     }
 
+
+    .players-layout { grid-template-columns: minmax(720px, 1.3fr) minmax(420px, .9fr); align-items: start; }
+    .player-editor-card { padding: 22px; }
+    .player-editor-card .section-title { margin-bottom: 16px; }
+    .player-editor-intro {
+      margin: 0 0 16px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .player-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 16px 18px;
+      align-items: end;
+    }
+    .player-form-grid > div {
+      padding: 14px;
+      border-radius: 4px;
+      background: rgba(255,255,255,.035);
+    }
+    .player-form-grid label {
+      font-size: 12px;
+      margin-bottom: 8px;
+      letter-spacing: .02em;
+    }
+    .player-form-grid input,
+    .player-form-grid select {
+      min-height: 48px;
+      padding: 12px 14px;
+      font-size: 15px;
+    }
+    .player-editor-card .toolbar {
+      margin-top: 18px;
+      gap: 12px;
+    }
+    .player-editor-card .toolbar button {
+      min-height: 46px;
+      padding-inline: 16px;
+    }
+    .bulk-player-import-card {
+      padding: 18px !important;
+      margin-top: 18px !important;
+    }
+    .bulk-player-import-card textarea {
+      min-height: 180px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+
+    .player-link-btn {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      padding: 0;
+      background: transparent;
+      border: none;
+      color: inherit;
+      text-align: left;
+      box-shadow: none;
+    }
+    .player-link-btn strong {
+      font-size: 15px;
+      line-height: 1.2;
+    }
+    .player-link-btn .small {
+      opacity: .82;
+    }
+    .leaderboard-player-cell {
+      min-width: 220px;
+    }
+    .leaderboard-player-row {
+      cursor: pointer;
+    }
+    .leaderboard-player-row:hover .player-link-btn strong {
+      color: #ffffff;
+    }
+    .public-player-shell {
+      display: grid;
+      gap: 20px;
+    }
+    .player-hero-card {
+      position: relative;
+      overflow: hidden;
+      padding: 30px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.28fr) minmax(300px, .72fr);
+      gap: 22px;
+      align-items: stretch;
+      background:
+        linear-gradient(135deg, rgba(8,12,26,.96) 0%, rgba(13,18,34,.94) 44%, rgba(23,14,40,.96) 100%),
+        radial-gradient(circle at top left, rgba(59,130,246,.14), transparent 28%),
+        radial-gradient(circle at right center, rgba(109,40,217,.20), transparent 30%) !important;
+      box-shadow: 0 24px 48px rgba(0,0,0,.34);
+    }
+    .player-hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(120deg, rgba(255,255,255,.05), transparent 24%),
+        linear-gradient(90deg, transparent 0%, rgba(255,255,255,.03) 48%, transparent 100%),
+        radial-gradient(circle at 82% 18%, rgba(96,165,250,.18), transparent 20%),
+        radial-gradient(circle at 16% 82%, rgba(168,85,247,.12), transparent 24%);
+      opacity: .95;
+    }
+    .player-hero-copy,
+    .player-rank-panel {
+      position: relative;
+      z-index: 1;
+    }
+    .player-hero-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .player-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 8px 12px;
+      font-size: 11px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: #dbe7ff;
+      background: rgba(255,255,255,.06);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+    }
+    .player-main-name {
+      margin: 0;
+      font-size: clamp(38px, 4.6vw, 68px);
+      line-height: .92;
+      letter-spacing: -.05em;
+      text-shadow: 0 6px 22px rgba(0,0,0,.28);
+    }
+    .player-subcopy {
+      margin: 0;
+      color: #d0d8ea;
+      line-height: 1.75;
+      max-width: 62ch;
+      font-size: 15px;
+    }
+    .player-rank-panel {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+    .player-rank-box {
+      padding: 20px;
+      border-radius: 6px;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.05),
+        0 16px 30px rgba(0,0,0,.18);
+    }
+    .player-rank-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      color: #b6c2dd;
+      margin-bottom: 10px;
+    }
+    .player-rank-value {
+      font-size: clamp(28px, 3vw, 44px);
+      font-weight: 900;
+      line-height: 1.02;
+      letter-spacing: -.03em;
+    }
+    .player-profile-stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .player-profile-stats .stat {
+      position: relative;
+      overflow: hidden;
+      min-height: 144px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px 16px;
+      background:
+        linear-gradient(180deg, rgba(17,24,39,.96), rgba(10,14,25,.96)),
+        radial-gradient(circle at top right, rgba(59,130,246,.14), transparent 30%);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.04),
+        0 16px 28px rgba(0,0,0,.18);
+    }
+    .player-profile-stats .stat::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(135deg, rgba(255,255,255,.06), transparent 32%);
+      opacity: .85;
+    }
+    .player-profile-stats .stat-label,
+    .player-profile-stats .stat-value {
+      position: relative;
+      z-index: 1;
+    }
+    .player-profile-stats .stat-label {
+      text-align: left;
+      margin-bottom: 14px;
+      color: #aeb9d4;
+      text-transform: uppercase;
+      letter-spacing: .11em;
+      font-size: 11px;
+    }
+    .player-profile-stats .stat-value {
+      text-align: left;
+      font-size: clamp(30px, 3vw, 38px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -.03em;
+    }
+
     @media (max-width: 1180px) {
-      .grid-2, .grid-3, .team-grid, .form-grid { grid-template-columns: 1fr; }
+      .grid-2, .grid-3, .team-grid, .form-grid, .players-layout, .player-form-grid, .player-profile-stats, .player-hero-card { grid-template-columns: 1fr; }
       .hero { min-height: 210px; }
       .hero-summary .stats, .stats { grid-template-columns: repeat(2, 1fr); }
       .site-header, .main-nav { padding-left: 14px; padding-right: 14px; }
@@ -446,7 +692,7 @@
     .podium-rank-2,
     .podium-rank-3 {
       background: linear-gradient(180deg, rgba(17,24,39,.96), rgba(12,18,36,.96)) !important;
-      border-color: rgba(129,141,255,.24) !important;
+      border-color: transparent !important;
       box-shadow: 0 8px 22px rgba(49,46,129,.12) !important;
     }
 
@@ -460,15 +706,15 @@
 
     .tab-btn:not(.active):hover,
     button:not(.primary):not(.success):not(.danger):hover {
-      border-color: rgba(129,141,255,.28);
+      border-color: transparent;
       background: linear-gradient(180deg, rgba(22,28,48,.95), rgba(10,14,26,.95));
     }
 
     table tbody tr td {
       background:
         linear-gradient(90deg, rgba(11,16,30,.96), rgba(16,22,42,.94) 52%, rgba(31,20,52,.82)) !important;
-      border-top: 1px solid rgba(99,102,241,.18) !important;
-      border-bottom: 1px solid rgba(59,130,246,.12) !important;
+      border-top: none !important;
+      border-bottom: none !important;
     }
 
     table tbody tr:hover td {
@@ -490,7 +736,7 @@
     .pill-loss { color: #c4b5fd; }
     .badge {
       background: linear-gradient(180deg, rgba(15,20,35,.90), rgba(10,13,24,.90));
-      border-color: rgba(129,141,255,.20);
+      border-color: transparent;
       color: #d5dbeb;
     }
     .section-title,
@@ -543,7 +789,7 @@
       <div class="grid-3">
         <div class="card">
           <div class="split">
-            <h2 class="section-title">Recent Matches</h2>
+            <h2 class="section-title">Latest Matches</h2>
             <button class="ghost" id="goToMatches">Open Matches</button>
           </div>
           <div id="recentMatches"></div>
@@ -560,7 +806,7 @@
     </section>
 
     <section id="leaderboards" class="page">
-      <div class="grid-2">
+      <div class="grid-2 players-layout">
         <div class="card">
           <div class="toolbar" style="margin-top:0; margin-bottom:14px;">
             <button class="tab-btn active" id="eloRankingBtn" type="button">ELO Ranking</button>
@@ -573,6 +819,16 @@
           <select id="playerDrilldownSelect"></select>
           <div id="playerDrilldown" style="margin-top:14px;"></div>
         </div>
+      </div>
+    </section>
+
+    <section id="playerProfile" class="page">
+      <div class="public-player-shell">
+        <div class="toolbar" style="margin-top:0; margin-bottom:0;">
+          <button id="backToRankingsBtn" type="button">← Back to Rankings</button>
+          <span class="badge">Public Player Card</span>
+        </div>
+        <div id="publicPlayerProfile"></div>
       </div>
     </section>
 
@@ -626,7 +882,7 @@
                     <input id="side1TeamAScore" type="number" min="0" value="0" />
                   </div>
                 </div>
-                <h3>Roster & player stats</h3>
+                <h3>Roster & Individual Stats</h3>
                 <div id="side1TeamAPlayers"></div>
                 <button type="button" id="addSide1PlayerA">+ Add Player to Team A</button>
               </div>
@@ -637,7 +893,7 @@
                     <input id="side1TeamBScore" type="number" min="0" value="0" />
                   </div>
                 </div>
-                <h3>Roster & player stats</h3>
+                <h3>Roster & Individual Stats</h3>
                 <div id="side1TeamBPlayers"></div>
                 <button type="button" id="addSide1PlayerB">+ Add Player to Team B</button>
               </div>
@@ -657,7 +913,7 @@
                     <input id="side2TeamAScore" type="number" min="0" value="0" />
                   </div>
                 </div>
-                <h3>Roster & player stats</h3>
+                <h3>Roster & Individual Stats</h3>
                 <div id="side2TeamAPlayers"></div>
                 <button type="button" id="addSide2PlayerA">+ Add Player to Team A</button>
               </div>
@@ -668,7 +924,7 @@
                     <input id="side2TeamBScore" type="number" min="0" value="0" />
                   </div>
                 </div>
-                <h3>Roster & player stats</h3>
+                <h3>Roster & Individual Stats</h3>
                 <div id="side2TeamBPlayers"></div>
                 <button type="button" id="addSide2PlayerB">+ Add Player to Team B</button>
               </div>
@@ -691,7 +947,7 @@
             <h3 style="margin-top:0;">Bulk Import Matches</h3>
             <p class="subtitle" style="margin-bottom:12px;">
               Paste rows from Excel / Google Sheets or upload scoreboard images.
-              Bulk import reads rows in pairs, so 2 rows = 1 official match.
+              Bulk import reads rows <strong>in pairs</strong>, so <strong>2 rows = 1 official match</strong>.
             </p>
 
             <div class="ocr-panel">
@@ -701,7 +957,7 @@
                   <input id="bulkImportMatchesImageFiles" type="file" accept="image/*" multiple />
                 </div>
                 <div>
-                  <label>Date OCR import</label>
+                  <label>OCR import date</label>
                   <input id="bulkImportMatchesImageDate" type="date" />
                 </div>
               </div>
@@ -712,8 +968,8 @@
               </div>
 
               <div class="footer-note">
-                OCR keeps only players already in the Player DB.
-                Unknown or uncertain names are shown in warnings for manual correction.
+                OCR keeps only players that already exist in the Player DB.
+                Unknown or uncertain names appear in warnings for manual correction.
                 Team names are not read from the image.
               </div>
 
@@ -750,16 +1006,16 @@
             </div>
             <div class="footer-note">
               Import reads rows in pairs and counts them as 1 official match.
-              Supports 6v6, 5v5, 4v4 etc., as long as each side has at least one player per team.
+              Supports 6v6, 5v5, 4v4 etc, as long as each side has at least one player per team.
             </div>
           </div>
-          <div class="footer-note">In history you can import stats per official match with format: username kills deaths. Matching is based on username, not order.</div>
-          <div class="footer-note">Each save automatically recalculates the full leaderboard from scratch so edits and deletes remain correct.</div>
+          <div class="footer-note">In the history section, you can import stats per official match with format: username kills deaths. Matching is based on username, not order.</div>
+          <div class="footer-note">Every save automatically recalculates the entire leaderboard from scratch so edits/deletes remain accurate.</div>
         </div>
 
         <div class="card" id="matchesHistoryCard">
           <div class="split">
-            <h2 class="section-title">Official Matches History</h2>
+            <h2 class="section-title">Official Match History</h2>
             <span class="badge" id="matchesCountBadge"></span>
           </div>
           <div id="matchesList"></div>
@@ -819,9 +1075,10 @@
 
     <section id="players" class="page">
       <div class="grid-2">
-        <div class="card">
+        <div class="card player-editor-card">
           <h2 class="section-title">Add / Edit Player</h2>
-          <div class="form-grid">
+          <p class="player-editor-intro">Larger and cleaner form for faster player entry without cramped fields.</p>
+          <div class="player-form-grid">
             <div>
               <label>Name</label>
               <input id="playerName" />
@@ -858,11 +1115,11 @@
             <button class="success" id="savePlayerBtn">Save Player</button>
             <button id="resetPlayerForm">Clear</button>
           </div>
-          <div class="card" style="padding:14px; margin-top:12px;">
+          <div class="card bulk-player-import-card">
             <h3 style="margin-top:0;">Bulk Import Players</h3>
             <p class="subtitle" style="margin-bottom:12px;">
-              Paste from Excel / Google Sheets with 2 columns: USERNAME and Starting ELO.
-              Supports tab, Greek or English separators, and one row per player.
+              Paste from Excel / Google Sheets with 2 columns: <strong>USERNAME</strong> and <strong>Starting ELO</strong>.
+              Accepts tab, Greek or English separator, and one row per player.
             </p>
             <textarea id="bulkImportPlayersInput" placeholder="USERNAME	Starting ELO&#10;PlayerOne	1000&#10;PlayerTwo	1150"></textarea>
             <div class="toolbar">
@@ -871,14 +1128,14 @@
               <button id="clearBulkImportBtn">Clear Field</button>
             </div>
             <div class="footer-note">
-              If a player with the same name already exists, only the Base ELO will be updated and the remaining starting stats will stay the same.
+              If a player with the same name already exists, only the Base ELO will be updated and the rest of the starting stats will remain the same.
             </div>
           </div>
-          <div class="footer-note">If you delete a player already used in a match, old matches stay saved but the player will no longer appear in selectors.</div>
+          <div class="footer-note">If you delete a player already used in a match, old matches remain stored but the player will no longer appear in the selectors.</div>
         </div>
         <div class="card">
           <div class="split">
-            <h2 class="section-title">Players Database</h2>
+            <h2 class="section-title">Player Database</h2>
             <span class="badge" id="playersCountBadge"></span>
           </div>
           <div id="playersTable"></div>
@@ -895,7 +1152,7 @@
         </div>
         <div class="card gold-card admin-only" id="howRankingAdminCard">
           <h2 class="section-title">Edit Ranking Explanation</h2>
-          <label>Public explanation text</label>
+          <label>Public Explanation Text</label>
           <textarea id="howRankingWorksInput" style="min-height:280px;"></textarea>
           <div class="toolbar">
             <button class="success" id="saveHowRankingWorksBtn">Save Text</button>
@@ -920,11 +1177,11 @@
           </div>
           <div class="form-grid" style="grid-template-columns: repeat(2, 1fr);">
             <div>
-              <label>Base ELO for new players</label>
+              <label>Base ELO for New Players</label>
               <input id="defaultEloSetting" type="number" value="1000" />
             </div>
             <div>
-              <label>K-factor per match (legacy)</label>
+              <label>K-factor per Match (legacy)</label>
               <input id="kFactorSetting" type="number" value="24" />
             </div>
             <div>
@@ -947,7 +1204,7 @@
 
           <div class="card panel-accent" style="padding:14px; margin-top:12px;">
             <h3 style="margin-top:0;">Known Issues</h3>
-            <label>Notes / known project issues</label>
+            <label>Notes / Known Project Issues</label>
             <textarea id="knownIssuesInput" placeholder="Write known issues for the current live version here..." style="min-height:180px;"></textarea>
             <div class="toolbar">
               <button class="success" id="saveKnownIssuesBtn">Save Known Issues</button>
@@ -956,12 +1213,12 @@
         </div>
 
         <div class="card">
-          <h2 class="section-title">How Ranking Works</h2>
+          <h2 class="section-title">How the Ranking Works</h2>
           <ul class="muted">
             <li>You can edit/delete any match.</li>
-            <li>With import/export you keep a backup without a server.</li>
+            <li>Import/export lets you keep backups without a server.</li>
             <li>You can hide players from the leaderboard without removing them from matches.</li>
-            <li>Data is stored locally in the browser via localStorage.</li>
+            <li>Data is stored locally in the browser through localStorage.</li>
           </ul>
           <div id="settingsPreview"></div>
         </div>
@@ -1038,8 +1295,8 @@
           eloWinLossWeight: 5,
           eloKdWeight: 5,
           eloOverallScale: 0.5,
-          knownIssues: "- Performance warning may appear during heavy delete/recalc actions.\n- Bulk import matches without kills/deaths can distort ELO because KD=0.\n- The ELO formula needs rebalancing in a future version.",
-          howRankingWorks: "The current ELO starts from the base ELO and then adds the effects from Win/Loss and KD.\n\nCurrent ELO = base ELO + eloOverallScale * ((eloWinLossWeight * (wins-losses)) + (eloKdWeight * ((KD - 1) * 10)))\n\nSo the ranking is affected both by the official match result and by individual kills/deaths.",
+          knownIssues: "- Performance warning μπορεί να εμφανιστεί σε βαριά delete/recalc actions.\n- Bulk import matches χωρίς kills/deaths δίνει στρεβλό ELO λόγω KD=0.\n- Η φόρμουλα ELO θέλει rebalance σε επόμενο version.",
+          howRankingWorks: "Το current ELO προκύπτει από το base ELO και έπειτα προστίθενται τα effects από Win/Loss και KD.\n\nCurrent ELO = base ELO + eloOverallScale * ((eloWinLossWeight * (wins-losses)) + (eloKdWeight * ((KD - 1) * 10)))\n\nΆρα το ranking επηρεάζεται και από το αποτέλεσμα του official match και από τα ατομικά kills/deaths.",
           liveVersion: APP_VERSION
         },
         players: structuredClone(defaultSeedPlayers).map(p => ({
@@ -1088,7 +1345,7 @@
     function getAuthHeaders(json = false) {
       const session = getSession();
       if (!session || !session.access_token) {
-        throw new Error("There is no active admin session.");
+        throw new Error("Δεν υπάρχει ενεργό admin session.");
       }
       const headers = {
         apikey: SUPABASE_PUBLISHABLE_KEY,
@@ -1110,7 +1367,7 @@
         data = text;
       }
       if (!response.ok) {
-        const message = data && data.message ? data.message : (typeof data === "string" ? data : "Failed to communicate with Supabase.");
+        const message = data && data.message ? data.message : (typeof data === "string" ? data : "Αποτυχία επικοινωνίας με Supabase.");
         throw new Error(message);
       }
       return data;
@@ -1192,7 +1449,7 @@
       const email = document.getElementById("adminEmail").value.trim();
       const password = document.getElementById("adminPassword").value;
       if (!email || !password) {
-        alert("Enter email and password for admin login.");
+        alert("Βάλε email και password για admin login.");
         return;
       }
       try {
@@ -1207,14 +1464,14 @@
           const text = await res.text();
           let json = null;
           try { json = text ? JSON.parse(text) : null; } catch { json = text; }
-          if (!res.ok) throw new Error(json && json.msg ? json.msg : json && json.message ? json.message : "Login failed.");
+          if (!res.ok) throw new Error(json && json.msg ? json.msg : json && json.message ? json.message : "Απέτυχε το login.");
           return json;
         });
 
         if (!data.user || !ADMIN_USER_IDS.includes(data.user.id)) {
           setSession(null);
           refreshAuthUi();
-          throw new Error("This account does not have admin permissions.");
+          throw new Error("Αυτός ο λογαριασμός δεν έχει admin δικαιώματα.");
         }
 
         setSession({ access_token: data.access_token, refresh_token: data.refresh_token, user: data.user });
@@ -1222,9 +1479,9 @@
         refreshAuthUi();
         refreshPublicUi();
         renderAll();
-        alert("Admin login successful.");
+        alert("Έγινε admin login.");
       } catch (err) {
-        alert(err.message || "Login failed.");
+        alert(err.message || "Απέτυχε το login.");
       }
     }
 
@@ -1233,12 +1490,12 @@
       refreshAuthUi();
       refreshPublicUi();
       renderAll();
-      alert("You have been logged out.");
+      alert("Έγινες logout.");
     }
 
     function requireAdmin() {
       if (!isAdminLoggedIn()) {
-        alert("This action requires admin login.");
+        alert("Αυτή η ενέργεια θέλει admin login.");
         return false;
       }
       return true;
@@ -1512,7 +1769,7 @@
           }
         }
       } catch (err) {
-        alert(err.message || "Cloud save failed.");
+        alert(err.message || "Απέτυχε το cloud save.");
         throw err;
       }
     }
@@ -1521,7 +1778,7 @@
       try {
         state.data = await fetchCloudData();
       } catch (err) {
-        alert("Cloud load failed: " + (err.message || err));
+        alert("Απέτυχε η φόρτωση από το cloud: " + (err.message || err));
         state.data = initialData();
       }
 
@@ -1562,7 +1819,7 @@
 
     function getPlayerName(id) {
       const p = getPlayerById(id);
-      return p ? p.name : "(deleted player)";
+      return p ? p.name : "(διαγραμμένος παίκτης)";
     }
 
     function expectedScore(teamElo, oppElo) {
@@ -1722,7 +1979,7 @@
         wrap.appendChild(el);
       });
       if (!rows.length) {
-        wrap.innerHTML = `<div class="empty">There are no players in this team yet.</div>`;
+        wrap.innerHTML = `<div class="empty">Δεν υπάρχουν παίκτες σε αυτό το team ακόμα.</div>`;
       }
     }
 
@@ -1770,24 +2027,24 @@
       const nonEmpty = parts.filter(Boolean);
 
       if (nonEmpty.length < 6) {
-        throw new Error("Too little data.");
+        throw new Error("Πολύ λίγα δεδομένα.");
       }
 
       const matchCode = String(parts[0] || "").trim();
       const dateRaw = String(parts[1] || "").trim();
 
       if (!matchCode) {
-        throw new Error("Missing side code (e.g. M001).");
+        throw new Error("Λείπει ο κωδικός side (π.χ. M001).");
       }
       if (!dateRaw) {
-        throw new Error("Missing date.");
+        throw new Error("Λείπει η ημερομηνία.");
       }
 
       const lastNonEmpty = nonEmpty[nonEmpty.length - 1];
       const secondLastNonEmpty = nonEmpty[nonEmpty.length - 2];
 
       if (Number.isNaN(Number(String(secondLastNonEmpty).replace(",", "."))) || Number.isNaN(Number(String(lastNonEmpty).replace(",", ".")))) {
-        throw new Error("The last 2 fields must be Score A and Score B.");
+        throw new Error("Τα τελευταία 2 πεδία πρέπει να είναι Score A και Score B.");
       }
 
       const scoreA = Number(String(secondLastNonEmpty).replace(",", "."));
@@ -1806,7 +2063,7 @@
       }
 
       if (trailingScoresFound < 2) {
-        throw new Error("Scores were not found correctly.");
+        throw new Error("Δεν βρέθηκαν σωστά τα scores.");
       }
 
       const rosterParts = coreParts.slice(0, contentEnd + 1);
@@ -1825,14 +2082,14 @@
       }
 
       if (separatorIndex === -1) {
-        throw new Error("Team separator was not found.");
+        throw new Error("Δεν βρέθηκε separator ομάδων.");
       }
 
       const teamANames = rosterParts.slice(0, separatorIndex).filter(Boolean);
       const teamBNames = rosterParts.slice(separatorIndex + 1).filter(Boolean);
 
       if (!teamANames.length || !teamBNames.length) {
-        throw new Error("Each team must have at least one player.");
+        throw new Error("Κάθε ομάδα πρέπει να έχει τουλάχιστον έναν παίκτη.");
       }
 
       return { matchCode, dateRaw, teamANames, teamBNames, scoreA, scoreB };
@@ -1846,12 +2103,12 @@
         const sideBIds = (side.teamB.players || []).map(x => x.playerId).filter(Boolean);
 
         if (!sideAIds.length || !sideBIds.length) {
-          return sideLabel + ": each team must have at least one player.";
+          return sideLabel + ": κάθε ομάδα πρέπει να έχει τουλάχιστον έναν παίκτη.";
         }
 
         const sideUnique = new Set(sideAIds.concat(sideBIds));
         if (sideUnique.size !== sideAIds.length + sideBIds.length) {
-          return sideLabel + ": the same player cannot appear twice in the same side.";
+          return sideLabel + ": ο ίδιος παίκτης δεν γίνεται να υπάρχει δύο φορές στο ίδιο side.";
         }
       }
       return null;
@@ -1864,19 +2121,19 @@
 
       if (!(payload.teamA && payload.teamA.players && payload.teamA.players.length) ||
           !(payload.teamB && payload.teamB.players && payload.teamB.players.length)) {
-        return "Each team must have at least one player.";
+        return "Κάθε ομάδα πρέπει να έχει τουλάχιστον έναν παίκτη.";
       }
 
       if (!payload.sides || !payload.sides.length) {
         const ids = [].concat(teamAIds, teamBIds);
         const unique = new Set(ids);
         if (ids.length !== unique.size) {
-          return "The same player cannot appear twice in the same official match.";
+          return "Ο ίδιος παίκτης δεν γίνεται να υπάρχει δύο φορές στο ίδιο official match.";
         }
       }
 
       if (!payload.date) {
-        return "Enter match date.";
+        return "Βάλε ημερομηνία αγώνα.";
       }
       return null;
     }
@@ -2085,17 +2342,17 @@ function normalizePlayerNameForCompare(value) {
       side1List.innerHTML = [
         ...firstPair.side1.teamA.map(x => `<li>A: ${escapeHtml(x.playerName)} — ${x.kills}/${x.deaths}</li>`),
         ...firstPair.side1.teamB.map(x => `<li>B: ${escapeHtml(x.playerName)} — ${x.kills}/${x.deaths}</li>`)
-      ].join("") || '<li>No players found in the DB.</li>';
+      ].join("") || '<li>Δεν βρέθηκαν παίκτες από το DB.</li>';
 
       side2List.innerHTML = [
         ...firstPair.side2.teamA.map(x => `<li>A: ${escapeHtml(x.playerName)} — ${x.kills}/${x.deaths}</li>`),
         ...firstPair.side2.teamB.map(x => `<li>B: ${escapeHtml(x.playerName)} — ${x.kills}/${x.deaths}</li>`)
-      ].join("") || '<li>No players found in the DB.</li>';
+      ].join("") || '<li>Δεν βρέθηκαν παίκτες από το DB.</li>';
 
       const warnings = preview.warnings || [];
       if (warnings.length) {
         warningsBox.classList.remove("ocr-hidden");
-        warningsBox.innerHTML = `<strong>Possible name corrections</strong><ul class="ocr-list">${warnings.map(w => `<li>${escapeHtml(w.rawName)} → ${escapeHtml(w.suggested || "-")}${w.suggestions && w.suggestions.length ? ` (possible: ${escapeHtml(w.suggestions.join(", "))})` : ""}</li>`).join("")}</ul>`;
+        warningsBox.innerHTML = `<strong>Πιθανές διορθώσεις ονομάτων</strong><ul class="ocr-list">${warnings.map(w => `<li>${escapeHtml(w.rawName)} → ${escapeHtml(w.suggested || "-")}${w.suggestions && w.suggestions.length ? ` (πιθανά: ${escapeHtml(w.suggestions.join(", "))})` : ""}</li>`).join("")}</ul>`;
       } else {
         warningsBox.classList.add("ocr-hidden");
         warningsBox.innerHTML = "";
@@ -2104,7 +2361,7 @@ function normalizePlayerNameForCompare(value) {
       const unknowns = preview.unknowns || [];
       if (unknowns.length) {
         unknownBox.classList.remove("ocr-hidden");
-        unknownBox.innerHTML = `<strong>Players outside the DB or without a safe match</strong><ul class="ocr-list">${unknowns.map(u => `<li>${escapeHtml(u.rawName)}${u.suggestions && u.suggestions.length ? ` (possible: ${escapeHtml(u.suggestions.join(", "))})` : ""}</li>`).join("")}</ul>`;
+        unknownBox.innerHTML = `<strong>Παίκτες εκτός DB ή χωρίς ασφαλές match</strong><ul class="ocr-list">${unknowns.map(u => `<li>${escapeHtml(u.rawName)}${u.suggestions && u.suggestions.length ? ` (πιθανά: ${escapeHtml(u.suggestions.join(", "))})` : ""}</li>`).join("")}</ul>`;
       } else {
         unknownBox.classList.add("ocr-hidden");
         unknownBox.innerHTML = "";
@@ -2136,11 +2393,11 @@ function normalizePlayerNameForCompare(value) {
       const files = Array.from(document.getElementById("bulkImportMatchesImageFiles").files || []);
       const dateInput = document.getElementById("bulkImportMatchesImageDate").value || new Date().toISOString().slice(0, 10);
       if (!files.length) {
-        alert("Select at least 2 images.");
+        alert("Διάλεξε τουλάχιστον 2 εικόνες.");
         return;
       }
       if (files.length % 2 !== 0) {
-        alert("OCR import requires an even number of images. Every 2 images = 1 official match.");
+        alert("Το OCR import θέλει ζυγό αριθμό εικόνων. Κάθε 2 εικόνες = 1 official match.");
         return;
       }
 
@@ -2205,7 +2462,7 @@ function normalizePlayerNameForCompare(value) {
         state.ui.ocrBulkPreview = preview;
         renderOcrBulkPreview(preview);
       } catch (err) {
-        alert(err.message || "OCR parse failed.");
+        alert(err.message || "Απέτυχε το OCR parse.");
       }
     }
 
@@ -2214,12 +2471,12 @@ async function bulkImportMatches() {
       const lines = raw.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
 
       if (!lines.length) {
-        alert("Paste at least 2 rows.");
+        alert("Κάνε paste τουλάχιστον 2 γραμμές.");
         return;
       }
 
       if (lines.length % 2 !== 0) {
-        alert("Bulk import requires an even number of rows. Every 2 rows = 1 official match.");
+        alert("Το bulk import θέλει ζυγό αριθμό γραμμών. Κάθε 2 γραμμές = 1 official match.");
         return;
       }
 
@@ -2259,7 +2516,7 @@ async function bulkImportMatches() {
           )));
 
           if (missingNames.length) {
-            throw new Error("The following players do not exist in the database: " + missingNames.join(", "));
+            throw new Error("Οι παρακάτω παίκτες δεν υπάρχουν στη βάση: " + missingNames.join(", "));
           }
 
           const sides = [
@@ -2312,12 +2569,12 @@ async function bulkImportMatches() {
 
           importedMatches.push(payload);
         } catch (err) {
-          errors.push("Rows " + (i + 1) + "-" + (i + 2) + ": " + err.message);
+          errors.push("Γραμμές " + (i + 1) + "-" + (i + 2) + ": " + err.message);
         }
       }
 
       if (!importedMatches.length) {
-        alert("No official match was imported.\n\n" + errors.join("\n"));
+        alert("Δεν έγινε import κανενός official match.\n\n" + errors.join("\n"));
         return;
       }
 
@@ -2325,9 +2582,9 @@ async function bulkImportMatches() {
       await saveState();
       renderAll();
 
-      let message = "Import completed.\nOfficial matches: " + importedMatches.length;
+      let message = "Το import ολοκληρώθηκε.\nOfficial matches: " + importedMatches.length;
       if (errors.length) {
-        message += "\n\nIgnored pairs:\n" + errors.join("\n");
+        message += "\n\nPairs που αγνοήθηκαν:\n" + errors.join("\n");
       }
       alert(message);
     }
@@ -2514,24 +2771,24 @@ async function bulkImportMatches() {
     function parseSideStatsImport(raw) {
       const lines = String(raw || "").split(/\r?\n/).map(line => line.trim()).filter(Boolean);
       if (!lines.length) {
-        throw new Error("No rows found for import.");
+        throw new Error("Δεν βρέθηκαν γραμμές για import.");
       }
 
       const entries = [];
       lines.forEach((line, index) => {
         const parts = line.split(/\s+/).filter(Boolean);
         if (parts.length < 3) {
-          throw new Error("Row " + (index + 1) + ": 3 fields are required (username kills deaths).");
+          throw new Error("Γραμμή " + (index + 1) + ": χρειάζονται 3 πεδία (username kills deaths).");
         }
         const deathsRaw = parts[parts.length - 1].replace(",", ".");
         const killsRaw = parts[parts.length - 2].replace(",", ".");
         const username = parts.slice(0, parts.length - 2).join(" ").trim();
 
         if (!username) {
-          throw new Error("Row " + (index + 1) + ": username is missing.");
+          throw new Error("Γραμμή " + (index + 1) + ": λείπει το username.");
         }
         if (!Number.isFinite(Number(killsRaw)) || !Number.isFinite(Number(deathsRaw))) {
-          throw new Error("Row " + (index + 1) + ": kills/deaths must be numbers.");
+          throw new Error("Γραμμή " + (index + 1) + ": kills/deaths πρέπει να είναι αριθμοί.");
         }
 
         entries.push({
@@ -2549,22 +2806,22 @@ async function bulkImportMatches() {
       if (!match) return;
 
       if (!Array.isArray(match.sides) || match.sides.length < 2) {
-        alert("This match does not have 2 available sides for stat import.");
+        alert("Αυτό το match δεν έχει διαθέσιμα 2 sides για import stats.");
         return;
       }
 
-      const sideChoice = prompt("Which side do you want to import? Type 1 or 2.");
+      const sideChoice = prompt("Σε ποιο side θες import; Γράψε 1 ή 2.");
       if (sideChoice === null) return;
 
       const sideIndex = Number(String(sideChoice).trim()) - 1;
       if (![0, 1].includes(sideIndex)) {
-        alert("Invalid side. Enter 1 or 2.");
+        alert("Μη έγκυρο side. Δώσε 1 ή 2.");
         return;
       }
 
       const side = match.sides[sideIndex];
       const example = "username kills deaths\nPlayerOne 25 14\nPlayerTwo 18 20";
-      const raw = prompt("Paste stats for " + (side.label || ("Side " + (sideIndex + 1))) + " with format:\nusername kills deaths\n\nExample:\n" + example);
+      const raw = prompt("Κάνε paste stats για " + (side.label || ("Side " + (sideIndex + 1))) + " με format:\nusername kills deaths\n\nΠαράδειγμα:\n" + example);
       if (raw === null) return;
 
       try {
@@ -2593,22 +2850,22 @@ async function bulkImportMatches() {
         });
 
         if (unknown.length) {
-          throw new Error("The following players were not found on the selected side: " + unknown.join(", "));
+          throw new Error("Δεν βρέθηκαν στο selected side οι παίκτες: " + unknown.join(", "));
         }
 
         syncMatchAggregatesFromSides(match);
         await saveState();
         renderAll();
-        alert("Stats import completed for " + (side.label || ("Side " + (sideIndex + 1))) + ".");
+        alert("Το import stats ολοκληρώθηκε για " + (side.label || ("Side " + (sideIndex + 1))) + ".");
       } catch (err) {
-        alert(err.message || "Stat import failed.");
+        alert(err.message || "Αποτυχία στο import stats.");
       }
     }
 
 
     async function deleteMatch(id) {
       if (!requireAdmin()) return;
-      if (!confirm("Delete this official match?")) return;
+      if (!confirm("Να διαγραφεί το συγκεκριμένο official match;")) return;
       state.data.matches = state.data.matches.filter(m => m.id !== id);
       await saveState();
       renderAll();
@@ -2639,9 +2896,9 @@ function resetPlayerForm() {
       };
       payload.startingMatches = payload.startingWins + payload.startingLosses;
 
-      if (!payload.name) return alert("Enter a player name.");
+      if (!payload.name) return alert("Βάλε όνομα παίκτη.");
       const duplicate = state.data.players.find(p => p.name.toLowerCase() === payload.name.toLowerCase() && p.id !== payload.id);
-      if (duplicate) return alert("A player with this name already exists.");
+      if (duplicate) return alert("Υπάρχει ήδη παίκτης με αυτό το όνομα.");
 
       const idx = state.data.players.findIndex(p => p.id === payload.id);
       if (idx >= 0) state.data.players[idx] = payload;
@@ -2671,7 +2928,7 @@ function resetPlayerForm() {
           : line.split(/[;,|]/);
 
         if (parts.length < 2) {
-          throw new Error(`Row ${index + 1}: 2 columns are required (USERNAME and Starting ELO).`);
+          throw new Error(`Γραμμή ${index + 1}: χρειάζονται 2 στήλες (USERNAME και Starting ELO).`);
         }
 
         const name = String(parts[0] || "").trim();
@@ -2679,7 +2936,7 @@ function resetPlayerForm() {
         const normalizedName = name.toLowerCase();
         const normalizedElo = eloRaw.toLowerCase();
 
-        const looksLikeHeader = ["username", "user", "player", "name", "name", "player", "player"].includes(normalizedName)
+        const looksLikeHeader = ["username", "user", "player", "όνομα", "ονομα", "παίκτης", "παικτης"].includes(normalizedName)
           && ["starting elo", "elo", "base elo", "start elo", "startingelo"].includes(normalizedElo.replace(/\s+/g, " "));
 
         if (looksLikeHeader) {
@@ -2688,12 +2945,12 @@ function resetPlayerForm() {
         }
 
         if (!name) {
-          throw new Error(`Row ${index + 1}: username is missing.`);
+          throw new Error(`Γραμμή ${index + 1}: λείπει το username.`);
         }
 
         const elo = Number(eloRaw);
         if (!Number.isFinite(elo)) {
-          throw new Error(`Row ${index + 1}: Starting ELO is not a valid number.`);
+          throw new Error(`Γραμμή ${index + 1}: το Starting ELO δεν είναι έγκυρος αριθμός.`);
         }
 
         entries.push({ name, baseElo: Math.round(elo) });
@@ -2709,7 +2966,7 @@ function resetPlayerForm() {
       try {
         const { entries } = parseBulkPlayerImport(raw);
         if (!entries.length) {
-          alert("No rows found for import.");
+          alert("Δεν βρέθηκαν γραμμές για import.");
           return;
         }
 
@@ -2741,9 +2998,9 @@ function resetPlayerForm() {
         await saveState();
         renderAll();
         resetPlayerForm();
-        alert(`Import completed. New players: ${created} | Updates: ${updated}`);
+        alert(`Το import ολοκληρώθηκε. Νέοι παίκτες: ${created} | Updates: ${updated}`);
       } catch (err) {
-        alert(err.message || "Player import failed.");
+        alert(err.message || "Αποτυχία στο import παικτών.");
       }
     }
 
@@ -2767,10 +3024,10 @@ function resetPlayerForm() {
       if (!requireAdmin()) return;
       const inMatches = state.data.matches.some(m => [...m.teamA.players, ...m.teamB.players].some(p => p.playerId === id));
       if (inMatches) {
-        alert("This player already exists in historical matches. In the cloud version, deleting is not allowed if the player is already used in a match. Hide the player from the leaderboard if needed.");
+        alert("Ο παίκτης υπάρχει ήδη σε historical matches. Στο cloud version δεν επιτρέπεται delete αν χρησιμοποιείται ήδη σε match. Κρύψψτε τον από το leaderboard αν χρειάζεται.");
         return;
       }
-      if (!confirm("Delete this player?")) return;
+      if (!confirm("Να διαγραφεί ο παίκτης;")) return;
       state.data.players = state.data.players.filter(p => p.id !== id);
       await saveState();
       renderAll();
@@ -2805,9 +3062,9 @@ function resetPlayerForm() {
           state.data = parsed;
           await saveState();
           renderAll();
-          alert("Import completed.");
+          alert("Το import ολοκληρώθηκε.");
         } catch {
-          alert("Invalid JSON file.");
+          alert("Μη έγκυρο JSON αρχείο.");
         }
       };
       reader.readAsText(file);
@@ -2834,7 +3091,7 @@ function resetPlayerForm() {
 
     async function seedDefaults() {
       if (!requireAdmin()) return;
-      if (!confirm("Restore the initial roster from the file you provided?")) return;
+      if (!confirm("Να γίνει επαναφορά του αρχικού roster από το αρχείο που έδωσες;")) return;
       state.data.players = initialData().players;
       await saveState();
       renderAll();
@@ -2854,9 +3111,9 @@ function resetPlayerForm() {
 
     function renderSummary(derived) {
       const visiblePlayersCount = state.data.players.filter(p => p.visibleInLeaderboard !== false).length;
-      const top10 = derived.visibleRanking.slice(0, 10);
-      const topTierKd = top10.length
-        ? (top10.reduce((sum, p) => sum + Number(p.kd || 0), 0) / top10.length)
+      const top8 = derived.visibleRanking.slice(0, 8);
+      const topTierKd = top8.length
+        ? (top8.reduce((sum, p) => sum + Number(p.kd || 0), 0) / top8.length)
         : 0;
       const stats = [
         ["Players", visiblePlayersCount],
@@ -2904,7 +3161,7 @@ function resetPlayerForm() {
           </div>
           <div class="score-big" style="font-size:28px;">${key === "currentElo" ? formatElo(formatter(p)) : formatter(p)}</div>
         </div>
-      `}).join("") || `<div class="empty">There is no data.</div>`;
+      `}).join("") || `<div class="empty">No data available.</div>`;
     }
 
     function renderLeaderboards(derived) {
@@ -2935,9 +3192,14 @@ function resetPlayerForm() {
           <tbody>
             ${
               rowsSource.map(p => `
-                <tr>
+                <tr class="leaderboard-player-row" data-player-id="${p.id}">
                   <td>#${rankingMode === "kd" ? p.kdRank : p.visibleRank}</td>
-                  <td><strong>${escapeHtml(p.name)}</strong></td>
+                  <td class="leaderboard-player-cell">
+                    <button class="player-link-btn" type="button" data-player-id="${p.id}" aria-label="Open player card for ${escapeHtml(p.name)}">
+                      <strong>${escapeHtml(p.name)}</strong>
+                      <span class="muted small">Open player card</span>
+                    </button>
+                  </td>
                   <td>${formatElo(p.currentElo)}</td>
                   <td>${p.kills}</td>
                   <td>${p.deaths}</td>
@@ -2953,6 +3215,14 @@ function resetPlayerForm() {
         </table>
       `;
 
+      document.querySelectorAll("#leaderboardTable [data-player-id]").forEach(el => {
+        el.addEventListener("click", event => {
+          event.preventDefault();
+          const playerId = el.dataset.playerId;
+          if (playerId) openPublicPlayerProfile(playerId);
+        });
+      });
+
       const select = document.getElementById("playerDrilldownSelect");
       const current = select.value;
       select.innerHTML = `<option value="">-- select player --</option>` + state.data.players
@@ -2960,6 +3230,82 @@ function resetPlayerForm() {
         .map(p => `<option value="${p.id}" ${p.id === current ? "selected" : ""}>${escapeHtml(p.name)}</option>`).join("");
       if (!select.value && state.data.players[0]) select.value = state.data.players[0].id;
       renderPlayerDrilldown(derived, select.value);
+    }
+
+    function openPublicPlayerProfile(playerId) {
+      state.ui.publicPlayerId = playerId;
+      setTab("playerProfile");
+      renderPublicPlayerProfile(computeDerived(), playerId);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderPublicPlayerProfile(derived, playerId) {
+      const box = document.getElementById("publicPlayerProfile");
+      if (!box) return;
+      const player = derived.ranking.find(p => p.id === playerId);
+      if (!player) {
+        box.innerHTML = `<div class="card"><div class="empty">Select a player from the leaderboard to open their personal card.</div></div>`;
+        return;
+      }
+
+      const visiblePlayer = derived.visibleRanking.find(p => p.id === player.id);
+      const kdRankPlayer = derived.visibleRankingByKd.find(p => p.id === player.id);
+      const publicKd = player.gtInfantryKillDeath == null ? "-" : formatKd(player.gtInfantryKillDeath);
+      const revives = player.gtRevives == null ? "-" : player.gtRevives.toLocaleString("el-GR");
+      const matchesPlayed = Number(player.matchesPlayed || 0).toLocaleString("el-GR");
+      const winRate = `${(Number(player.winRate || 0) * 100).toFixed(1)}%`;
+      const clanKd = formatKd(player.kd);
+      const rankLabel = visiblePlayer
+        ? `#${visiblePlayer.visibleRank} ELO Ranking`
+        : "Hidden from Leaderboard";
+      const kdRankLabel = kdRankPlayer
+        ? `#${kdRankPlayer.kdRank} KD Ranking`
+        : "No KD Rank";
+
+      box.innerHTML = `
+        <div class="card player-hero-card gold-card">
+          <div class="player-hero-copy">
+            <div>
+              <div class="player-eyebrow">MTS Battlefield Hub • Competitive Profile</div>
+              <h1 class="player-main-name">${escapeHtml(player.name)}</h1>
+            </div>
+            <p class="player-subcopy">Official public player card with a competitive presentation of recorded clan stats and linked GameTools data. Focused on the 5 core profile metrics for a clean esports-style result.</p>
+          </div>
+          <div class="player-rank-panel">
+            <div class="player-rank-box">
+              <div class="player-rank-label">Leaderboard Status</div>
+              <div class="player-rank-value">${rankLabel}</div>
+            </div>
+            <div class="player-rank-box">
+              <div class="player-rank-label">KD Placement</div>
+              <div class="player-rank-value">${kdRankLabel}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="player-profile-stats">
+          <div class="stat">
+            <div class="stat-label">Matches Played</div>
+            <div class="stat-value">${matchesPlayed}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Win Rate</div>
+            <div class="stat-value">${winRate}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Clan KD</div>
+            <div class="stat-value">${clanKd}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Public KD</div>
+            <div class="stat-value">${publicKd}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Revives</div>
+            <div class="stat-value">${revives}</div>
+          </div>
+        </div>
+      `;
     }
 
     function renderPlayerDrilldown(derived, playerId) {
@@ -3000,7 +3346,7 @@ function resetPlayerForm() {
         <div style="margin-top:14px;">
           <table>
             <thead><tr><th>Date</th><th>Match</th><th>Score</th><th>K</th><th>D</th><th>Result</th></tr></thead>
-            <tbody>${logs || `<tr><td colspan="6">There are no match logs.</td></tr>`}</tbody>
+            <tbody>${logs || `<tr><td colspan="6">No match logs.</td></tr>`}</tbody>
           </table>
         </div>
       `;
@@ -3036,7 +3382,7 @@ function resetPlayerForm() {
             <div>
               <div><strong>${escapeHtml(m.teamA.name)}</strong> vs <strong>${escapeHtml(m.teamB.name)}</strong></div>
               <div class="muted small">${escapeHtml(m.date || "")} • ${escapeHtml(m.map || "No map")} • ${escapeHtml(m.mode || "No mode")}</div>
-              <div class="muted small">ELO before: ${m._derived?.teamAEloBefore != null ? formatElo(m._derived?.teamAEloBefore) : "-"} / ${m._derived?.teamBEloBefore != null ? formatElo(m._derived?.teamBEloBefore) : "-"} • dELO: ${formatElo(m._derived?.deltaA ?? 0)} / ${formatElo(m._derived?.deltaB ?? 0)}</div>
+              <div class="muted small">ELO πριν: ${m._derived?.teamAEloBefore != null ? formatElo(m._derived?.teamAEloBefore) : "-"} / ${m._derived?.teamBEloBefore != null ? formatElo(m._derived?.teamBEloBefore) : "-"} • ΔELO: ${formatElo(m._derived?.deltaA ?? 0)} / ${formatElo(m._derived?.deltaB ?? 0)}</div>
             </div>
             <div class="score-big">${m.teamA.score} - ${m.teamB.score}</div>
           </div>
@@ -3054,14 +3400,14 @@ function resetPlayerForm() {
                   <div class="badge">${escapeHtml((side.teamA && side.teamA.name) || m.teamA.name)}</div>
                   <table>
                     <thead><tr><th>Player</th><th>K</th><th>D</th></tr></thead>
-                    <tbody>${(side.teamA.players || []).map(r => `<tr><td>${escapeHtml(getPlayerName(r.playerId))}</td><td>${r.kills}</td><td>${r.deaths}</td></tr>`).join("") || `<tr><td colspan="3">There is no data.</td></tr>`}</tbody>
+                    <tbody>${(side.teamA.players || []).map(r => `<tr><td>${escapeHtml(getPlayerName(r.playerId))}</td><td>${r.kills}</td><td>${r.deaths}</td></tr>`).join("") || `<tr><td colspan="3">No data available.</td></tr>`}</tbody>
                   </table>
                 </div>
                 <div>
                   <div class="badge">${escapeHtml((side.teamB && side.teamB.name) || m.teamB.name)}</div>
                   <table>
                     <thead><tr><th>Player</th><th>K</th><th>D</th></tr></thead>
-                    <tbody>${(side.teamB.players || []).map(r => `<tr><td>${escapeHtml(getPlayerName(r.playerId))}</td><td>${r.kills}</td><td>${r.deaths}</td></tr>`).join("") || `<tr><td colspan="3">There is no data.</td></tr>`}</tbody>
+                    <tbody>${(side.teamB.players || []).map(r => `<tr><td>${escapeHtml(getPlayerName(r.playerId))}</td><td>${r.kills}</td><td>${r.deaths}</td></tr>`).join("") || `<tr><td colspan="3">No data available.</td></tr>`}</tbody>
                   </table>
                 </div>
               </div>
@@ -3148,7 +3494,7 @@ function normalizeExternalName(value) {
       return exact ? exact.id : "";
     }
 
-    function formatGameToolsError(data, fallback = "GameTools request failed.") {
+    function formatGameToolsError(data, fallback = "Αποτυχία GameTools request.") {
       if (!data) return fallback;
 
       if (typeof data === "string") return data;
@@ -3192,7 +3538,7 @@ function normalizeExternalName(value) {
       const name = document.getElementById("gtLookupName").value.trim();
       const platform = normalizeGameToolsPlatform(document.getElementById("gtLookupPlatform").value);
       const skipBattlelog = document.getElementById("gtSkipBattlelog").value;
-      if (!name) return alert("Enter GameTools username.");
+      if (!name) return alert("Βάλε GameTools username.");
       try {
         const url = new URL("https://api.gametools.network/bf6/stats/");
         url.searchParams.set("name", name);
@@ -3203,30 +3549,30 @@ function normalizeExternalName(value) {
         let data = null;
         try { data = text ? JSON.parse(text) : null; } catch { data = text; }
         if (!res.ok) {
-          throw new Error(formatGameToolsError(data, "GameTools fetch failed."));
+          throw new Error(formatGameToolsError(data, "Αποτυχία GameTools fetch."));
         }
-        if (!data || typeof data !== "object") throw new Error("GameTools did not return valid JSON.");
+        if (!data || typeof data !== "object") throw new Error("Το GameTools δεν επέστρεψε έγκυρο JSON.");
         state.ui.gametoolsPreview = { queryName: name, platform, skipBattlelog, data, fetchedAt: new Date().toISOString() };
         renderGameTools();
       } catch (err) {
-        alert(err.message || "Failed to fetch from GameTools.");
+        alert(err.message || "Αποτυχία fetch από GameTools.");
       }
     }
 
     async function linkGameToolsPreviewToPlayer() {
       if (!requireAdmin()) return;
       const preview = state.ui.gametoolsPreview;
-      if (!preview || !preview.data) return alert("Fetch from GameTools first.");
+      if (!preview || !preview.data) return alert("Κάνε πρώτα fetch από το GameTools.");
       const playerId = document.getElementById("gtLinkPlayerSelect").value;
-      if (!playerId) return alert("Select a player from Players DB.");
+      if (!playerId) return alert("Διάλεξε player από το Players DB.");
       const player = getPlayerById(playerId);
-      if (!player) return alert("Player not found.");
+      if (!player) return alert("Ο player δεν βρέθηκε.");
       const duplicate = state.data.players.find(p => p.id !== playerId && p.gtLinkedUserName && normalizeExternalName(p.gtLinkedUserName) === normalizeExternalName(preview.data.userName));
-      if (duplicate) return alert(`The external profile is already linked with player ${duplicate.name}.`);
+      if (duplicate) return alert(`Το external profile είναι ήδη linked με τον player ${duplicate.name}.`);
       applyGameToolsStatsToPlayer(player, preview.data, preview.platform);
       await saveState();
       renderAll();
-      alert(`Player ${player.name} was linked to the GameTools profile ${preview.data.userName}.`);
+      alert(`Ο player ${player.name} έγινε link με το GameTools profile ${preview.data.userName}.`);
     }
 
     async function syncGameToolsDataForPlayer(player) {
@@ -3239,7 +3585,7 @@ function normalizeExternalName(value) {
       let data = null;
       try { data = text ? JSON.parse(text) : null; } catch { data = text; }
       if (!res.ok) {
-        throw new Error(formatGameToolsError(data, `GameTools sync failed for ${player.name}.`));
+        throw new Error(formatGameToolsError(data, `Αποτυχία GameTools sync για ${player.name}.`));
       }
       applyGameToolsStatsToPlayer(player, data, player.gtPlatform || "pc");
       state.ui.gametoolsPreview = { queryName: player.gtLinkedUserName, platform: player.gtPlatform || "pc", skipBattlelog: "true", data, fetchedAt: new Date().toISOString() };
@@ -3249,16 +3595,16 @@ function normalizeExternalName(value) {
       if (!requireAdmin()) return;
       const player = getPlayerById(playerId);
       if (!player || !player.gtLinkedUserName) {
-        if (!silent) alert("The player does not have a linked GameTools profile.");
+        if (!silent) alert("Ο player δεν έχει linked GameTools profile.");
         return;
       }
       try {
         await syncGameToolsDataForPlayer(player);
         await saveState();
         renderAll();
-        if (!silent) alert(`Sync completed for player ${player.name}.`);
+        if (!silent) alert(`Έγινε sync για τον player ${player.name}.`);
       } catch (err) {
-        if (!silent) alert(err.message || "GameTools sync failed.");
+        if (!silent) alert(err.message || "Αποτυχία sync από GameTools.");
         throw err;
       }
     }
@@ -3266,7 +3612,7 @@ function normalizeExternalName(value) {
     async function syncAllLinkedGameToolsPlayers() {
       if (!requireAdmin()) return;
       const linkedPlayers = state.data.players.filter(p => p.gtLinkedUserName);
-      if (!linkedPlayers.length) return alert("There are no linked players to sync.");
+      if (!linkedPlayers.length) return alert("Δεν υπάρχουν linked players για sync.");
       const btn = document.getElementById("gtSyncAllBtn");
       const previousText = btn ? btn.textContent : "";
       if (btn) {
@@ -3279,15 +3625,15 @@ function normalizeExternalName(value) {
           try {
             await syncGameToolsDataForPlayer(player);
           } catch (err) {
-            failures.push(`${player.name}: ${err.message || "Sync failed."}`);
+            failures.push(`${player.name}: ${err.message || "Αποτυχία sync."}`);
           }
         }
         await saveState();
         renderAll();
         if (failures.length) {
-          alert(`Bulk sync completed with ${failures.length} issue(s).\n\n${failures.join("\n")}`);
+          alert(`Το bulk sync ολοκληρώθηκε με ${failures.length} πρόβλημα/προβλήματα.\n\n${failures.join("\n")}`);
         } else {
-          alert(`Synced ${linkedPlayers.length} linked player(s).`);
+          alert(`Έγινε sync σε ${linkedPlayers.length} linked player(s).`);
         }
       } finally {
         if (btn) {
@@ -3301,11 +3647,11 @@ function normalizeExternalName(value) {
       if (!requireAdmin()) return;
       const player = getPlayerById(playerId);
       if (!player) return;
-      if (!confirm(`Unlink and delete all GameTools stats for ${player.name};`)) return;
+      if (!confirm(`Να γίνει unlink και να σβηστούν όλα τα GameTools stats του ${player.name};`)) return;
       clearGameToolsFields(player);
       await saveState();
       renderAll();
-      alert(`Unlinked ${player.name}.`);
+      alert(`Έγινε unlink του ${player.name}.`);
     }
 
     function clearGameToolsPreview() {
@@ -3346,7 +3692,7 @@ function normalizeExternalName(value) {
               <div class="stat"><div class="stat-label">Headshots</div><div class="stat-value" style="font-size:24px;">${escapeHtml(preview.data.headshots || "-")}</div></div>
             </div>
             <div class="card" style="padding:14px; margin-top:12px;">
-              <h3 style="margin-top:0;">Link with existing player</h3>
+              <h3 style="margin-top:0;">Link with Existing Player</h3>
               <div class="form-grid" style="grid-template-columns: 1fr 180px;">
                 <div>
                   <label>Player from Players DB</label>
@@ -3535,7 +3881,7 @@ function renderPlayers(derived) {
       state.data.settings.liveVersion = APP_VERSION;
       await saveState();
       renderAll();
-      alert("The ranking explanation was saved.");
+      alert("Ranking explanation saved.");
     }
 
     function renderHowRankingWorks() {
@@ -3557,7 +3903,7 @@ function renderPlayers(derived) {
       document.getElementById("settingsPreview").innerHTML = `
         <div class="team-score-box panel-accent" style="margin-top:12px;">
           <div>
-            <div><strong>Current config</strong></div>
+            <div><strong>Current Config</strong></div>
             <div class="muted small">Live version: ${escapeHtml(state.data.settings.liveVersion || APP_VERSION)} • Default ELO: ${state.data.settings.defaultElo} • Win/Loss Weight: ${state.data.settings.eloWinLossWeight} • KD Weight: ${state.data.settings.eloKdWeight} • Overall Scale: ${state.data.settings.eloOverallScale}</div>
           </div>
         </div>
@@ -3574,6 +3920,7 @@ function renderPlayers(derived) {
       renderSummary(derived);
       renderDashboard(derived);
       renderLeaderboards(derived);
+      renderPublicPlayerProfile(derived, state.ui.publicPlayerId);
       renderMatches(derived);
       renderPlayers(derived);
       renderGameTools();
@@ -3584,6 +3931,10 @@ function renderPlayers(derived) {
     document.querySelectorAll(".tab-btn[data-tab]").forEach(btn => btn.addEventListener("click", () => setTab(btn.dataset.tab)));
     document.getElementById("homeLogoBtn").addEventListener("click", () => {
       setTab("dashboard");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    document.getElementById("backToRankingsBtn").addEventListener("click", () => {
+      setTab("leaderboards");
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
     document.getElementById("addSide1PlayerA").addEventListener("click", () => { window.matchFormRows.side1.teamA.push(blankPlayerRow()); renderMatchFormRows(); });
@@ -3624,13 +3975,13 @@ function renderPlayers(derived) {
       e.target.value = "";
     });
     document.getElementById("clearMatchesBtn").addEventListener("click", async () => {
-      if (!confirm("Delete all matches?")) return;
+      if (!confirm("Να διαγραφούν όλα τα matches;")) return;
       state.data.matches = [];
       await saveState();
       renderAll();
     });
     document.getElementById("resetAllBtn").addEventListener("click", async () => {
-      if (!confirm("Full reset? Players, matches, and settings will be lost.")) return;
+      if (!confirm("Ολικό reset; Θα χαθούν players, matches και settings.")) return;
       state.data = initialData();
       await saveState();
       resetMatchForm();
@@ -3653,11 +4004,11 @@ M002	8/3/2026	MTS_JTxGR	MTS_Manos35	luckylouk96		zipfero0	einaifilosm	_WOLV3RIN2
     document.getElementById("clearBulkImportImagesBtn").addEventListener("click", clearOcrBulkPreview);
     document.getElementById("applyOcrToBulkTextareaBtn").addEventListener("click", () => {
       if (!state.ui.ocrBulkPreview || !state.ui.ocrBulkPreview.bulkText) {
-        alert("There is no OCR preview to transfer.");
+        alert("Δεν υπάρχει OCR preview για μεταφορά.");
         return;
       }
       document.getElementById("bulkImportMatchesInput").value = state.ui.ocrBulkPreview.bulkText;
-      alert("OCR preview was transferred to the Bulk Import field.");
+      alert("Το OCR preview μεταφέρθηκε στο Bulk Import πεδίο.");
     });
 
     document.getElementById("globalSearch").addEventListener("input", () => renderMatches(computeDerived()));
