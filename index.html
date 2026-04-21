@@ -711,9 +711,191 @@
       line-height: 1;
       letter-spacing: -.03em;
     }
+    .player-glass-shell {
+      display: grid;
+      gap: 18px;
+    }
+    .player-glass-hero {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(240px, .72fr) minmax(0, 1.28fr) minmax(260px, .78fr);
+      gap: 20px;
+      padding: 24px;
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(120,133,255,.16), rgba(76,205,196,.07) 38%, rgba(17,24,39,.58) 100%),
+        rgba(12,18,34,.56);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.11),
+        0 24px 46px rgba(0,0,0,.28);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    .player-glass-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(96,165,250,.26), transparent 24%),
+        radial-gradient(circle at 88% 80%, rgba(168,85,247,.24), transparent 22%),
+        linear-gradient(135deg, rgba(255,255,255,.10), transparent 34%);
+      opacity: .95;
+    }
+    .player-avatar-panel,
+    .player-main-panel,
+    .player-side-panel {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+    }
+    .player-avatar-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px;
+      border-radius: 16px;
+      background: rgba(8,12,26,.34);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    .player-avatar-ring {
+      width: min(210px, 100%);
+      aspect-ratio: 1;
+      margin: 0 auto;
+      border-radius: 50%;
+      padding: 4px;
+      background: linear-gradient(135deg, rgba(129,140,248,.95), rgba(56,189,248,.86), rgba(217,70,239,.92));
+      box-shadow: 0 0 0 6px rgba(255,255,255,.03), 0 20px 36px rgba(37,99,235,.18);
+    }
+    .player-avatar-ring img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 50%;
+      background: rgba(5,9,20,.86);
+    }
+    .player-avatar-meta {
+      display: grid;
+      gap: 8px;
+      text-align: center;
+    }
+    .player-avatar-meta .badge { justify-content: center; }
+    .player-main-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 6px;
+    }
+    .player-main-panel .player-main-name {
+      font-size: clamp(34px, 4.2vw, 64px);
+      margin-bottom: 8px;
+    }
+    .player-main-panel .player-subcopy {
+      max-width: 60ch;
+      color: #dbe4f6;
+      line-height: 1.72;
+    }
+    .player-glass-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 14px;
+      color: #eef3ff;
+      text-decoration: none;
+      font-family: "Orbitron", "Rajdhani", Inter, sans-serif;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.05));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+    }
+    .player-glass-cta:hover {
+      background: linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.07));
+    }
+    .player-side-panel {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+    .player-side-card {
+      padding: 18px;
+      border-radius: 16px;
+      background: rgba(8,12,26,.34);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .player-side-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      color: #b9c6e7;
+      margin-bottom: 10px;
+    }
+    .player-side-value {
+      font-size: clamp(28px, 2.7vw, 42px);
+      font-weight: 900;
+      letter-spacing: -.03em;
+      line-height: 1.02;
+    }
+    .player-glass-stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .player-glass-stat {
+      position: relative;
+      overflow: hidden;
+      min-height: 128px;
+      padding: 18px 16px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.09),
+        0 14px 30px rgba(0,0,0,.16);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .player-glass-stat::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(145deg, rgba(255,255,255,.14), transparent 36%);
+      opacity: .8;
+    }
+    .player-glass-stat .stat-label,
+    .player-glass-stat .stat-value {
+      position: relative;
+      z-index: 1;
+      text-align: left;
+    }
+    .player-glass-stat .stat-label {
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: #b6c3df;
+      font-size: 11px;
+    }
+    .player-glass-stat .stat-value {
+      font-size: clamp(28px, 2.8vw, 36px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -.03em;
+    }
 
     @media (max-width: 1180px) {
-      .grid-2, .grid-3, .team-grid, .form-grid, .players-layout, .player-form-grid, .player-profile-stats, .player-hero-card, .leaderboards-layout { grid-template-columns: 1fr; }
+      .grid-2, .grid-3, .team-grid, .form-grid, .players-layout, .player-form-grid, .player-profile-stats, .player-hero-card, .leaderboards-layout, .player-glass-hero, .player-glass-stats { grid-template-columns: 1fr; }
       .hero { min-height: 210px; }
       .hero-summary .stats, .stats { grid-template-columns: repeat(2, 1fr); }
       .site-header, .main-nav { padding-left: 14px; padding-right: 14px; }
@@ -1146,6 +1328,10 @@
               <input id="playerElo" type="number" value="1000" />
             </div>
             <div>
+              <label>Avatar URL</label>
+              <input id="playerAvatarUrl" placeholder="https://... or leave empty for placeholder" />
+            </div>
+            <div>
               <label>Starting Kills</label>
               <input id="playerKills" type="number" value="0" />
             </div>
@@ -1364,6 +1550,7 @@
           gtLinkedUserName: p.gtLinkedUserName || "",
           gtLinkedUserId: p.gtLinkedUserId || "",
           gtLinkedProfileId: p.gtLinkedProfileId || "",
+          avatarUrl: p.avatarUrl || "",
           gtPlatform: p.gtPlatform || "pc",
           gtLastSyncAt: p.gtLastSyncAt || "",
           gtHumanPrecentage: p.gtHumanPrecentage || "",
@@ -1581,6 +1768,7 @@
         gtLinkedUserName: String(p.gt_linked_username || ""),
         gtLinkedUserId: String(p.gt_linked_user_id || ""),
         gtLinkedProfileId: String(p.gt_linked_profile_id || ""),
+        avatarUrl: String(p.avatar_url || ""),
         gtPlatform: normalizeGameToolsPlatform(p.gt_platform || "pc"),
         gtLastSyncAt: String(p.gt_last_sync_at || ""),
         gtHumanPrecentage: String(p.gt_human_precentage || ""),
@@ -1717,6 +1905,7 @@
             gt_linked_username: p.gtLinkedUserName || null,
             gt_linked_user_id: p.gtLinkedUserId || null,
             gt_linked_profile_id: p.gtLinkedProfileId || null,
+            avatar_url: p.avatarUrl || null,
             gt_platform: p.gtPlatform || null,
             gt_last_sync_at: p.gtLastSyncAt || null,
             gt_human_precentage: p.gtHumanPrecentage || null,
@@ -2941,6 +3130,7 @@ function resetPlayerForm() {
       state.ui.editingPlayerId = null;
       document.getElementById("playerName").value = "";
       document.getElementById("playerElo").value = state.data.settings.defaultElo;
+      document.getElementById("playerAvatarUrl").value = "";
       document.getElementById("playerKills").value = 0;
       document.getElementById("playerDeaths").value = 0;
       document.getElementById("playerWins").value = 0;
@@ -2950,15 +3140,19 @@ function resetPlayerForm() {
 
     async function savePlayer() {
       if (!requireAdmin()) return;
+      const existing = state.ui.editingPlayerId ? getPlayerById(state.ui.editingPlayerId) : null;
       const payload = {
+        ...(existing || {}),
         id: state.ui.editingPlayerId || uid("player"),
         name: document.getElementById("playerName").value.trim(),
         baseElo: Number(document.getElementById("playerElo").value || state.data.settings.defaultElo),
+        avatarUrl: document.getElementById("playerAvatarUrl").value.trim(),
         startingKills: Number(document.getElementById("playerKills").value || 0),
         startingDeaths: Number(document.getElementById("playerDeaths").value || 0),
         startingWins: Number(document.getElementById("playerWins").value || 0),
         startingLosses: Number(document.getElementById("playerLosses").value || 0),
-        visibleInLeaderboard: document.getElementById("playerVisibility").value !== "hidden"
+        visibleInLeaderboard: document.getElementById("playerVisibility").value !== "hidden",
+        createdAt: existing?.createdAt || new Date().toISOString()
       };
       payload.startingMatches = payload.startingWins + payload.startingLosses;
 
@@ -3077,6 +3271,7 @@ function resetPlayerForm() {
       state.ui.editingPlayerId = id;
       document.getElementById("playerName").value = p.name;
       document.getElementById("playerElo").value = p.baseElo;
+      document.getElementById("playerAvatarUrl").value = p.avatarUrl || "";
       document.getElementById("playerKills").value = p.startingKills || 0;
       document.getElementById("playerDeaths").value = p.startingDeaths || 0;
       document.getElementById("playerWins").value = p.startingWins || 0;
@@ -3173,6 +3368,31 @@ function resetPlayerForm() {
 
     function formatElo(val) {
       return String(Math.round(Number(val || 0)));
+    }
+
+    function getPlayerAvatarSrc(player) {
+      const explicit = String(player?.avatarUrl || "").trim();
+      return explicit || makePlayerPlaceholderAvatar(player?.name || "Player");
+    }
+
+    function makePlayerPlaceholderAvatar(name) {
+      const clean = String(name || "Player").trim();
+      const initials = clean.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join("").toUpperCase() || "MTS";
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320">
+          <defs>
+            <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#1d4ed8" />
+              <stop offset="50%" stop-color="#111827" />
+              <stop offset="100%" stop-color="#7c3aed" />
+            </linearGradient>
+          </defs>
+          <rect width="320" height="320" rx="160" fill="url(#bg)" />
+          <circle cx="160" cy="126" r="58" fill="rgba(255,255,255,0.16)" />
+          <path d="M83 260c18-52 60-80 77-80s59 28 77 80" fill="rgba(255,255,255,0.14)" />
+          <text x="160" y="298" text-anchor="middle" fill="#eef2ff" font-size="34" font-family="Orbitron, Rajdhani, Arial" letter-spacing="4">${escapeHtml(initials)}</text>
+        </svg>`;
+      return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
     }
 
     function renderSummary(derived) {
@@ -3319,61 +3539,80 @@ function resetPlayerForm() {
       const visiblePlayer = derived.visibleRanking.find(p => p.id === player.id);
       const kdRankPlayer = derived.visibleRankingByKd.find(p => p.id === player.id);
       const publicKd = player.gtInfantryKillDeath == null ? "-" : formatKd(player.gtInfantryKillDeath);
-      const revives = player.gtRevives == null ? "-" : player.gtRevives.toLocaleString("el-GR");
-      const matchesPlayed = Number(player.matchesPlayed || 0).toLocaleString("el-GR");
+      const revives = player.gtRevives == null ? "-" : Number(player.gtRevives).toLocaleString("en-US");
+      const matchesPlayed = Number(player.matchesPlayed || 0).toLocaleString("en-US");
       const winRate = `${(Number(player.winRate || 0) * 100).toFixed(1)}%`;
       const clanKd = formatKd(player.kd);
-      const rankLabel = visiblePlayer
-        ? `#${visiblePlayer.visibleRank} ELO Ranking`
-        : "Hidden from Leaderboard";
-      const kdRankLabel = kdRankPlayer
-        ? `#${kdRankPlayer.kdRank} KD Ranking`
-        : "No KD Rank";
+      const currentRating = Number.isFinite(Number(player.rating)) ? Math.round(Number(player.rating)) : "-";
+      const rankLabel = visiblePlayer ? `#${visiblePlayer.visibleRank} ELO Ranking` : "Hidden from Leaderboard";
+      const kdRankLabel = kdRankPlayer ? `#${kdRankPlayer.kdRank} KD Ranking` : "No KD Rank";
+      const avatarSrc = getPlayerAvatarSrc(player);
 
       box.innerHTML = `
-        <div class="card player-hero-card gold-card">
-          <div class="player-hero-copy">
-            <div>
-              <div class="player-eyebrow">MTS Battlefield Hub • Competitive Profile</div>
-              <h1 class="player-main-name">${escapeHtml(player.name)}</h1>
+        <div class="player-glass-shell">
+          <div class="player-glass-hero">
+            <div class="player-avatar-panel">
+              <div class="player-avatar-ring">
+                <img src="${avatarSrc}" alt="${escapeHtml(player.name)} avatar" />
+              </div>
+              <div class="player-avatar-meta">
+                <div class="badge">MTS Clan Member</div>
+                <div class="muted small">Avatar is admin-editable with placeholder fallback.</div>
+              </div>
             </div>
-            <p class="player-subcopy">Official public player card with a competitive presentation of recorded clan stats and linked GameTools data. Focused on the 5 core profile metrics for a clean esports-style result.</p>
+            <div class="player-main-panel">
+              <div>
+                <div class="player-eyebrow">Glassmorphism Player Card</div>
+                <h1 class="player-main-name">${escapeHtml(player.name)}</h1>
+                <p class="player-subcopy">Official public player card with premium glassmorphism styling, recorded clan performance, and linked Battlefield public stats. Built for your competitive MTS profile pages.</p>
+              </div>
+              <button class="player-glass-cta" type="button" id="backToRankingsBtn">Back to Rankings</button>
+            </div>
+            <div class="player-side-panel">
+              <div class="player-side-card">
+                <div class="player-side-label">Leaderboard Status</div>
+                <div class="player-side-value">${rankLabel}</div>
+              </div>
+              <div class="player-side-card">
+                <div class="player-side-label">KD Placement</div>
+                <div class="player-side-value">${kdRankLabel}</div>
+              </div>
+              <div class="player-side-card">
+                <div class="player-side-label">Skill Rating</div>
+                <div class="player-side-value">${currentRating}</div>
+              </div>
+            </div>
           </div>
-          <div class="player-rank-panel">
-            <div class="player-rank-box">
-              <div class="player-rank-label">Leaderboard Status</div>
-              <div class="player-rank-value">${rankLabel}</div>
-            </div>
-            <div class="player-rank-box">
-              <div class="player-rank-label">KD Placement</div>
-              <div class="player-rank-value">${kdRankLabel}</div>
-            </div>
-          </div>
-        </div>
 
-        <div class="player-profile-stats">
-          <div class="stat">
-            <div class="stat-label">Matches Played</div>
-            <div class="stat-value">${matchesPlayed}</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Win Rate</div>
-            <div class="stat-value">${winRate}</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Clan KD</div>
-            <div class="stat-value">${clanKd}</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Public KD</div>
-            <div class="stat-value">${publicKd}</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Revives</div>
-            <div class="stat-value">${revives}</div>
+          <div class="player-glass-stats">
+            <div class="player-glass-stat">
+              <div class="stat-label">Matches Played</div>
+              <div class="stat-value">${matchesPlayed}</div>
+            </div>
+            <div class="player-glass-stat">
+              <div class="stat-label">Win Rate</div>
+              <div class="stat-value">${winRate}</div>
+            </div>
+            <div class="player-glass-stat">
+              <div class="stat-label">Clan KD</div>
+              <div class="stat-value">${clanKd}</div>
+            </div>
+            <div class="player-glass-stat">
+              <div class="stat-label">Public KD</div>
+              <div class="stat-value">${publicKd}</div>
+            </div>
+            <div class="player-glass-stat">
+              <div class="stat-label">Revives</div>
+              <div class="stat-value">${revives}</div>
+            </div>
           </div>
         </div>
       `;
+      const backBtn = document.getElementById("backToRankingsBtn");
+      if (backBtn) backBtn.addEventListener("click", () => {
+        setTab("leaderboards");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
     }
 
     function renderPlayerDrilldown(derived, playerId) {
