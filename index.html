@@ -3361,6 +3361,7 @@ function resetPlayerForm() {
       document.getElementById("playerWins").value = p.startingWins || 0;
       document.getElementById("playerLosses").value = p.startingLosses || 0;
       document.getElementById("playerVisibility").value = p.visibleInLeaderboard === false ? "hidden" : "visible";
+      document.getElementById("playerFavoriteClass").value = p.favoriteClass || "";
       setTab("players");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
