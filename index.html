@@ -1942,9 +1942,9 @@
 
       const ratingBaseElo = Number(state.data.settings.defaultElo || 1000);
       const ratingFromElo = (elo) => {
-        const normalized = Math.tanh((Number(elo || 0) - ratingBaseElo) / 180);
-        const rating = 55 + (45 * normalized);
-        return Math.max(1, Math.min(99, Math.round(rating * 10) / 10));
+        const numericElo = Number(elo || ratingBaseElo);
+        const rating = 78 + ((numericElo - ratingBaseElo) / 9);
+        return Math.max(65, Math.min(99, Math.round(rating)));
       };
 
       const ranking = Array.from(playerMap.values()).map(p => {
@@ -3252,7 +3252,7 @@ function resetPlayerForm() {
                     </button>
                   </td>
                   <td>${formatElo(p.currentElo)}</td>
-                  <td>${p.rating.toFixed(1)}</td>
+                  <td>${p.rating}</td>
                   <td>${p.kills}</td>
                   <td>${p.deaths}</td>
                   <td>${formatKd(p.kd)}</td>
