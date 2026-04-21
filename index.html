@@ -458,8 +458,119 @@
       line-height: 1.6;
     }
 
+
+    .player-link-btn {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      padding: 0;
+      background: transparent;
+      border: none;
+      color: inherit;
+      text-align: left;
+      box-shadow: none;
+    }
+    .player-link-btn strong {
+      font-size: 15px;
+      line-height: 1.2;
+    }
+    .player-link-btn .small {
+      opacity: .82;
+    }
+    .leaderboard-player-cell {
+      min-width: 220px;
+    }
+    .leaderboard-player-row {
+      cursor: pointer;
+    }
+    .leaderboard-player-row:hover .player-link-btn strong {
+      color: #ffffff;
+    }
+    .public-player-shell {
+      display: grid;
+      gap: 18px;
+    }
+    .player-hero-card {
+      padding: 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+    .player-hero-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .player-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .player-main-name {
+      margin: 0;
+      font-size: clamp(34px, 4vw, 56px);
+      line-height: .95;
+      letter-spacing: -.04em;
+    }
+    .player-subcopy {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 62ch;
+    }
+    .player-rank-panel {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+    .player-rank-box {
+      padding: 18px;
+      border-radius: 6px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+    .player-rank-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .player-rank-value {
+      font-size: 42px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .player-profile-stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .player-profile-stats .stat {
+      min-height: 122px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .player-profile-stats .stat-label {
+      text-align: left;
+      margin-bottom: 10px;
+    }
+    .player-profile-stats .stat-value {
+      text-align: left;
+      font-size: 30px;
+    }
+
     @media (max-width: 1180px) {
-      .grid-2, .grid-3, .team-grid, .form-grid, .players-layout, .player-form-grid { grid-template-columns: 1fr; }
+      .grid-2, .grid-3, .team-grid, .form-grid, .players-layout, .player-form-grid, .player-profile-stats, .player-hero-card { grid-template-columns: 1fr; }
       .hero { min-height: 210px; }
       .hero-summary .stats, .stats { grid-template-columns: repeat(2, 1fr); }
       .site-header, .main-nav { padding-left: 14px; padding-right: 14px; }
@@ -622,6 +733,16 @@
           <select id="playerDrilldownSelect"></select>
           <div id="playerDrilldown" style="margin-top:14px;"></div>
         </div>
+      </div>
+    </section>
+
+    <section id="playerProfile" class="page">
+      <div class="public-player-shell">
+        <div class="toolbar" style="margin-top:0; margin-bottom:0;">
+          <button id="backToRankingsBtn" type="button">← Back to Rankings</button>
+          <span class="badge">Public Player Card</span>
+        </div>
+        <div id="publicPlayerProfile"></div>
       </div>
     </section>
 
@@ -2985,9 +3106,14 @@ function resetPlayerForm() {
           <tbody>
             ${
               rowsSource.map(p => `
-                <tr>
+                <tr class="leaderboard-player-row" data-player-id="${p.id}">
                   <td>#${rankingMode === "kd" ? p.kdRank : p.visibleRank}</td>
-                  <td><strong>${escapeHtml(p.name)}</strong></td>
+                  <td class="leaderboard-player-cell">
+                    <button class="player-link-btn" type="button" data-player-id="${p.id}" aria-label="Άνοιγμα player card για ${escapeHtml(p.name)}">
+                      <strong>${escapeHtml(p.name)}</strong>
+                      <span class="muted small">Open player card</span>
+                    </button>
+                  </td>
                   <td>${formatElo(p.currentElo)}</td>
                   <td>${p.kills}</td>
                   <td>${p.deaths}</td>
@@ -3003,6 +3129,14 @@ function resetPlayerForm() {
         </table>
       `;
 
+      document.querySelectorAll("#leaderboardTable [data-player-id]").forEach(el => {
+        el.addEventListener("click", event => {
+          event.preventDefault();
+          const playerId = el.dataset.playerId;
+          if (playerId) openPublicPlayerProfile(playerId);
+        });
+      });
+
       const select = document.getElementById("playerDrilldownSelect");
       const current = select.value;
       select.innerHTML = `<option value="">-- επίλεξε παίκτη --</option>` + state.data.players
@@ -3010,6 +3144,82 @@ function resetPlayerForm() {
         .map(p => `<option value="${p.id}" ${p.id === current ? "selected" : ""}>${escapeHtml(p.name)}</option>`).join("");
       if (!select.value && state.data.players[0]) select.value = state.data.players[0].id;
       renderPlayerDrilldown(derived, select.value);
+    }
+
+    function openPublicPlayerProfile(playerId) {
+      state.ui.publicPlayerId = playerId;
+      setTab("playerProfile");
+      renderPublicPlayerProfile(computeDerived(), playerId);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderPublicPlayerProfile(derived, playerId) {
+      const box = document.getElementById("publicPlayerProfile");
+      if (!box) return;
+      const player = derived.ranking.find(p => p.id === playerId);
+      if (!player) {
+        box.innerHTML = `<div class="card"><div class="empty">Επίλεξε παίκτη από το leaderboard για να ανοίξει η προσωπική του καρτέλα.</div></div>`;
+        return;
+      }
+
+      const visiblePlayer = derived.visibleRanking.find(p => p.id === player.id);
+      const kdRankPlayer = derived.visibleRankingByKd.find(p => p.id === player.id);
+      const publicKd = player.gtInfantryKillDeath == null ? "-" : formatKd(player.gtInfantryKillDeath);
+      const revives = player.gtRevives == null ? "-" : player.gtRevives.toLocaleString("el-GR");
+      const matchesPlayed = Number(player.matchesPlayed || 0).toLocaleString("el-GR");
+      const winRate = `${(Number(player.winRate || 0) * 100).toFixed(1)}%`;
+      const clanKd = formatKd(player.kd);
+      const rankLabel = visiblePlayer
+        ? `#${visiblePlayer.visibleRank} ELO Ranking`
+        : "Hidden from Leaderboard";
+      const kdRankLabel = kdRankPlayer
+        ? `#${kdRankPlayer.kdRank} KD Ranking`
+        : "No KD Rank";
+
+      box.innerHTML = `
+        <div class="card player-hero-card gold-card">
+          <div class="player-hero-copy">
+            <div>
+              <div class="player-eyebrow">MTS Battlefield Hub • Player Profile</div>
+              <h1 class="player-main-name">${escapeHtml(player.name)}</h1>
+            </div>
+            <p class="player-subcopy">Αυτή είναι η public esports καρτέλα του παίκτη με βάση τα recorded clan matches και τα συνδεδεμένα GameTools στοιχεία. Περιλαμβάνει μόνο τα 5 βασικά stats που έχεις ορίσει για το public profile.</p>
+          </div>
+          <div class="player-rank-panel">
+            <div class="player-rank-box">
+              <div class="player-rank-label">Leaderboard Status</div>
+              <div class="player-rank-value">${rankLabel}</div>
+            </div>
+            <div class="player-rank-box">
+              <div class="player-rank-label">KD Placement</div>
+              <div class="player-rank-value">${kdRankLabel}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="player-profile-stats">
+          <div class="stat">
+            <div class="stat-label">Matches Played</div>
+            <div class="stat-value">${matchesPlayed}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Win Rate</div>
+            <div class="stat-value">${winRate}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Clan KD</div>
+            <div class="stat-value">${clanKd}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Public KD</div>
+            <div class="stat-value">${publicKd}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Revives</div>
+            <div class="stat-value">${revives}</div>
+          </div>
+        </div>
+      `;
     }
 
     function renderPlayerDrilldown(derived, playerId) {
@@ -3624,6 +3834,7 @@ function renderPlayers(derived) {
       renderSummary(derived);
       renderDashboard(derived);
       renderLeaderboards(derived);
+      renderPublicPlayerProfile(derived, state.ui.publicPlayerId);
       renderMatches(derived);
       renderPlayers(derived);
       renderGameTools();
@@ -3634,6 +3845,10 @@ function renderPlayers(derived) {
     document.querySelectorAll(".tab-btn[data-tab]").forEach(btn => btn.addEventListener("click", () => setTab(btn.dataset.tab)));
     document.getElementById("homeLogoBtn").addEventListener("click", () => {
       setTab("dashboard");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    document.getElementById("backToRankingsBtn").addEventListener("click", () => {
+      setTab("leaderboards");
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
     document.getElementById("addSide1PlayerA").addEventListener("click", () => { window.matchFormRows.side1.teamA.push(blankPlayerRow()); renderMatchFormRows(); });
