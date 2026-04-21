@@ -853,7 +853,7 @@
       display: block;
       margin: 0;
       text-align: center;
-      font-size: var(--player-name-size, clamp(24px, 3.4vw, 54px));
+      font-size: var(--player-name-size, clamp(20px, 3.0vw, 49px));
       line-height: .95;
       letter-spacing: var(--player-name-letter-spacing, -.05em);
       transform: scaleX(var(--player-name-scale, 1));
@@ -3602,10 +3602,10 @@ function resetPlayerForm() {
           <tbody>
             ${
               rowsSource.map(p => `
-                <tr class="leaderboard-player-row" data-player-id="${p.id}" onclick="openPublicPlayerProfile('${p.id}')">
+                <tr class="leaderboard-player-row" data-player-id="${p.id}">
                   <td>#${rankingMode === "kd" ? p.kdRank : p.visibleRank}</td>
                   <td class="leaderboard-player-cell">
-                    <button class="player-link-btn" type="button" data-player-id="${p.id}" onclick="openPublicPlayerProfile('${p.id}')" aria-label="Open player card for ${escapeHtml(p.name)}">
+                    <button class="player-link-btn" type="button" data-player-id="${p.id}" aria-label="Open player card for ${escapeHtml(p.name)}">
                       <strong>${escapeHtml(p.name)}</strong>
                       <span class="muted small">Open player card</span>
                     </button>
@@ -3629,7 +3629,15 @@ function resetPlayerForm() {
       document.querySelectorAll("#leaderboardTable [data-player-id]").forEach(el => {
         el.addEventListener("click", event => {
           event.preventDefault();
-          const playerId = el.dataset.playerId;
+          event.stopPropagation();
+          const playerId = el.getAttribute("data-player-id") || (el.dataset ? el.dataset.playerId : "");
+          if (playerId) openPublicPlayerProfile(playerId);
+        });
+      });
+
+      document.querySelectorAll("#leaderboardTable .leaderboard-player-row").forEach(row => {
+        row.addEventListener("click", event => {
+          const playerId = row.getAttribute("data-player-id") || (row.dataset ? row.dataset.playerId : "");
           if (playerId) openPublicPlayerProfile(playerId);
         });
       });
@@ -3662,20 +3670,25 @@ function resetPlayerForm() {
     }
 
     function openPublicPlayerProfile(playerId) {
-      const resolvedPlayerId = String(playerId ?? state.ui.publicPlayerId ?? "").trim();
+      const fallbackPlayerId = state.ui.publicPlayerId || state.ui.selectedPlayerId || "";
+      const resolvedPlayerId = String(playerId || fallbackPlayerId || "").trim();
       if (!resolvedPlayerId) return;
       state.ui.publicPlayerId = resolvedPlayerId;
       state.ui.selectedPlayerId = resolvedPlayerId;
       setTab("playerProfile");
-      renderPublicPlayerProfile(computeDerived(), resolvedPlayerId);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      setTimeout(() => {
+        renderPublicPlayerProfile(computeDerived(), resolvedPlayerId);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, 0);
     }
 
     function renderPublicPlayerProfile(derived, playerId) {
       const box = document.getElementById("publicPlayerProfile");
       if (!box) return;
-      const resolvedPlayerId = String(playerId || state.ui.publicPlayerId || "");
-      const player = derived.ranking.find(p => String(p.id) === resolvedPlayerId) || derived.visibleRanking.find(p => String(p.id) === resolvedPlayerId);
+      const resolvedPlayerId = String(playerId || state.ui.publicPlayerId || state.ui.selectedPlayerId || "").trim();
+      const player = derived.ranking.find(p => String(p.id) === resolvedPlayerId)
+        || derived.visibleRanking.find(p => String(p.id) === resolvedPlayerId)
+        || state.data.players.find(p => String(p.id) === resolvedPlayerId);
       if (!player) {
         box.innerHTML = `<div class="card"><div class="empty">Select a player from the leaderboard to open their personal card.</div></div>`;
         return;
@@ -3699,21 +3712,21 @@ function resetPlayerForm() {
       const kdRankLabel = kdRankPlayer ? `#${kdRankPlayer.kdRank}` : "N/A";
       const avatarSrc = getPlayerAvatarSrc(player);
       const playerNameLength = String(player.name || "").length;
-      let playerNameSize = "clamp(29px, 3.8vw, 59px)";
+      let playerNameSize = "clamp(24px, 3.2vw, 49px)";
       let playerNameScale = 0.96;
       let playerNameLetterSpacing = "-.05em";
-      if (playerNameLength >= 14) playerNameScale = 0.97;
+      if (playerNameLength >= 14) playerNameScale = 0.95;
       if (playerNameLength >= 18) {
         playerNameScale = 0.93;
-        playerNameSize = "clamp(27px, 3.5vw, 55px)";
+        playerNameSize = "clamp(22px, 3.0vw, 45px)";
       }
       if (playerNameLength >= 22) {
         playerNameScale = 0.89;
-        playerNameSize = "clamp(25px, 3.2vw, 50px)";
+        playerNameSize = "clamp(20px, 2.7vw, 41px)";
       }
       if (playerNameLength >= 26) {
         playerNameScale = 0.85;
-        playerNameSize = "clamp(22px, 2.9vw, 45px)";
+        playerNameSize = "clamp(18px, 2.4vw, 36px)";
         playerNameLetterSpacing = "-.07em";
       }
 
@@ -4252,10 +4265,10 @@ function normalizeExternalName(value) {
           </thead>
           <tbody>
             ${linkedSorted.map((p, index) => `
-              <tr class="leaderboard-player-row" data-player-id="${p.id}" onclick="openPublicPlayerProfile('${p.id}')">
+              <tr class="leaderboard-player-row" data-player-id="${p.id}">
                 <td><strong>#${index + 1}</strong></td>
                 <td class="leaderboard-player-cell">
-                  <button class="player-link-btn" type="button" data-player-id="${p.id}" onclick="openPublicPlayerProfile('${p.id}')" aria-label="Open player card for ${escapeHtml(p.name)}">
+                  <button class="player-link-btn" type="button" data-player-id="${p.id}" aria-label="Open player card for ${escapeHtml(p.name)}">
                     <strong>${escapeHtml(p.name)}</strong>
                     <span class="muted small">Open player card</span>
                   </button>
