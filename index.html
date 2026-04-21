@@ -490,83 +490,145 @@
     }
     .public-player-shell {
       display: grid;
-      gap: 18px;
+      gap: 20px;
     }
     .player-hero-card {
-      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      padding: 30px;
       display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
-      gap: 18px;
+      grid-template-columns: minmax(0, 1.28fr) minmax(300px, .72fr);
+      gap: 22px;
       align-items: stretch;
+      background:
+        linear-gradient(135deg, rgba(8,12,26,.96) 0%, rgba(13,18,34,.94) 44%, rgba(23,14,40,.96) 100%),
+        radial-gradient(circle at top left, rgba(59,130,246,.14), transparent 28%),
+        radial-gradient(circle at right center, rgba(109,40,217,.20), transparent 30%) !important;
+      box-shadow: 0 24px 48px rgba(0,0,0,.34);
+    }
+    .player-hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(120deg, rgba(255,255,255,.05), transparent 24%),
+        linear-gradient(90deg, transparent 0%, rgba(255,255,255,.03) 48%, transparent 100%),
+        radial-gradient(circle at 82% 18%, rgba(96,165,250,.18), transparent 20%),
+        radial-gradient(circle at 16% 82%, rgba(168,85,247,.12), transparent 24%);
+      opacity: .95;
+    }
+    .player-hero-copy,
+    .player-rank-panel {
+      position: relative;
+      z-index: 1;
     }
     .player-hero-copy {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 14px;
+      gap: 16px;
     }
     .player-eyebrow {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      font-size: 12px;
-      letter-spacing: .12em;
+      width: fit-content;
+      padding: 8px 12px;
+      font-size: 11px;
+      letter-spacing: .16em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: #dbe7ff;
+      background: rgba(255,255,255,.06);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
     }
     .player-main-name {
       margin: 0;
-      font-size: clamp(34px, 4vw, 56px);
-      line-height: .95;
-      letter-spacing: -.04em;
+      font-size: clamp(38px, 4.6vw, 68px);
+      line-height: .92;
+      letter-spacing: -.05em;
+      text-shadow: 0 6px 22px rgba(0,0,0,.28);
     }
     .player-subcopy {
       margin: 0;
-      color: var(--muted);
-      line-height: 1.7;
+      color: #d0d8ea;
+      line-height: 1.75;
       max-width: 62ch;
+      font-size: 15px;
     }
     .player-rank-panel {
       display: grid;
-      gap: 12px;
+      gap: 14px;
       align-content: start;
     }
     .player-rank-box {
-      padding: 18px;
+      padding: 20px;
       border-radius: 6px;
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.05),
+        0 16px 30px rgba(0,0,0,.18);
     }
     .player-rank-label {
-      font-size: 12px;
+      font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: .12em;
-      color: var(--muted);
-      margin-bottom: 8px;
+      letter-spacing: .16em;
+      color: #b6c2dd;
+      margin-bottom: 10px;
     }
     .player-rank-value {
-      font-size: 42px;
+      font-size: clamp(28px, 3vw, 44px);
       font-weight: 900;
-      line-height: 1;
+      line-height: 1.02;
+      letter-spacing: -.03em;
     }
     .player-profile-stats {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 14px;
+      gap: 16px;
     }
     .player-profile-stats .stat {
-      min-height: 122px;
+      position: relative;
+      overflow: hidden;
+      min-height: 144px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: space-between;
+      padding: 18px 16px;
+      background:
+        linear-gradient(180deg, rgba(17,24,39,.96), rgba(10,14,25,.96)),
+        radial-gradient(circle at top right, rgba(59,130,246,.14), transparent 30%);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.04),
+        0 16px 28px rgba(0,0,0,.18);
+    }
+    .player-profile-stats .stat::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(135deg, rgba(255,255,255,.06), transparent 32%);
+      opacity: .85;
+    }
+    .player-profile-stats .stat-label,
+    .player-profile-stats .stat-value {
+      position: relative;
+      z-index: 1;
     }
     .player-profile-stats .stat-label {
       text-align: left;
-      margin-bottom: 10px;
+      margin-bottom: 14px;
+      color: #aeb9d4;
+      text-transform: uppercase;
+      letter-spacing: .11em;
+      font-size: 11px;
     }
     .player-profile-stats .stat-value {
       text-align: left;
-      font-size: 30px;
+      font-size: clamp(30px, 3vw, 38px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -.03em;
     }
 
     @media (max-width: 1180px) {
@@ -3180,10 +3242,10 @@ function resetPlayerForm() {
         <div class="card player-hero-card gold-card">
           <div class="player-hero-copy">
             <div>
-              <div class="player-eyebrow">MTS Battlefield Hub • Player Profile</div>
+              <div class="player-eyebrow">MTS Battlefield Hub • Competitive Profile</div>
               <h1 class="player-main-name">${escapeHtml(player.name)}</h1>
             </div>
-            <p class="player-subcopy">Αυτή είναι η public esports καρτέλα του παίκτη με βάση τα recorded clan matches και τα συνδεδεμένα GameTools στοιχεία. Περιλαμβάνει μόνο τα 5 βασικά stats που έχεις ορίσει για το public profile.</p>
+            <p class="player-subcopy">Official public player card με competitive παρουσίαση των recorded clan stats και των συνδεδεμένων GameTools στοιχείων. Focus μόνο στα 5 core metrics του profile για καθαρό, esports-style αποτέλεσμα.</p>
           </div>
           <div class="player-rank-panel">
             <div class="player-rank-box">
