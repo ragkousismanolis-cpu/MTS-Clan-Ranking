@@ -482,6 +482,32 @@
       line-height: 1.6;
     }
 
+    .leaderboards-layout {
+      grid-template-columns: minmax(0, 1.45fr) minmax(360px, .78fr);
+      align-items: start;
+    }
+    .leaderboards-layout > .card {
+      min-width: 0;
+    }
+    .leaderboard-table-card {
+      overflow: hidden;
+    }
+    .drilldown-card {
+      min-width: 0;
+    }
+    .drilldown-table-wrap {
+      overflow-x: auto;
+    }
+    .drilldown-table-wrap table {
+      min-width: 100%;
+    }
+    .recent-match-score {
+      min-width: 170px;
+      text-align: center;
+      font-size: 28px;
+      line-height: 1;
+    }
+
 
     .player-link-btn {
       width: 100%;
@@ -806,15 +832,15 @@
     </section>
 
     <section id="leaderboards" class="page">
-      <div class="grid-2 players-layout">
-        <div class="card">
+      <div class="grid-2 leaderboards-layout">
+        <div class="card leaderboard-table-card">
           <div class="toolbar" style="margin-top:0; margin-bottom:14px;">
             <button class="tab-btn active" id="eloRankingBtn" type="button">ELO Ranking</button>
             <button class="tab-btn" id="kdRankingBtn" type="button">K/D Ranking</button>
           </div>
           <div id="leaderboardTable"></div>
         </div>
-        <div class="card">
+        <div class="card drilldown-card">
           <h2 class="section-title">Player Drilldown</h2>
           <select id="playerDrilldownSelect"></select>
           <div id="playerDrilldown" style="margin-top:14px;"></div>
@@ -3136,7 +3162,7 @@ function resetPlayerForm() {
             <div><strong>${escapeHtml(m.teamA.name)}</strong> vs <strong>${escapeHtml(m.teamB.name)}</strong></div>
             <div class="muted small">${escapeHtml(m.date || "")} • ${escapeHtml(m.map || "No map")} • ${escapeHtml(m.mode || "No mode")}</div>
           </div>
-          <div class="score-big">${m.teamA.score} - ${m.teamB.score}</div>
+          <div class="score-big recent-match-score">${m.teamA.score} - ${m.teamB.score}</div>
         </div>
       `).join("") : `<div class="empty">There are no matches yet.</div>`;
 
@@ -3343,7 +3369,7 @@ function resetPlayerForm() {
           <div class="stat"><div class="stat-label">KD</div><div class="stat-value">${formatKd(player.kd)}</div></div>
           <div class="stat"><div class="stat-label">Win Rate</div><div class="stat-value">${(player.winRate*100).toFixed(1)}%</div></div>
         </div>
-        <div style="margin-top:14px;">
+        <div class="drilldown-table-wrap" style="margin-top:14px;">
           <table>
             <thead><tr><th>Date</th><th>Match</th><th>Score</th><th>K</th><th>D</th><th>Result</th></tr></thead>
             <tbody>${logs || `<tr><td colspan="6">No match logs.</td></tr>`}</tbody>
