@@ -782,7 +782,31 @@
       gap: 8px;
       text-align: center;
     }
+    
     .player-avatar-meta .badge { justify-content: center; }
+    .player-class-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 42px;
+      padding: 10px 14px;
+      background: rgba(255,106,26,.08);
+      color: #ffd3b8;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      font-family: "Orbitron", "Rajdhani", Inter, sans-serif;
+    }
+    .player-class-chip svg {
+      width: 22px;
+      height: 22px;
+      display: block;
+      flex: 0 0 22px;
+    }
+    .player-class-chip span {
+      line-height: 1;
+      font-size: 12px;
+    }
     .player-main-panel {
       display: flex;
       flex-direction: column;
@@ -905,26 +929,6 @@
       line-height: 1;
       letter-spacing: -.03em;
       text-align: center;
-    }
-    .favorite-class-display {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 8px 12px;
-      background: rgba(7,12,24,.52);
-      color: #eef3ff;
-      font-family: "Orbitron", "Rajdhani", Inter, sans-serif;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      font-size: 11px;
-    }
-    .favorite-class-icon {
-      width: 28px;
-      height: 28px;
-      object-fit: contain;
-      display: block;
-      filter: drop-shadow(0 0 8px rgba(255,120,48,.18));
     }
 
     @media (max-width: 1180px) {
@@ -1397,16 +1401,6 @@
               <input id="playerAvatarUrl" placeholder="https://... or leave empty for placeholder" />
             </div>
             <div>
-              <label>Favorite Class</label>
-              <select id="playerFavoriteClass">
-                <option value="">Not set</option>
-                <option value="assault">Assault</option>
-                <option value="engineer">Engineer</option>
-                <option value="support">Support</option>
-                <option value="recon">Recon</option>
-              </select>
-            </div>
-            <div>
               <label>Starting Kills</label>
               <input id="playerKills" type="number" value="0" />
             </div>
@@ -1427,6 +1421,16 @@
               <select id="playerVisibility">
                 <option value="visible" selected>Visible</option>
                 <option value="hidden">Not Visible</option>
+              </select>
+            </div>
+            <div>
+              <label>Favorite Class</label>
+              <select id="playerFavoriteClass">
+                <option value="">None</option>
+                <option value="assault">Assault</option>
+                <option value="engineer">Engineer</option>
+                <option value="support">Support</option>
+                <option value="recon">Recon</option>
               </select>
             </div>
           </div>
@@ -1633,7 +1637,8 @@
           gtTimePlayed: p.gtTimePlayed || "",
           gtRevives: p.gtRevives ?? null,
           gtSquadmateRevive: p.gtSquadmateRevive ?? null,
-          gtHeadshots: p.gtHeadshots || ""
+          gtHeadshots: p.gtHeadshots || "",
+          favoriteClass: p.favoriteClass || ""
         })),
         matches: []
       };
@@ -1844,7 +1849,6 @@
         gtLinkedUserId: String(p.gt_linked_user_id || ""),
         gtLinkedProfileId: String(p.gt_linked_profile_id || ""),
         avatarUrl: String(p.avatar_url || ""),
-        favoriteClass: String(p.favorite_class || ""),
         gtPlatform: normalizeGameToolsPlatform(p.gt_platform || "pc"),
         gtLastSyncAt: String(p.gt_last_sync_at || ""),
         gtHumanPrecentage: String(p.gt_human_precentage || ""),
@@ -1853,6 +1857,7 @@
         gtRevives: p.gt_revives == null ? null : Number(p.gt_revives),
         gtSquadmateRevive: p.gt_squadmate_revive == null ? null : Number(p.gt_squadmate_revive),
         gtHeadshots: String(p.gt_headshots || ""),
+        favoriteClass: String(p.favorite_class || ""),
         createdAt: p.created_at || new Date().toISOString()
       }));
 
@@ -1982,7 +1987,6 @@
             gt_linked_user_id: p.gtLinkedUserId || null,
             gt_linked_profile_id: p.gtLinkedProfileId || null,
             avatar_url: p.avatarUrl || null,
-            favorite_class: p.favoriteClass || null,
             gt_platform: p.gtPlatform || null,
             gt_last_sync_at: p.gtLastSyncAt || null,
             gt_human_precentage: p.gtHumanPrecentage || null,
@@ -1991,6 +1995,7 @@
             gt_revives: p.gtRevives == null ? null : Number(p.gtRevives),
             gt_squadmate_revive: p.gtSquadmateRevive == null ? null : Number(p.gtSquadmateRevive),
             gt_headshots: p.gtHeadshots || null,
+            favorite_class: p.favoriteClass || null,
             created_at: p.createdAt || new Date().toISOString()
           }));
           await apiRequest("/rest/v1/players", {
@@ -3208,12 +3213,12 @@ function resetPlayerForm() {
       document.getElementById("playerName").value = "";
       document.getElementById("playerElo").value = state.data.settings.defaultElo;
       document.getElementById("playerAvatarUrl").value = "";
-      document.getElementById("playerFavoriteClass").value = "";
       document.getElementById("playerKills").value = 0;
       document.getElementById("playerDeaths").value = 0;
       document.getElementById("playerWins").value = 0;
       document.getElementById("playerLosses").value = 0;
       document.getElementById("playerVisibility").value = "visible";
+      document.getElementById("playerFavoriteClass").value = "";
     }
 
     async function savePlayer() {
@@ -3225,12 +3230,12 @@ function resetPlayerForm() {
         name: document.getElementById("playerName").value.trim(),
         baseElo: Number(document.getElementById("playerElo").value || state.data.settings.defaultElo),
         avatarUrl: document.getElementById("playerAvatarUrl").value.trim(),
-        favoriteClass: document.getElementById("playerFavoriteClass").value,
         startingKills: Number(document.getElementById("playerKills").value || 0),
         startingDeaths: Number(document.getElementById("playerDeaths").value || 0),
         startingWins: Number(document.getElementById("playerWins").value || 0),
         startingLosses: Number(document.getElementById("playerLosses").value || 0),
         visibleInLeaderboard: document.getElementById("playerVisibility").value !== "hidden",
+        favoriteClass: document.getElementById("playerFavoriteClass").value || "",
         createdAt: existing?.createdAt || new Date().toISOString()
       };
       payload.startingMatches = payload.startingWins + payload.startingLosses;
@@ -3351,7 +3356,6 @@ function resetPlayerForm() {
       document.getElementById("playerName").value = p.name;
       document.getElementById("playerElo").value = p.baseElo;
       document.getElementById("playerAvatarUrl").value = p.avatarUrl || "";
-      document.getElementById("playerFavoriteClass").value = p.favoriteClass || "";
       document.getElementById("playerKills").value = p.startingKills || 0;
       document.getElementById("playerDeaths").value = p.startingDeaths || 0;
       document.getElementById("playerWins").value = p.startingWins || 0;
@@ -3559,10 +3563,10 @@ function resetPlayerForm() {
           <tbody>
             ${
               rowsSource.map(p => `
-                <tr class="leaderboard-player-row" data-player-id="${p.id}">
+                <tr class="leaderboard-player-row" data-player-id="${p.id}" onclick="openPublicPlayerProfile('${p.id}')">
                   <td>#${rankingMode === "kd" ? p.kdRank : p.visibleRank}</td>
                   <td class="leaderboard-player-cell">
-                    <button class="player-link-btn" type="button" data-player-id="${p.id}" aria-label="Open player card for ${escapeHtml(p.name)}">
+                    <button class="player-link-btn" type="button" data-player-id="${p.id}" onclick="openPublicPlayerProfile('${p.id}')" aria-label="Open player card for ${escapeHtml(p.name)}">
                       <strong>${escapeHtml(p.name)}</strong>
                       <span class="muted small">Open player card</span>
                     </button>
@@ -3600,21 +3604,41 @@ function resetPlayerForm() {
       renderPlayerDrilldown(derived, select.value);
     }
 
+    function getFavoriteClassMeta(value) {
+      const key = String(value || "").toLowerCase();
+      const labels = { assault: "Assault", engineer: "Engineer", support: "Support", recon: "Recon" };
+      return { key, label: labels[key] || "" };
+    }
+
+    function getFavoriteClassSvg(value) {
+      const key = String(value || "").toLowerCase();
+      const common = 'viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"';
+      if (key === 'assault') return `<svg ${common}><path d="M32 8L18 34h9v22h10V34h9L32 8Z" fill="#ff6a1a"/><path d="M20 40h24" stroke="#ffb37a" stroke-width="4" stroke-linecap="round"/></svg>`;
+      if (key === 'engineer') return `<svg ${common}><path d="M32 10l6 4-2 7 5 5 7-2 4 6-4 6-7-2-5 5 2 7-6 4-6-4 2-7-5-5-7 2-4-6 4-6 7 2 5-5-2-7 6-4Z" fill="#ff6a1a"/><circle cx="32" cy="32" r="8" fill="#0b0f1c"/></svg>`;
+      if (key === 'support') return `<svg ${common}><path d="M28 10h8v18h18v8H36v18h-8V36H10v-8h18V10Z" fill="#ff6a1a"/></svg>`;
+      if (key === 'recon') return `<svg ${common}><path d="M16 14h32v36H16z" stroke="#ff6a1a" stroke-width="8"/><path d="M24 24h16v16H24z" fill="#0b0f1c" stroke="#ffb37a" stroke-width="3"/></svg>`;
+      return '';
+    }
+
     function openPublicPlayerProfile(playerId) {
-      state.ui.publicPlayerId = playerId;
+      const resolvedPlayerId = String(playerId || state.ui.publicPlayerId || "");
+      if (!resolvedPlayerId) return;
+      state.ui.publicPlayerId = resolvedPlayerId;
       setTab("playerProfile");
-      renderPublicPlayerProfile(computeDerived(), playerId);
+      renderPublicPlayerProfile(computeDerived(), resolvedPlayerId);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function renderPublicPlayerProfile(derived, playerId) {
       const box = document.getElementById("publicPlayerProfile");
       if (!box) return;
-      const player = derived.ranking.find(p => p.id === playerId);
+      const resolvedPlayerId = String(playerId || state.ui.publicPlayerId || "");
+      const player = derived.ranking.find(p => String(p.id) === resolvedPlayerId) || derived.visibleRanking.find(p => String(p.id) === resolvedPlayerId);
       if (!player) {
         box.innerHTML = `<div class="card"><div class="empty">Select a player from the leaderboard to open their personal card.</div></div>`;
         return;
       }
+      state.ui.publicPlayerId = String(player.id);
 
       const visiblePlayer = derived.visibleRanking.find(p => p.id === player.id);
       const kdRankPlayer = derived.visibleRankingByKd.find(p => p.id === player.id);
@@ -3624,10 +3648,11 @@ function resetPlayerForm() {
       const winRate = `${(Number(player.winRate || 0) * 100).toFixed(1)}%`;
       const clanKd = formatKd(player.kd);
       const currentRating = Number.isFinite(Number(player.rating)) ? Math.round(Number(player.rating)) : "-";
+      const classMeta = getFavoriteClassMeta(player.favoriteClass);
+      const classIcon = getFavoriteClassSvg(player.favoriteClass);
       const rankLabel = visiblePlayer ? `#${visiblePlayer.visibleRank}` : "Hidden";
       const kdRankLabel = kdRankPlayer ? `#${kdRankPlayer.kdRank}` : "N/A";
       const avatarSrc = getPlayerAvatarSrc(player);
-      const favoriteClass = getFavoriteClassMeta(player);
 
       box.innerHTML = `
         <div class="player-glass-shell">
@@ -4154,10 +4179,10 @@ function normalizeExternalName(value) {
           </thead>
           <tbody>
             ${linkedSorted.map((p, index) => `
-              <tr class="leaderboard-player-row" data-player-id="${p.id}">
+              <tr class="leaderboard-player-row" data-player-id="${p.id}" onclick="openPublicPlayerProfile('${p.id}')">
                 <td><strong>#${index + 1}</strong></td>
                 <td class="leaderboard-player-cell">
-                  <button class="player-link-btn" type="button" data-player-id="${p.id}" aria-label="Open player card for ${escapeHtml(p.name)}">
+                  <button class="player-link-btn" type="button" data-player-id="${p.id}" onclick="openPublicPlayerProfile('${p.id}')" aria-label="Open player card for ${escapeHtml(p.name)}">
                     <strong>${escapeHtml(p.name)}</strong>
                     <span class="muted small">Open player card</span>
                   </button>
@@ -4237,13 +4262,13 @@ function renderPlayers(derived) {
             <td>${live?.kills ?? p.startingKills ?? 0}</td>
             <td>${live?.deaths ?? p.startingDeaths ?? 0}</td>
             <td>${formatKd(live?.kd ?? 0)}</td>
-            <td>${escapeHtml(p.favoriteClass ? (p.favoriteClass.charAt(0).toUpperCase() + p.favoriteClass.slice(1)) : "-")}</td>
             <td>${escapeHtml(p.gtHumanPrecentage || "-")}</td>
             <td>${p.gtInfantryKillDeath == null ? "-" : escapeHtml(String(p.gtInfantryKillDeath))}</td>
             <td>${escapeHtml(p.gtTimePlayed || "-")}</td>
             <td>${p.gtRevives == null ? "-" : escapeHtml(String(p.gtRevives))}</td>
             <td>${p.gtSquadmateRevive == null ? "-" : escapeHtml(String(p.gtSquadmateRevive))}</td>
             <td>${escapeHtml(p.gtHeadshots || "-")}</td>
+            <td>${escapeHtml((p.favoriteClass || "-").replace(/^./, c => c.toUpperCase()))}</td>
             <td><span class="badge">${isVisible ? "Visible" : "Not Visible"}</span></td>
             <td class="actions">
               <button onclick="togglePlayerVisibility('${p.id}')">${isVisible ? "Hide" : "Show"}</button>
@@ -4257,7 +4282,7 @@ function renderPlayers(derived) {
       document.getElementById("playersTable").innerHTML = `
         <table>
           <thead>
-            <tr><th>Player</th><th>Base ELO</th><th>Current ELO</th><th>Kills</th><th>Deaths</th><th>KD</th><th>Class</th><th>GT Human %</th><th>GT Infantry KD</th><th>GT Time Played</th><th>GT Revives</th><th>GT Squad Revive</th><th>GT Headshots</th><th>Leaderboard</th><th>Actions</th></tr>
+            <tr><th>Player</th><th>Base ELO</th><th>Current ELO</th><th>Kills</th><th>Deaths</th><th>KD</th><th>GT Human %</th><th>GT Infantry KD</th><th>GT Time Played</th><th>GT Revives</th><th>GT Squad Revive</th><th>GT Headshots</th><th>Leaderboard</th><th>Actions</th></tr>
           </thead>
           <tbody>${rows}</tbody>
         </table>
