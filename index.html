@@ -853,7 +853,7 @@
       display: block;
       margin: 0;
       text-align: center;
-      font-size: var(--player-name-size, clamp(29px, 3.8vw, 59px));
+      font-size: var(--player-name-size, clamp(24px, 3.4vw, 54px));
       line-height: .95;
       letter-spacing: var(--player-name-letter-spacing, -.05em);
       transform: scaleX(var(--player-name-scale, 1));
@@ -3662,9 +3662,10 @@ function resetPlayerForm() {
     }
 
     function openPublicPlayerProfile(playerId) {
-      const resolvedPlayerId = String(playerId || state.ui.publicPlayerId || "");
+      const resolvedPlayerId = String(playerId ?? state.ui.publicPlayerId ?? "").trim();
       if (!resolvedPlayerId) return;
       state.ui.publicPlayerId = resolvedPlayerId;
+      state.ui.selectedPlayerId = resolvedPlayerId;
       setTab("playerProfile");
       renderPublicPlayerProfile(computeDerived(), resolvedPlayerId);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -3679,6 +3680,9 @@ function resetPlayerForm() {
         box.innerHTML = `<div class="card"><div class="empty">Select a player from the leaderboard to open their personal card.</div></div>`;
         return;
       }
+
+      state.ui.publicPlayerId = String(player.id);
+      state.ui.selectedPlayerId = String(player.id);
       state.ui.publicPlayerId = String(player.id);
 
       const visiblePlayer = derived.visibleRanking.find(p => p.id === player.id);
@@ -3696,7 +3700,7 @@ function resetPlayerForm() {
       const avatarSrc = getPlayerAvatarSrc(player);
       const playerNameLength = String(player.name || "").length;
       let playerNameSize = "clamp(29px, 3.8vw, 59px)";
-      let playerNameScale = 1;
+      let playerNameScale = 0.96;
       let playerNameLetterSpacing = "-.05em";
       if (playerNameLength >= 14) playerNameScale = 0.97;
       if (playerNameLength >= 18) {
@@ -3785,7 +3789,9 @@ function resetPlayerForm() {
     }
 
     function renderPlayerDrilldown(derived, playerId, targetId = "playerDrilldown") {
-      const player = derived.ranking.find(p => p.id === playerId);
+      const resolvedPlayerId = String(playerId ?? state.ui.publicPlayerId ?? state.ui.selectedPlayerId ?? "").trim();
+      const player = derived.ranking.find(p => String(p.id) === resolvedPlayerId)
+        || derived.visibleRanking.find(p => String(p.id) === resolvedPlayerId);
       const box = document.getElementById(targetId);
       if (!box) return;
       if (!player) {
