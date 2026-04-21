@@ -2904,8 +2904,8 @@ function resetPlayerForm() {
 
     function renderSummary(derived) {
       const visiblePlayersCount = state.data.players.filter(p => p.visibleInLeaderboard !== false).length;
-      const top10 = derived.visibleRanking.slice(0, 10);
-      const topTierKd = top10.length
+      const top8 = derived.visibleRanking.slice(0, 8);
+      const topTierKd = top8.length
         ? (top10.reduce((sum, p) => sum + Number(p.kd || 0), 0) / top10.length)
         : 0;
       const stats = [
