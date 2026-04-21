@@ -821,7 +821,7 @@
         <button class="tab-btn" data-tab="matches">Matches</button>
         <button class="tab-btn" data-tab="leaderboards">Rankings</button>
         <button class="tab-btn" data-tab="howRankingWorks">How Ranking Works</button>
-        <button class="tab-btn" data-tab="gametools">GameTools Stats</button>
+        <button class="tab-btn" data-tab="gametools">Public BF Stats</button>
         <button class="tab-btn" data-tab="players" id="playersTabBtn">Players DB</button>
         <button class="tab-btn" data-tab="settings" id="settingsTabBtn">Settings / Data</button>
       </div>
@@ -1106,7 +1106,7 @@
 
       <div class="card" style="margin-top:18px;">
         <div class="split">
-          <h2 class="section-title">GameTools Leaderboard</h2>
+          <h2 class="section-title">Public BF Stats</h2>
           <div class="actions">
             <button class="primary" id="gtSyncAllBtn">Sync All</button>
           </div>
@@ -3811,9 +3811,14 @@ function normalizeExternalName(value) {
           </thead>
           <tbody>
             ${linkedSorted.map((p, index) => `
-              <tr>
+              <tr class="leaderboard-player-row" data-player-id="${p.id}">
                 <td><strong>#${index + 1}</strong></td>
-                <td><strong>${escapeHtml(p.name)}</strong></td>
+                <td class="leaderboard-player-cell">
+                  <button class="player-link-btn" type="button" data-player-id="${p.id}" aria-label="Open player card for ${escapeHtml(p.name)}">
+                    <strong>${escapeHtml(p.name)}</strong>
+                    <span class="muted small">Open player card</span>
+                  </button>
+                </td>
                 <td>${escapeHtml((p.gtPlatform || "pc").toUpperCase())}</td>
                 <td>${escapeHtml(p.gtHumanPrecentage || "-")}</td>
                 <td>${p.gtInfantryKillDeath == null ? "-" : escapeHtml(String(p.gtInfantryKillDeath))}</td>
@@ -3828,6 +3833,14 @@ function normalizeExternalName(value) {
           </tbody>
         </table>
       ` : `<div class="empty">There are no linked players yet.</div>`;
+
+      document.querySelectorAll("#gtLinkedPlayersTable [data-player-id]").forEach(el => {
+        el.addEventListener("click", event => {
+          event.preventDefault();
+          const playerId = el.dataset.playerId;
+          if (playerId) openPublicPlayerProfile(playerId);
+        });
+      });
     }
 
     function setGameToolsSort(key) {
