@@ -483,17 +483,32 @@
     }
 
     .leaderboards-layout {
-      grid-template-columns: minmax(0, 1.45fr) minmax(360px, .78fr);
+      grid-template-columns: minmax(0, 1.62fr) minmax(440px, .68fr);
       align-items: start;
+      gap: 16px;
     }
     .leaderboards-layout > .card {
       min-width: 0;
     }
     .leaderboard-table-card {
       overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+    .leaderboard-table-card #leaderboardTable {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 2px;
+    }
+    .leaderboard-table-card #leaderboardTable table {
+      min-width: 1000px;
     }
     .drilldown-card {
       min-width: 0;
+      position: relative;
+      z-index: 2;
+      align-self: start;
     }
     .drilldown-table-wrap {
       overflow-x: auto;
@@ -698,10 +713,11 @@
     }
 
     @media (max-width: 1180px) {
-      .grid-2, .grid-3, .team-grid, .form-grid, .players-layout, .player-form-grid, .player-profile-stats, .player-hero-card { grid-template-columns: 1fr; }
+      .grid-2, .grid-3, .team-grid, .form-grid, .players-layout, .player-form-grid, .player-profile-stats, .player-hero-card, .leaderboards-layout { grid-template-columns: 1fr; }
       .hero { min-height: 210px; }
       .hero-summary .stats, .stats { grid-template-columns: repeat(2, 1fr); }
       .site-header, .main-nav { padding-left: 14px; padding-right: 14px; }
+      .leaderboard-table-card #leaderboardTable table { min-width: 920px; }
     }
     @media (max-width: 720px) {
       .hero-summary .stats, .stats { grid-template-columns: 1fr; }
