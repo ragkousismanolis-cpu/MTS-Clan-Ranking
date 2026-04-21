@@ -503,9 +503,25 @@
     }
     .recent-match-score {
       min-width: 170px;
-      text-align: center;
-      font-size: 28px;
+      display: inline-grid;
+      grid-template-columns: minmax(56px, auto) 18px minmax(56px, auto);
+      align-items: center;
+      justify-content: center;
+      column-gap: 0;
+      font-size: 26px;
       line-height: 1;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1, "lnum" 1;
+    }
+    .recent-match-score-left {
+      text-align: right;
+    }
+    .recent-match-score-sep {
+      text-align: center;
+      opacity: .92;
+    }
+    .recent-match-score-right {
+      text-align: left;
     }
 
 
@@ -3162,7 +3178,7 @@ function resetPlayerForm() {
             <div><strong>${escapeHtml(m.teamA.name)}</strong> vs <strong>${escapeHtml(m.teamB.name)}</strong></div>
             <div class="muted small">${escapeHtml(m.date || "")} • ${escapeHtml(m.map || "No map")} • ${escapeHtml(m.mode || "No mode")}</div>
           </div>
-          <div class="score-big recent-match-score">${m.teamA.score} - ${m.teamB.score}</div>
+          <div class="score-big recent-match-score"><span class="recent-match-score-left">${m.teamA.score}</span><span class="recent-match-score-sep">-</span><span class="recent-match-score-right">${m.teamB.score}</span></div>
         </div>
       `).join("") : `<div class="empty">There are no matches yet.</div>`;
 
