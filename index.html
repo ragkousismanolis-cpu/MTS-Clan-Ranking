@@ -409,8 +409,57 @@
       margin-top: 6px;
     }
 
+
+    .players-layout { grid-template-columns: minmax(720px, 1.3fr) minmax(420px, .9fr); align-items: start; }
+    .player-editor-card { padding: 22px; }
+    .player-editor-card .section-title { margin-bottom: 16px; }
+    .player-editor-intro {
+      margin: 0 0 16px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .player-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 16px 18px;
+      align-items: end;
+    }
+    .player-form-grid > div {
+      padding: 14px;
+      border-radius: 4px;
+      background: rgba(255,255,255,.035);
+    }
+    .player-form-grid label {
+      font-size: 12px;
+      margin-bottom: 8px;
+      letter-spacing: .02em;
+    }
+    .player-form-grid input,
+    .player-form-grid select {
+      min-height: 48px;
+      padding: 12px 14px;
+      font-size: 15px;
+    }
+    .player-editor-card .toolbar {
+      margin-top: 18px;
+      gap: 12px;
+    }
+    .player-editor-card .toolbar button {
+      min-height: 46px;
+      padding-inline: 16px;
+    }
+    .bulk-player-import-card {
+      padding: 18px !important;
+      margin-top: 18px !important;
+    }
+    .bulk-player-import-card textarea {
+      min-height: 180px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
     @media (max-width: 1180px) {
-      .grid-2, .grid-3, .team-grid, .form-grid { grid-template-columns: 1fr; }
+      .grid-2, .grid-3, .team-grid, .form-grid, .players-layout, .player-form-grid { grid-template-columns: 1fr; }
       .hero { min-height: 210px; }
       .hero-summary .stats, .stats { grid-template-columns: repeat(2, 1fr); }
       .site-header, .main-nav { padding-left: 14px; padding-right: 14px; }
@@ -560,7 +609,7 @@
     </section>
 
     <section id="leaderboards" class="page">
-      <div class="grid-2">
+      <div class="grid-2 players-layout">
         <div class="card">
           <div class="toolbar" style="margin-top:0; margin-bottom:14px;">
             <button class="tab-btn active" id="eloRankingBtn" type="button">ELO Ranking</button>
@@ -819,9 +868,10 @@
 
     <section id="players" class="page">
       <div class="grid-2">
-        <div class="card">
+        <div class="card player-editor-card">
           <h2 class="section-title">Προσθήκη / Επεξεργασία Παίκτη</h2>
-          <div class="form-grid">
+          <p class="player-editor-intro">Μεγαλύτερη και πιο καθαρή φόρμα για γρήγορη εισαγωγή νέων παικτών χωρίς να στριμώχνονται τα πεδία.</p>
+          <div class="player-form-grid">
             <div>
               <label>Όνομα</label>
               <input id="playerName" />
@@ -858,7 +908,7 @@
             <button class="success" id="savePlayerBtn">Αποθήκευση Παίκτη</button>
             <button id="resetPlayerForm">Καθαρισμός</button>
           </div>
-          <div class="card" style="padding:14px; margin-top:12px;">
+          <div class="card bulk-player-import-card">
             <h3 style="margin-top:0;">Μαζικό Import Παικτών</h3>
             <p class="subtitle" style="margin-bottom:12px;">
               Κάνε paste από Excel / Google Sheets με 2 στήλες: <strong>USERNAME</strong> και <strong>Starting ELO</strong>.
