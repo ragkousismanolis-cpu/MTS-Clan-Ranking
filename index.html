@@ -1940,6 +1940,13 @@
       const eloKdWeight = Number(state.data.settings.eloKdWeight || 5);
       const eloOverallScale = Number(state.data.settings.eloOverallScale || 0.5);
 
+      const ratingBaseElo = Number(state.data.settings.defaultElo || 1000);
+      const ratingFromElo = (elo) => {
+        const normalized = Math.tanh((Number(elo || 0) - ratingBaseElo) / 180);
+        const rating = 55 + (45 * normalized);
+        return Math.max(1, Math.min(99, Math.round(rating * 10) / 10));
+      };
+
       const ranking = Array.from(playerMap.values()).map(p => {
         const kd = p.deaths > 0 ? (p.kills / p.deaths) : p.kills;
         const baseElo = Number((p.baseElo != null ? p.baseElo : state.data.settings.defaultElo) || 1000);
@@ -1958,6 +1965,7 @@
         return {
           ...p,
           currentElo,
+          rating: ratingFromElo(currentElo),
           kd,
           winRate: p.matchesPlayed > 0 ? (p.wins / p.matchesPlayed) : 0
         };
@@ -3222,6 +3230,7 @@ function resetPlayerForm() {
               <th>Rank</th>
               <th>Player</th>
               <th>ELO</th>
+              <th>Rating</th>
               <th>Kills</th>
               <th>Deaths</th>
               <th>KD</th>
@@ -3243,6 +3252,7 @@ function resetPlayerForm() {
                     </button>
                   </td>
                   <td>${formatElo(p.currentElo)}</td>
+                  <td>${p.rating.toFixed(1)}</td>
                   <td>${p.kills}</td>
                   <td>${p.deaths}</td>
                   <td>${formatKd(p.kd)}</td>
