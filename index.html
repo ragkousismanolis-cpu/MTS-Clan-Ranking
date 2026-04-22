@@ -1147,6 +1147,7 @@
         <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
         <button class="tab-btn" data-tab="matches">Matches</button>
         <button class="tab-btn" data-tab="leaderboards">Rankings</button>
+        <button class="tab-btn" data-tab="teams">Teams</button>
         <button class="tab-btn" data-tab="howRankingWorks">How Ranking Works</button>
         <button class="tab-btn" data-tab="gametools">Public BF Stats</button>
         <button class="tab-btn" data-tab="players" id="playersTabBtn">Players DB</button>
@@ -1183,6 +1184,12 @@
           </div>
           <div id="leaderboardTable"></div>
         </div>
+      </div>
+    </section>
+
+    <section id="teams" class="page">
+      <div class="public-player-shell">
+        <div id="teamsPageContent"></div>
       </div>
     </section>
 
@@ -1488,6 +1495,10 @@
                 <option value="recon">Recon</option>
               </select>
             </div>
+            <div>
+              <label>Team</label>
+              <input id="playerTeamName" placeholder="π.χ. Team MTS" />
+            </div>
           </div>
           <div class="toolbar">
             <button class="success" id="savePlayerBtn">Save Player</button>
@@ -1647,6 +1658,7 @@
         activeTab: "dashboard",
         editingMatchId: null,
         editingPlayerId: null,
+        publicTeamName: "",
         rankingMode: "elo",
         ocrBulkPreview: null,
         gametoolsPreview: null,
@@ -1693,7 +1705,8 @@
           gtRevives: p.gtRevives ?? null,
           gtSquadmateRevive: p.gtSquadmateRevive ?? null,
           gtHeadshots: p.gtHeadshots || "",
-          favoriteClass: p.favoriteClass || ""
+          favoriteClass: p.favoriteClass || "",
+          teamName: p.teamName || ""
         })),
         matches: []
       };
@@ -1913,6 +1926,7 @@
         gtSquadmateRevive: p.gt_squadmate_revive == null ? null : Number(p.gt_squadmate_revive),
         gtHeadshots: String(p.gt_headshots || ""),
         favoriteClass: String(p.favorite_class || ""),
+        teamName: String(p.team_name || ""),
         createdAt: p.created_at || new Date().toISOString()
       }));
 
@@ -2051,6 +2065,7 @@
             gt_squadmate_revive: p.gtSquadmateRevive == null ? null : Number(p.gtSquadmateRevive),
             gt_headshots: p.gtHeadshots || null,
             favorite_class: p.favoriteClass || null,
+            team_name: p.teamName || null,
             created_at: p.createdAt || new Date().toISOString()
           }));
           await apiRequest("/rest/v1/players", {
@@ -2193,7 +2208,9 @@
         gtTimePlayed: String(p.gtTimePlayed || ""),
         gtRevives: p.gtRevives == null || p.gtRevives === "" ? null : Number(p.gtRevives),
         gtSquadmateRevive: p.gtSquadmateRevive == null || p.gtSquadmateRevive === "" ? null : Number(p.gtSquadmateRevive),
-        gtHeadshots: String(p.gtHeadshots || "")
+        gtHeadshots: String(p.gtHeadshots || ""),
+        favoriteClass: String(p.favoriteClass || ""),
+        teamName: String(p.teamName || "")
       }));
     }
 
@@ -3274,6 +3291,7 @@ function resetPlayerForm() {
       document.getElementById("playerLosses").value = 0;
       document.getElementById("playerVisibility").value = "visible";
       document.getElementById("playerFavoriteClass").value = "";
+      document.getElementById("playerTeamName").value = "";
     }
 
     async function savePlayer() {
@@ -3291,6 +3309,7 @@ function resetPlayerForm() {
         startingLosses: Number(document.getElementById("playerLosses").value || 0),
         visibleInLeaderboard: document.getElementById("playerVisibility").value !== "hidden",
         favoriteClass: document.getElementById("playerFavoriteClass").value || "",
+        teamName: document.getElementById("playerTeamName").value.trim(),
         createdAt: existing?.createdAt || new Date().toISOString()
       };
       payload.startingMatches = payload.startingWins + payload.startingLosses;
@@ -3389,7 +3408,9 @@ function resetPlayerForm() {
             startingWins: 0,
             startingLosses: 0,
             startingMatches: 0,
-            visibleInLeaderboard: true
+            visibleInLeaderboard: true,
+            favoriteClass: "",
+            teamName: ""
           });
           created += 1;
         });
@@ -3417,6 +3438,7 @@ function resetPlayerForm() {
       document.getElementById("playerLosses").value = p.startingLosses || 0;
       document.getElementById("playerVisibility").value = p.visibleInLeaderboard === false ? "hidden" : "visible";
       document.getElementById("playerFavoriteClass").value = p.favoriteClass || "";
+      document.getElementById("playerTeamName").value = p.teamName || "";
       setTab("players");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -3686,6 +3708,177 @@ function resetPlayerForm() {
       return '';
     }
 
+
+    function getNormalizedTeamName(value) {
+      return String(value || "").trim();
+    }
+
+    function getPublicTeams() {
+      const map = new Map();
+
+      state.data.players.forEach(player => {
+        const teamName = getNormalizedTeamName(player.teamName);
+        if (!teamName) return;
+        if (!map.has(teamName)) {
+          map.set(teamName, { name: teamName, players: [] });
+        }
+        map.get(teamName).players.push(player);
+      });
+
+      return Array.from(map.values())
+        .map(team => ({
+          ...team,
+          players: team.players.slice().sort((a, b) => a.name.localeCompare(b.name))
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    function openPublicTeamProfile(teamName) {
+      state.ui.publicTeamName = String(teamName || "").trim();
+      setTab("teams");
+      setTimeout(() => {
+        renderTeams();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, 0);
+    }
+
+    function renderPublicTeamPlayerCards(players) {
+      if (!players.length) {
+        return `<div class="card"><div class="empty">Δεν υπάρχουν παίκτες σε αυτή την ομάδα ακόμα.</div></div>`;
+      }
+
+      return `
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
+          ${players.map(player => `
+            <div class="card" style="padding:18px;">
+              <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+                <img
+                  src="${getPlayerAvatarSrc(player)}"
+                  alt="${escapeHtml(player.name)} avatar"
+                  style="width:58px; height:58px; border-radius:50%; object-fit:cover; background:#111827;"
+                />
+                <div style="min-width:0;">
+                  <div style="font-weight:800; font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                    ${escapeHtml(player.name)}
+                  </div>
+                  <div class="muted small">${escapeHtml(player.teamName || "No Team")}</div>
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; margin-bottom:14px;">
+                <div class="stat" style="padding:12px;">
+                  <div class="stat-label" style="text-align:left;">Base ELO</div>
+                  <div class="stat-value" style="text-align:left; font-size:22px;">${Number(player.baseElo || 1000)}</div>
+                </div>
+                <div class="stat" style="padding:12px;">
+                  <div class="stat-label" style="text-align:left;">Class</div>
+                  <div class="stat-value" style="text-align:left; font-size:18px;">${escapeHtml((player.favoriteClass || "-").replace(/^./, c => c.toUpperCase()))}</div>
+                </div>
+              </div>
+
+              <button class="primary" type="button" data-open-player="${player.id}" style="width:100%;">
+                Open Player Card
+              </button>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderTeams() {
+      const box = document.getElementById("teamsPageContent");
+      if (!box) return;
+
+      const teams = getPublicTeams();
+      const selectedTeamName = getNormalizedTeamName(state.ui.publicTeamName);
+
+      if (!teams.length) {
+        box.innerHTML = `
+          <div class="card">
+            <div class="empty">Δεν έχουν οριστεί ομάδες ακόμα.</div>
+          </div>
+        `;
+        return;
+      }
+
+      const selectedTeam = teams.find(team => team.name === selectedTeamName);
+
+      if (selectedTeam) {
+        box.innerHTML = `
+          <div class="card" style="margin-bottom:18px;">
+            <div class="split">
+              <div>
+                <h2 class="section-title" style="margin-bottom:6px;">${escapeHtml(selectedTeam.name)}</h2>
+                <div class="muted">Members: ${selectedTeam.players.length}</div>
+              </div>
+              <button id="backToTeamsListBtn" type="button">Back to Teams</button>
+            </div>
+          </div>
+
+          ${renderPublicTeamPlayerCards(selectedTeam.players)}
+        `;
+
+        const backBtn = document.getElementById("backToTeamsListBtn");
+        if (backBtn) {
+          backBtn.addEventListener("click", () => {
+            state.ui.publicTeamName = "";
+            renderTeams();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          });
+        }
+
+        document.querySelectorAll("[data-open-player]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const playerId = btn.getAttribute("data-open-player");
+            if (playerId) openPublicPlayerProfile(playerId);
+          });
+        });
+
+        return;
+      }
+
+      box.innerHTML = `
+        <div class="card" style="margin-bottom:18px;">
+          <div class="split">
+            <div>
+              <h2 class="section-title" style="margin-bottom:6px;">Teams</h2>
+              <div class="muted">Public ομάδες και τα μέλη τους</div>
+            </div>
+            <span class="badge">${teams.length} teams</span>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
+          ${teams.map(team => `
+            <div class="card" style="padding:18px;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:14px;">
+                <div>
+                  <div style="font-size:18px; font-weight:800;">${escapeHtml(team.name)}</div>
+                  <div class="muted small" style="margin-top:6px;">${team.players.length} players</div>
+                </div>
+                <span class="badge">Public</span>
+              </div>
+
+              <div class="muted small" style="margin-bottom:14px;">
+                ${team.players.slice(0, 4).map(p => escapeHtml(p.name)).join(" • ") || "No members yet"}
+              </div>
+
+              <button class="primary" type="button" data-open-team="${encodeURIComponent(team.name)}" style="width:100%;">
+                View Team
+              </button>
+            </div>
+          `).join("")}
+        </div>
+      `;
+
+      document.querySelectorAll("[data-open-team]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const teamName = decodeURIComponent(btn.getAttribute("data-open-team") || "");
+          if (teamName) openPublicTeamProfile(teamName);
+        });
+      });
+    }
+
     function openPublicPlayerProfile(playerId) {
       const fallbackPlayerId = state.ui.publicPlayerId || state.ui.selectedPlayerId || "";
       const resolvedPlayerId = String(playerId || fallbackPlayerId || "").trim();
@@ -3713,7 +3906,6 @@ function resetPlayerForm() {
 
       state.ui.publicPlayerId = String(player.id);
       state.ui.selectedPlayerId = String(player.id);
-      state.ui.publicPlayerId = String(player.id);
 
       const visiblePlayer = derived.visibleRanking.find(p => p.id === player.id);
       const kdRankPlayer = derived.visibleRankingByKd.find(p => p.id === player.id);
@@ -3728,6 +3920,7 @@ function resetPlayerForm() {
       const rankLabel = visiblePlayer ? `#${visiblePlayer.visibleRank}` : "Hidden";
       const kdRankLabel = kdRankPlayer ? `#${kdRankPlayer.kdRank}` : "N/A";
       const avatarSrc = getPlayerAvatarSrc(player);
+      const teamName = getNormalizedTeamName(player.teamName);
       const playerNameLength = String(player.name || "").length;
       let playerNameSize = "clamp(24px, 3.2vw, 49px)";
       let playerNameScale = 0.96;
@@ -3756,6 +3949,7 @@ function resetPlayerForm() {
               </div>
               <div class="player-avatar-meta">
                 <div class="badge">MTS Clan Member</div>
+                ${teamName ? `<button class="badge" type="button" id="openPlayerTeamBtn">${escapeHtml(teamName)}</button>` : ""}
                 ${classMeta.label ? `<div class="player-class-chip">${classIcon}<span>${escapeHtml(classMeta.label)}</span></div>` : ""}
               </div>
             </div>
@@ -3815,6 +4009,12 @@ function resetPlayerForm() {
         setTab("leaderboards");
         window.scrollTo({ top: 0, behavior: "smooth" });
       });
+      const teamBtn = document.getElementById("openPlayerTeamBtn");
+      if (teamBtn) {
+        teamBtn.addEventListener("click", () => {
+          openPublicTeamProfile(teamName);
+        });
+      }
       renderPlayerDrilldown(derived, player.id, "playerProfileDrilldown");
     }
 
@@ -4372,6 +4572,7 @@ function renderPlayers(derived) {
             <td>${p.gtSquadmateRevive == null ? "-" : escapeHtml(String(p.gtSquadmateRevive))}</td>
             <td>${escapeHtml(p.gtHeadshots || "-")}</td>
             <td>${escapeHtml((p.favoriteClass || "-").replace(/^./, c => c.toUpperCase()))}</td>
+            <td>${escapeHtml(p.teamName || "-")}</td>
             <td><span class="badge">${isVisible ? "Visible" : "Not Visible"}</span></td>
             <td class="actions">
               <button onclick="togglePlayerVisibility('${p.id}')">${isVisible ? "Hide" : "Show"}</button>
@@ -4385,7 +4586,7 @@ function renderPlayers(derived) {
       document.getElementById("playersTable").innerHTML = `
         <table>
           <thead>
-            <tr><th>Player</th><th>Base ELO</th><th>Current ELO</th><th>Kills</th><th>Deaths</th><th>KD</th><th>GT Human %</th><th>GT Infantry KD</th><th>GT Time Played</th><th>GT Revives</th><th>GT Squad Revive</th><th>GT Headshots</th><th>Leaderboard</th><th>Actions</th></tr>
+            <tr><th>Player</th><th>Base ELO</th><th>Current ELO</th><th>Kills</th><th>Deaths</th><th>KD</th><th>GT Human %</th><th>GT Infantry KD</th><th>GT Time Played</th><th>GT Revives</th><th>GT Squad Revive</th><th>GT Headshots</th><th>Class</th><th>Team</th><th>Leaderboard</th><th>Actions</th></tr>
           </thead>
           <tbody>${rows}</tbody>
         </table>
@@ -4447,6 +4648,7 @@ function renderPlayers(derived) {
       renderSummary(derived);
       renderDashboard(derived);
       renderLeaderboards(derived);
+      renderTeams();
       renderPublicPlayerProfile(derived, state.ui.publicPlayerId);
       renderMatches(derived);
       renderPlayers(derived);
