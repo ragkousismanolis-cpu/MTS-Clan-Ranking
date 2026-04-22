@@ -1497,7 +1497,9 @@
             </div>
             <div>
               <label>Team</label>
-              <input id="playerTeamName" placeholder="π.χ. Team MTS" />
+              <select id="playerTeamName">
+                <option value="">No Team</option>
+              </select>
             </div>
           </div>
           <div class="toolbar">
@@ -1708,7 +1710,8 @@
           favoriteClass: p.favoriteClass || "",
           teamName: p.teamName || ""
         })),
-        matches: []
+        matches: [],
+        teams: []
       };
     }
 
@@ -1895,12 +1898,13 @@
     }
 
     async function fetchCloudData() {
-      const [players, matches, sides, stats, settingsRows] = await Promise.all([
+      const [players, matches, sides, stats, settingsRows, teamsRows] = await Promise.all([
         apiRequest("/rest/v1/players?select=*&order=created_at.asc"),
         apiRequest("/rest/v1/matches?select=*&order=match_date.asc,created_at.asc"),
         apiRequest("/rest/v1/match_sides?select=*&order=side_number.asc,created_at.asc"),
         apiRequest("/rest/v1/match_player_stats?select=*&order=created_at.asc"),
-        apiRequest("/rest/v1/app_settings?select=*&id=eq.1")
+        apiRequest("/rest/v1/app_settings?select=*&id=eq.1"),
+        apiRequest("/rest/v1/teams?select=*&order=name.asc").catch(() => [])
       ]);
 
       const playersMapped = (players || []).map(p => ({
@@ -2001,7 +2005,12 @@
           liveVersion: String(settings?.live_version ?? APP_VERSION)
         },
         players: playersMapped,
-        matches: matchesMapped
+        matches: matchesMapped,
+        teams: (teamsRows || []).map(team => ({
+          id: String(team.id || ""),
+          name: String(team.name || "").trim(),
+          createdAt: String(team.created_at || new Date().toISOString())
+        })).filter(team => team.id && team.name)
       };
     }
 
@@ -2190,6 +2199,16 @@
       state.data.settings.liveVersion = APP_VERSION;
       if (!Array.isArray(state.data.players)) state.data.players = [];
       if (!Array.isArray(state.data.matches)) state.data.matches = [];
+      if (!Array.isArray(state.data.teams)) state.data.teams = [];
+
+      state.data.teams = state.data.teams
+        .map(team => ({
+          id: String(team.id || ""),
+          name: String(team.name || "").trim(),
+          createdAt: String(team.createdAt || new Date().toISOString())
+        }))
+        .filter(team => team.id && team.name)
+        .sort((a, b) => a.name.localeCompare(b.name));
 
       state.data.players = state.data.players.map(p => ({
         ...p,
@@ -2212,6 +2231,8 @@
         favoriteClass: String(p.favoriteClass || ""),
         teamName: String(p.teamName || "")
       }));
+
+      fillPlayerTeamDropdown(document.getElementById("playerTeamName")?.value || "");
     }
 
     function getPlayerById(id) {
@@ -3291,7 +3312,7 @@ function resetPlayerForm() {
       document.getElementById("playerLosses").value = 0;
       document.getElementById("playerVisibility").value = "visible";
       document.getElementById("playerFavoriteClass").value = "";
-      document.getElementById("playerTeamName").value = "";
+      fillPlayerTeamDropdown("");
     }
 
     async function savePlayer() {
@@ -3438,7 +3459,7 @@ function resetPlayerForm() {
       document.getElementById("playerLosses").value = p.startingLosses || 0;
       document.getElementById("playerVisibility").value = p.visibleInLeaderboard === false ? "hidden" : "visible";
       document.getElementById("playerFavoriteClass").value = p.favoriteClass || "";
-      document.getElementById("playerTeamName").value = p.teamName || "";
+      fillPlayerTeamDropdown(p.teamName || "");
       setTab("players");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -3713,6 +3734,184 @@ function resetPlayerForm() {
       return String(value || "").trim();
     }
 
+    function getTeamOptions() {
+      return (state.data?.teams || [])
+        .map(team => ({ ...team, name: getNormalizedTeamName(team.name) }))
+        .filter(team => team.id && team.name)
+        .sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    function fillPlayerTeamDropdown(selectedValue = "") {
+      const select = document.getElementById("playerTeamName");
+      if (!select) return;
+      const normalizedSelected = getNormalizedTeamName(selectedValue);
+      const options = getTeamOptions();
+      const extraSelected = normalizedSelected && !options.some(team => team.name === normalizedSelected)
+        ? `<option value="${escapeHtml(normalizedSelected)}">${escapeHtml(normalizedSelected)}</option>`
+        : "";
+      select.innerHTML = `
+        <option value="">No Team</option>
+        ${options.map(team => `<option value="${escapeHtml(team.name)}">${escapeHtml(team.name)}</option>`).join("")}
+        ${extraSelected}
+      `;
+      select.value = normalizedSelected;
+    }
+
+    function getTeamPlayerCount(teamName) {
+      const normalized = getNormalizedTeamName(teamName);
+      if (!normalized) return 0;
+      return state.data.players.filter(player => getNormalizedTeamName(player.teamName) === normalized).length;
+    }
+
+    function getEditingTeamId() {
+      const input = document.getElementById("editingTeamId");
+      return input ? String(input.value || "").trim() : "";
+    }
+
+    function resetTeamForm() {
+      const idEl = document.getElementById("editingTeamId");
+      const nameEl = document.getElementById("teamNameInput");
+      const titleEl = document.getElementById("teamFormTitle");
+      if (idEl) idEl.value = "";
+      if (nameEl) nameEl.value = "";
+      if (titleEl) titleEl.textContent = "New team";
+    }
+
+    function editTeam(teamId) {
+      if (!requireAdmin()) return;
+      const team = getTeamOptions().find(item => item.id === teamId);
+      if (!team) return;
+      const idEl = document.getElementById("editingTeamId");
+      const nameEl = document.getElementById("teamNameInput");
+      const titleEl = document.getElementById("teamFormTitle");
+      if (idEl) idEl.value = team.id;
+      if (nameEl) nameEl.value = team.name;
+      if (titleEl) titleEl.textContent = `Edit: ${team.name}`;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    async function saveTeam() {
+      if (!requireAdmin()) return;
+      const nameEl = document.getElementById("teamNameInput");
+      const teamName = getNormalizedTeamName(nameEl ? nameEl.value : "");
+      const editingTeamId = getEditingTeamId();
+      if (!teamName) {
+        alert("Βάλε όνομα ομάδας.");
+        return;
+      }
+      const duplicate = getTeamOptions().find(team => team.name.toLowerCase() === teamName.toLowerCase() && team.id !== editingTeamId);
+      if (duplicate) {
+        alert("Υπάρχει ήδη ομάδα με αυτό το όνομα.");
+        return;
+      }
+      const payload = {
+        id: editingTeamId || uid("team"),
+        name: teamName,
+        created_at: new Date().toISOString()
+      };
+      try {
+        await apiRequest("/rest/v1/teams?id=eq." + encodeURIComponent(payload.id), {
+          method: "DELETE",
+          headers: { Prefer: "return=minimal" }
+        }, true);
+        await apiRequest("/rest/v1/teams", {
+          method: "POST",
+          headers: { ...getAuthHeaders(true), Prefer: "return=minimal,resolution=merge-duplicates" },
+          body: JSON.stringify([payload])
+        }, true);
+        const existingIndex = state.data.teams.findIndex(team => team.id === payload.id);
+        const teamForState = { id: payload.id, name: payload.name, createdAt: payload.created_at };
+        if (existingIndex >= 0) state.data.teams[existingIndex] = teamForState;
+        else state.data.teams.push(teamForState);
+        state.data.teams.sort((a, b) => a.name.localeCompare(b.name));
+        fillPlayerTeamDropdown(document.getElementById("playerTeamName")?.value || "");
+        resetTeamForm();
+        renderTeams();
+        alert("Η ομάδα αποθηκεύτηκε.");
+      } catch (err) {
+        alert(err.message || "Απέτυχε η αποθήκευση της ομάδας.");
+      }
+    }
+
+    async function deleteTeam(teamId) {
+      if (!requireAdmin()) return;
+      const team = getTeamOptions().find(item => item.id === teamId);
+      if (!team) return;
+      const assignedCount = getTeamPlayerCount(team.name);
+      if (assignedCount > 0) {
+        alert("Δεν μπορείς να διαγράψεις ομάδα που έχει παίκτες. Βγάλε πρώτα τους παίκτες από την ομάδα.");
+        return;
+      }
+      if (!confirm(`Να διαγραφεί η ομάδα ${team.name};`)) return;
+      try {
+        await apiRequest("/rest/v1/teams?id=eq." + encodeURIComponent(team.id), {
+          method: "DELETE",
+          headers: { Prefer: "return=minimal" }
+        }, true);
+        state.data.teams = state.data.teams.filter(item => item.id !== team.id);
+        if (getEditingTeamId() === team.id) resetTeamForm();
+        fillPlayerTeamDropdown(document.getElementById("playerTeamName")?.value || "");
+        renderTeams();
+        alert("Η ομάδα διαγράφηκε.");
+      } catch (err) {
+        alert(err.message || "Απέτυχε η διαγραφή της ομάδας.");
+      }
+    }
+
+    function renderTeamsAdminPanel() {
+      if (!isAdminLoggedIn()) return "";
+      const teams = getTeamOptions();
+      return `
+        <div class="card" style="margin-bottom:18px;">
+          <div class="split" style="margin-bottom:12px; align-items:flex-start;">
+            <div>
+              <h2 class="section-title" style="margin-bottom:6px;">Teams Admin</h2>
+              <div class="muted">Create teams and use them in the Player DB dropdown.</div>
+            </div>
+            <span class="badge">${teams.length} saved</span>
+          </div>
+
+          <input id="editingTeamId" type="hidden" value="" />
+          <div class="form-grid" style="grid-template-columns:minmax(0,1fr) auto auto; align-items:end; margin-bottom:16px;">
+            <div>
+              <label id="teamFormTitle">New team</label>
+              <input id="teamNameInput" placeholder="π.χ. Team MTS" />
+            </div>
+            <button id="saveTeamBtn" class="primary" type="button">Save Team</button>
+            <button id="resetTeamFormBtn" type="button">Clear</button>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>Players</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${teams.length ? teams.map(team => `
+                <tr>
+                  <td>${escapeHtml(team.name)}</td>
+                  <td>${getTeamPlayerCount(team.name)}</td>
+                  <td>
+                    <div class="actions">
+                      <button type="button" data-team-edit="${team.id}">Edit</button>
+                      <button type="button" class="danger" data-team-delete="${team.id}">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join("") : `
+                <tr>
+                  <td colspan="3"><div class="empty">Δεν υπάρχουν ομάδες ακόμα.</div></td>
+                </tr>
+              `}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
     function getPublicTeams() {
       const map = new Map();
 
@@ -3789,22 +3988,27 @@ function resetPlayerForm() {
       const box = document.getElementById("teamsPageContent");
       if (!box) return;
 
+      const adminPanelHtml = renderTeamsAdminPanel();
       const teams = getPublicTeams();
       const selectedTeamName = getNormalizedTeamName(state.ui.publicTeamName);
+      const selectedTeam = teams.find(team => team.name === selectedTeamName);
 
+      let publicHtml = "";
       if (!teams.length) {
-        box.innerHTML = `
+        publicHtml = `
           <div class="card">
+            <div class="split" style="margin-bottom:10px; align-items:flex-start;">
+              <div>
+                <h2 class="section-title" style="margin-bottom:6px;">Teams</h2>
+                <div class="muted">Public ομάδες και τα μέλη τους</div>
+              </div>
+              <span class="badge">0 teams</span>
+            </div>
             <div class="empty">Δεν έχουν οριστεί ομάδες ακόμα.</div>
           </div>
         `;
-        return;
-      }
-
-      const selectedTeam = teams.find(team => team.name === selectedTeamName);
-
-      if (selectedTeam) {
-        box.innerHTML = `
+      } else if (selectedTeam) {
+        publicHtml = `
           <div class="card" style="margin-bottom:18px;">
             <div class="split">
               <div>
@@ -3817,64 +4021,77 @@ function resetPlayerForm() {
 
           ${renderPublicTeamPlayerCards(selectedTeam.players)}
         `;
+      } else {
+        publicHtml = `
+          <div class="card" style="margin-bottom:18px;">
+            <div class="split">
+              <div>
+                <h2 class="section-title" style="margin-bottom:6px;">Teams</h2>
+                <div class="muted">Public ομάδες και τα μέλη τους</div>
+              </div>
+              <span class="badge">${teams.length} teams</span>
+            </div>
+          </div>
 
-        const backBtn = document.getElementById("backToTeamsListBtn");
-        if (backBtn) {
-          backBtn.addEventListener("click", () => {
-            state.ui.publicTeamName = "";
-            renderTeams();
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          });
-        }
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
+            ${teams.map(team => `
+              <div class="card" style="padding:18px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:14px;">
+                  <div>
+                    <div style="font-size:18px; font-weight:800;">${escapeHtml(team.name)}</div>
+                    <div class="muted small" style="margin-top:6px;">${team.players.length} players</div>
+                  </div>
+                  <span class="badge">Public</span>
+                </div>
 
-        document.querySelectorAll("[data-open-player]").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const playerId = btn.getAttribute("data-open-player");
-            if (playerId) openPublicPlayerProfile(playerId);
-          });
-        });
+                <div class="muted small" style="margin-bottom:14px;">
+                  ${team.players.slice(0, 4).map(p => escapeHtml(p.name)).join(" • ") || "No members yet"}
+                </div>
 
-        return;
+                <button class="primary" type="button" data-open-team="${encodeURIComponent(team.name)}" style="width:100%;">
+                  View Team
+                </button>
+              </div>
+            `).join("")}
+          </div>
+        `;
       }
 
-      box.innerHTML = `
-        <div class="card" style="margin-bottom:18px;">
-          <div class="split">
-            <div>
-              <h2 class="section-title" style="margin-bottom:6px;">Teams</h2>
-              <div class="muted">Public ομάδες και τα μέλη τους</div>
-            </div>
-            <span class="badge">${teams.length} teams</span>
-          </div>
-        </div>
+      box.innerHTML = `${adminPanelHtml}${publicHtml}`;
 
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
-          ${teams.map(team => `
-            <div class="card" style="padding:18px;">
-              <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:14px;">
-                <div>
-                  <div style="font-size:18px; font-weight:800;">${escapeHtml(team.name)}</div>
-                  <div class="muted small" style="margin-top:6px;">${team.players.length} players</div>
-                </div>
-                <span class="badge">Public</span>
-              </div>
+      fillPlayerTeamDropdown(document.getElementById("playerTeamName")?.value || "");
 
-              <div class="muted small" style="margin-bottom:14px;">
-                ${team.players.slice(0, 4).map(p => escapeHtml(p.name)).join(" • ") || "No members yet"}
-              </div>
+      const saveTeamBtn = document.getElementById("saveTeamBtn");
+      if (saveTeamBtn) saveTeamBtn.addEventListener("click", saveTeam);
+      const resetTeamFormBtn = document.getElementById("resetTeamFormBtn");
+      if (resetTeamFormBtn) resetTeamFormBtn.addEventListener("click", resetTeamForm);
+      document.querySelectorAll("[data-team-edit]").forEach(btn => {
+        btn.addEventListener("click", () => editTeam(btn.getAttribute("data-team-edit") || ""));
+      });
+      document.querySelectorAll("[data-team-delete]").forEach(btn => {
+        btn.addEventListener("click", () => deleteTeam(btn.getAttribute("data-team-delete") || ""));
+      });
 
-              <button class="primary" type="button" data-open-team="${encodeURIComponent(team.name)}" style="width:100%;">
-                View Team
-              </button>
-            </div>
-          `).join("")}
-        </div>
-      `;
+      const backBtn = document.getElementById("backToTeamsListBtn");
+      if (backBtn) {
+        backBtn.addEventListener("click", () => {
+          state.ui.publicTeamName = "";
+          renderTeams();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      }
 
       document.querySelectorAll("[data-open-team]").forEach(btn => {
         btn.addEventListener("click", () => {
           const teamName = decodeURIComponent(btn.getAttribute("data-open-team") || "");
           if (teamName) openPublicTeamProfile(teamName);
+        });
+      });
+
+      document.querySelectorAll("[data-open-player]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const playerId = btn.getAttribute("data-open-player");
+          if (playerId) openPublicPlayerProfile(playerId);
         });
       });
     }
@@ -4652,6 +4869,7 @@ function renderPlayers(derived) {
       renderPublicPlayerProfile(derived, state.ui.publicPlayerId);
       renderMatches(derived);
       renderPlayers(derived);
+      fillPlayerTeamDropdown(document.getElementById("playerTeamName")?.value || "");
       renderGameTools();
       renderHowRankingWorks();
       renderSettings();
