@@ -1497,7 +1497,9 @@
             </div>
             <div>
               <label>Team</label>
-              <input id="playerTeamName" placeholder="π.χ. Team MTS" />
+              <select id="playerTeamId">
+                <option value="">No Team</option>
+              </select>
             </div>
           </div>
           <div class="toolbar">
@@ -1658,6 +1660,7 @@
         activeTab: "dashboard",
         editingMatchId: null,
         editingPlayerId: null,
+        editingTeamId: null,
         publicTeamName: "",
         rankingMode: "elo",
         ocrBulkPreview: null,
@@ -1689,6 +1692,7 @@
           howRankingWorks: "Το current ELO προκύπτει από το base ELO και έπειτα προστίθενται τα effects από Win/Loss και KD.\n\nCurrent ELO = base ELO + eloOverallScale * ((eloWinLossWeight * (wins-losses)) + (eloKdWeight * ((KD - 1) * 10)))\n\nΆρα το ranking επηρεάζεται και από το αποτέλεσμα του official match και από τα ατομικά kills/deaths.",
           liveVersion: APP_VERSION
         },
+        teams: [],
         players: structuredClone(defaultSeedPlayers).map(p => ({
           ...p,
           visibleInLeaderboard: p.visibleInLeaderboard !== false,
@@ -1706,18 +1710,13 @@
           gtSquadmateRevive: p.gtSquadmateRevive ?? null,
           gtHeadshots: p.gtHeadshots || "",
           favoriteClass: p.favoriteClass || "",
+          teamId: p.teamId || "",
           teamName: p.teamName || ""
         })),
         matches: []
       };
     }
 
-    function getPublicHeaders() {
-      return {
-        apikey: SUPABASE_PUBLISHABLE_KEY,
-        Authorization: "Bearer " + SUPABASE_PUBLISHABLE_KEY
-      };
-    }
 
     function getSession() {
       try {
@@ -1895,13 +1894,21 @@
     }
 
     async function fetchCloudData() {
-      const [players, matches, sides, stats, settingsRows] = await Promise.all([
+      const [teams, players, matches, sides, stats, settingsRows] = await Promise.all([
+        apiRequest("/rest/v1/teams?select=*&order=name.asc"),
         apiRequest("/rest/v1/players?select=*&order=created_at.asc"),
         apiRequest("/rest/v1/matches?select=*&order=match_date.asc,created_at.asc"),
         apiRequest("/rest/v1/match_sides?select=*&order=side_number.asc,created_at.asc"),
         apiRequest("/rest/v1/match_player_stats?select=*&order=created_at.asc"),
         apiRequest("/rest/v1/app_settings?select=*&id=eq.1")
       ]);
+
+      const teamsMapped = (teams || []).map(team => ({
+        id: String(team.id),
+        name: String(team.name || "").trim(),
+        createdAt: team.created_at || new Date().toISOString()
+      })).filter(team => team.name);
+      const teamMap = new Map(teamsMapped.map(team => [team.id, team]));
 
       const playersMapped = (players || []).map(p => ({
         id: p.id,
@@ -1926,7 +1933,8 @@
         gtSquadmateRevive: p.gt_squadmate_revive == null ? null : Number(p.gt_squadmate_revive),
         gtHeadshots: String(p.gt_headshots || ""),
         favoriteClass: String(p.favorite_class || ""),
-        teamName: String(p.team_name || ""),
+        teamId: String(p.team_id || ""),
+        teamName: teamMap.get(String(p.team_id || ""))?.name || String(p.team_name || ""),
         createdAt: p.created_at || new Date().toISOString()
       }));
 
@@ -2000,6 +2008,7 @@
           howRankingWorks: String(settings?.how_ranking_works ?? initialData().settings.howRankingWorks),
           liveVersion: String(settings?.live_version ?? APP_VERSION)
         },
+        teams: teamsMapped,
         players: playersMapped,
         matches: matchesMapped
       };
@@ -2040,6 +2049,23 @@
         await clearTable("match_sides");
         await clearTable("matches");
         await clearTable("players");
+        await clearTable("teams");
+
+        if (state.data.teams?.length) {
+          const teamsPayload = state.data.teams.map(team => ({
+            id: team.id,
+            name: team.name,
+            created_at: team.createdAt || new Date().toISOString()
+          }));
+          await apiRequest("/rest/v1/teams", {
+            method: "POST",
+            headers: {
+              ...getAuthHeaders(true),
+              Prefer: "return=minimal"
+            },
+            body: JSON.stringify(teamsPayload)
+          }, true);
+        }
 
         if (state.data.players.length) {
           const playersPayload = state.data.players.map(p => ({
@@ -2065,6 +2091,7 @@
             gt_squadmate_revive: p.gtSquadmateRevive == null ? null : Number(p.gtSquadmateRevive),
             gt_headshots: p.gtHeadshots || null,
             favorite_class: p.favoriteClass || null,
+            team_id: p.teamId || null,
             team_name: p.teamName || null,
             created_at: p.createdAt || new Date().toISOString()
           }));
@@ -2188,8 +2215,20 @@
       if (state.data.settings.knownIssues == null) state.data.settings.knownIssues = initialData().settings.knownIssues;
       if (state.data.settings.howRankingWorks == null) state.data.settings.howRankingWorks = initialData().settings.howRankingWorks;
       state.data.settings.liveVersion = APP_VERSION;
+      if (!Array.isArray(state.data.teams)) state.data.teams = [];
       if (!Array.isArray(state.data.players)) state.data.players = [];
       if (!Array.isArray(state.data.matches)) state.data.matches = [];
+
+      state.data.teams = state.data.teams
+        .map(team => ({
+          id: String(team.id || uid("team")),
+          name: String(team.name || "").trim(),
+          createdAt: team.createdAt || new Date().toISOString()
+        }))
+        .filter(team => team.name)
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      const teamMap = new Map(state.data.teams.map(team => [team.id, team.name]));
 
       state.data.players = state.data.players.map(p => ({
         ...p,
@@ -2210,8 +2249,144 @@
         gtSquadmateRevive: p.gtSquadmateRevive == null || p.gtSquadmateRevive === "" ? null : Number(p.gtSquadmateRevive),
         gtHeadshots: String(p.gtHeadshots || ""),
         favoriteClass: String(p.favoriteClass || ""),
-        teamName: String(p.teamName || "")
+        teamId: String(p.teamId || ""),
+        teamName: teamMap.get(String(p.teamId || "")) || String(p.teamName || "")
       }));
+    }
+
+    function getTeamById(id) {
+      return state.data.teams.find(team => team.id === id);
+    }
+
+    function getTeamNameById(id) {
+      return getTeamById(id)?.name || "";
+    }
+
+    function getPublicHeaders() {
+      return {
+        apikey: SUPABASE_PUBLISHABLE_KEY,
+        Authorization: "Bearer " + SUPABASE_PUBLISHABLE_KEY
+      };
+    }
+
+    function populateTeamSelect(selectedValue = "") {
+      const select = document.getElementById("playerTeamId");
+      if (!select) return;
+      const currentValue = String(selectedValue || select.value || "");
+      const options = [`<option value="">No Team</option>`].concat(
+        state.data.teams
+          .slice()
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map(team => `<option value="${escapeHtml(team.id)}">${escapeHtml(team.name)}</option>`)
+      );
+      select.innerHTML = options.join("");
+      select.value = currentValue && state.data.teams.some(team => team.id === currentValue) ? currentValue : "";
+    }
+
+    function resetTeamForm() {
+      state.ui.editingTeamId = null;
+      const input = document.getElementById("teamNameInput");
+      if (input) input.value = "";
+    }
+
+    async function saveTeam() {
+      if (!requireAdmin()) return;
+      const input = document.getElementById("teamNameInput");
+      const name = String(input?.value || "").trim();
+      if (!name) return alert("Βάλε όνομα ομάδας.");
+
+      const duplicate = state.data.teams.find(team => team.name.toLowerCase() === name.toLowerCase() && team.id !== state.ui.editingTeamId);
+      if (duplicate) return alert("Υπάρχει ήδη ομάδα με αυτό το όνομα.");
+
+      if (state.ui.editingTeamId) {
+        const existing = getTeamById(state.ui.editingTeamId);
+        if (!existing) return;
+        const oldName = existing.name;
+        existing.name = name;
+        state.data.players.forEach(player => {
+          if (player.teamId === existing.id) player.teamName = name;
+          else if (!player.teamId && player.teamName === oldName) player.teamName = name;
+        });
+      } else {
+        state.data.teams.push({
+          id: uid("team"),
+          name,
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      state.data.teams.sort((a, b) => a.name.localeCompare(b.name));
+      await saveState();
+      resetTeamForm();
+      populateTeamSelect();
+      renderAll();
+    }
+
+    function editTeam(id) {
+      if (!requireAdmin()) return;
+      const team = getTeamById(id);
+      if (!team) return;
+      state.ui.editingTeamId = id;
+      const input = document.getElementById("teamNameInput");
+      if (input) input.value = team.name;
+      setTab("teams");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    async function deleteTeam(id) {
+      if (!requireAdmin()) return;
+      const team = getTeamById(id);
+      if (!team) return;
+      const usageCount = state.data.players.filter(player => player.teamId === id).length;
+      const confirmText = usageCount
+        ? `Η ομάδα ${team.name} έχει ${usageCount} παίκτες. Αν τη διαγράψεις, θα αφαιρεθεί η ανάθεση από αυτούς τους παίκτες. Συνέχεια;`
+        : `Να διαγραφεί η ομάδα ${team.name};`;
+      if (!confirm(confirmText)) return;
+
+      state.data.players.forEach(player => {
+        if (player.teamId === id) {
+          player.teamId = "";
+          player.teamName = "";
+        }
+      });
+      state.data.teams = state.data.teams.filter(team => team.id !== id);
+      if (state.ui.editingTeamId === id) resetTeamForm();
+      if (state.ui.publicTeamName === team.name) state.ui.publicTeamName = "";
+      await saveState();
+      populateTeamSelect();
+      renderAll();
+    }
+
+    function renderTeamsAdminPanel() {
+      const countBadge = document.getElementById("teamsCountBadge");
+      if (countBadge) countBadge.textContent = `${state.data.teams.length} teams`;
+      const box = document.getElementById("teamsAdminTable");
+      if (!box) return;
+      if (!state.data.teams.length) {
+        box.innerHTML = `<div class="empty">Δεν υπάρχουν ομάδες ακόμα.</div>`;
+        return;
+      }
+      const rows = state.data.teams.map(team => {
+        const members = state.data.players.filter(player => player.teamId === team.id).length;
+        return `
+          <tr>
+            <td><strong>${escapeHtml(team.name)}</strong></td>
+            <td>${members}</td>
+            <td class="actions">
+              <button type="button" onclick="editTeam('${team.id}')">Edit</button>
+              <button type="button" class="danger" onclick="deleteTeam('${team.id}')">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+      box.innerHTML = `
+        <table>
+          <thead>
+            <tr><th>Team</th><th>Players</th><th>Actions</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
     }
 
     function getPlayerById(id) {
@@ -3291,7 +3466,8 @@ function resetPlayerForm() {
       document.getElementById("playerLosses").value = 0;
       document.getElementById("playerVisibility").value = "visible";
       document.getElementById("playerFavoriteClass").value = "";
-      document.getElementById("playerTeamName").value = "";
+      populateTeamSelect("");
+      document.getElementById("playerTeamId").value = "";
     }
 
     async function savePlayer() {
@@ -3309,9 +3485,11 @@ function resetPlayerForm() {
         startingLosses: Number(document.getElementById("playerLosses").value || 0),
         visibleInLeaderboard: document.getElementById("playerVisibility").value !== "hidden",
         favoriteClass: document.getElementById("playerFavoriteClass").value || "",
-        teamName: document.getElementById("playerTeamName").value.trim(),
+        teamId: document.getElementById("playerTeamId").value || "",
         createdAt: existing?.createdAt || new Date().toISOString()
       };
+      const selectedTeam = getTeamById(payload.teamId);
+      payload.teamName = selectedTeam ? selectedTeam.name : "";
       payload.startingMatches = payload.startingWins + payload.startingLosses;
 
       if (!payload.name) return alert("Βάλε όνομα παίκτη.");
@@ -3410,6 +3588,7 @@ function resetPlayerForm() {
             startingMatches: 0,
             visibleInLeaderboard: true,
             favoriteClass: "",
+            teamId: "",
             teamName: ""
           });
           created += 1;
@@ -3438,7 +3617,8 @@ function resetPlayerForm() {
       document.getElementById("playerLosses").value = p.startingLosses || 0;
       document.getElementById("playerVisibility").value = p.visibleInLeaderboard === false ? "hidden" : "visible";
       document.getElementById("playerFavoriteClass").value = p.favoriteClass || "";
-      document.getElementById("playerTeamName").value = p.teamName || "";
+      populateTeamSelect(p.teamId || "");
+      document.getElementById("playerTeamId").value = p.teamId || "";
       setTab("players");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -3714,23 +3894,17 @@ function resetPlayerForm() {
     }
 
     function getPublicTeams() {
-      const map = new Map();
-
-      state.data.players.forEach(player => {
-        const teamName = getNormalizedTeamName(player.teamName);
-        if (!teamName) return;
-        if (!map.has(teamName)) {
-          map.set(teamName, { name: teamName, players: [] });
-        }
-        map.get(teamName).players.push(player);
-      });
-
-      return Array.from(map.values())
+      return state.data.teams
+        .slice()
+        .sort((a, b) => a.name.localeCompare(b.name))
         .map(team => ({
-          ...team,
-          players: team.players.slice().sort((a, b) => a.name.localeCompare(b.name))
-        }))
-        .sort((a, b) => a.name.localeCompare(b.name));
+          id: team.id,
+          name: team.name,
+          players: state.data.players
+            .filter(player => player.teamId === team.id)
+            .slice()
+            .sort((a, b) => a.name.localeCompare(b.name))
+        }));
     }
 
     function openPublicTeamProfile(teamName) {
@@ -3789,13 +3963,15 @@ function resetPlayerForm() {
       const box = document.getElementById("teamsPageContent");
       if (!box) return;
 
+      renderTeamsAdminPanel();
+
       const teams = getPublicTeams();
       const selectedTeamName = getNormalizedTeamName(state.ui.publicTeamName);
 
       if (!teams.length) {
         box.innerHTML = `
           <div class="card">
-            <div class="empty">Δεν έχουν οριστεί ομάδες ακόμα.</div>
+            <div class="empty">Δεν έχουν δημιουργηθεί ομάδες ακόμα.</div>
           </div>
         `;
         return;
@@ -4549,6 +4725,7 @@ function normalizeExternalName(value) {
     }
 
 function renderPlayers(derived) {
+      populateTeamSelect(state.ui.editingPlayerId ? (getPlayerById(state.ui.editingPlayerId)?.teamId || "") : "");
       document.getElementById("playersCountBadge").textContent = `${state.data.players.length} players`;
       const rankingMap = new Map(derived.ranking.map(p => [p.id, p]));
       const rows = state.data.players.slice().sort((a,b) => a.name.localeCompare(b.name)).map(p => {
@@ -4649,6 +4826,7 @@ function renderPlayers(derived) {
       renderDashboard(derived);
       renderLeaderboards(derived);
       renderTeams();
+      populateTeamSelect(state.ui.editingPlayerId ? (getPlayerById(state.ui.editingPlayerId)?.teamId || "") : "");
       renderPublicPlayerProfile(derived, state.ui.publicPlayerId);
       renderMatches(derived);
       renderPlayers(derived);
@@ -4672,6 +4850,8 @@ function renderPlayers(derived) {
     document.getElementById("addSide2PlayerB").addEventListener("click", () => { window.matchFormRows.side2.teamB.push(blankPlayerRow()); renderMatchFormRows(); });
     document.getElementById("saveMatchBtn").addEventListener("click", saveMatch);
     document.getElementById("resetMatchForm").addEventListener("click", resetMatchForm);
+    document.getElementById("saveTeamBtn").addEventListener("click", saveTeam);
+    document.getElementById("resetTeamFormBtn").addEventListener("click", resetTeamForm);
     document.getElementById("savePlayerBtn").addEventListener("click", savePlayer);
     document.getElementById("gtFetchBtn").addEventListener("click", fetchGameToolsStats);
     document.getElementById("gtClearPreviewBtn").addEventListener("click", clearGameToolsPreview);
@@ -4777,6 +4957,8 @@ M002	8/3/2026	MTS_JTxGR	MTS_Manos35	luckylouk96		zipfero0	einaifilosm	_WOLV3RIN2
     window.editMatch = editMatch;
     window.importMatchStats = importMatchStats;
     window.deleteMatch = deleteMatch;
+    window.editTeam = editTeam;
+    window.deleteTeam = deleteTeam;
     window.editPlayer = editPlayer;
     window.deletePlayer = deletePlayer;
     window.togglePlayerVisibility = togglePlayerVisibility;
