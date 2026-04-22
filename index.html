@@ -3966,8 +3966,8 @@ function resetPlayerForm() {
 
               <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; margin-bottom:14px;">
                 <div class="stat" style="padding:12px;">
-                  <div class="stat-label" style="text-align:left;">Base ELO</div>
-                  <div class="stat-value" style="text-align:left; font-size:22px;">${Number(player.baseElo || 1000)}</div>
+                  <div class="stat-label" style="text-align:left;">Rating</div>
+                  <div class="stat-value" style="text-align:left; font-size:22px;">${Math.round(Number(player.rating ?? player.baseElo || 1000))}</div>
                 </div>
                 <div class="stat" style="padding:12px;">
                   <div class="stat-label" style="text-align:left;">Class</div>
