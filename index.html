@@ -3946,9 +3946,16 @@ function resetPlayerForm() {
         return `<div class="card"><div class="empty">Δεν υπάρχουν παίκτες σε αυτή την ομάδα ακόμα.</div></div>`;
       }
 
+      const derived = computeDerived();
+      const rankingMap = new Map((derived.ranking || []).map(player => [String(player.id), player]));
+
       return `
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
-          ${players.map(player => `
+          ${players.map(player => {
+            const derivedPlayer = rankingMap.get(String(player.id)) || player;
+            const ratingValue = Number.isFinite(Number(derivedPlayer.rating)) ? Math.round(Number(derivedPlayer.rating)) : "-";
+
+            return `
             <div class="card" style="padding:18px;">
               <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
                 <img
@@ -3967,7 +3974,7 @@ function resetPlayerForm() {
               <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; margin-bottom:14px;">
                 <div class="stat" style="padding:12px;">
                   <div class="stat-label" style="text-align:left;">Rating</div>
-                  <div class="stat-value" style="text-align:left; font-size:22px;">${Math.round(Number(player.rating ?? player.baseElo || 1000))}</div>
+                  <div class="stat-value" style="text-align:left; font-size:22px;">${ratingValue}</div>
                 </div>
                 <div class="stat" style="padding:12px;">
                   <div class="stat-label" style="text-align:left;">Class</div>
@@ -3979,7 +3986,8 @@ function resetPlayerForm() {
                 Open Player Card
               </button>
             </div>
-          `).join("")}
+          `;
+          }).join("")}
         </div>
       `;
     }
