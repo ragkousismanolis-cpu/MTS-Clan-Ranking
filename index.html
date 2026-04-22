@@ -1656,6 +1656,11 @@
 
     const state = {
       data: null,
+      schema: {
+        teamsTable: false,
+        playerTeamId: false,
+        playerTeamName: false
+      },
       ui: {
         activeTab: "dashboard",
         editingMatchId: null,
@@ -1894,14 +1899,29 @@
     }
 
     async function fetchCloudData() {
-      const [teams, players, matches, sides, stats, settingsRows] = await Promise.all([
-        apiRequest("/rest/v1/teams?select=*&order=name.asc"),
+      const safeOptionalRequest = async (path, fallbackValue) => {
+        try {
+          return await apiRequest(path);
+        } catch (err) {
+          console.warn("Optional load skipped:", path, err?.message || err);
+          return fallbackValue;
+        }
+      };
+
+      const teams = await safeOptionalRequest("/rest/v1/teams?select=*&order=name.asc", []);
+      const [players, matches, sides, stats, settingsRows] = await Promise.all([
         apiRequest("/rest/v1/players?select=*&order=created_at.asc"),
         apiRequest("/rest/v1/matches?select=*&order=match_date.asc,created_at.asc"),
         apiRequest("/rest/v1/match_sides?select=*&order=side_number.asc,created_at.asc"),
         apiRequest("/rest/v1/match_player_stats?select=*&order=created_at.asc"),
         apiRequest("/rest/v1/app_settings?select=*&id=eq.1")
       ]);
+
+      const schema = {
+        teamsTable: Array.isArray(teams),
+        playerTeamId: Array.isArray(players) && players.some(row => Object.prototype.hasOwnProperty.call(row, "team_id")),
+        playerTeamName: Array.isArray(players) && players.some(row => Object.prototype.hasOwnProperty.call(row, "team_name"))
+      };
 
       const teamsMapped = (teams || []).map(team => ({
         id: String(team.id),
@@ -1998,6 +2018,7 @@
       const settings = settingsRows && settingsRows[0] ? settingsRows[0] : null;
 
       return {
+        schema,
         settings: {
           defaultElo: Number(settings?.default_elo ?? 1000),
           kFactor: Number(settings?.k_factor ?? 24),
@@ -2020,6 +2041,7 @@
 
     async function saveState() {
       if (!requireAdmin()) return;
+      const schema = state.schema || { teamsTable: false, playerTeamId: false, playerTeamName: false };
       try {
         await apiRequest("/rest/v1/app_settings?id=eq.1", {
           method: "DELETE",
@@ -2048,10 +2070,10 @@
         await clearTable("match_player_stats");
         await clearTable("match_sides");
         await clearTable("matches");
+        if (schema.teamsTable) await clearTable("teams");
         await clearTable("players");
-        await clearTable("teams");
 
-        if (state.data.teams?.length) {
+        if (schema.teamsTable && state.data.teams?.length) {
           const teamsPayload = state.data.teams.map(team => ({
             id: team.id,
             name: team.name,
@@ -2091,8 +2113,8 @@
             gt_squadmate_revive: p.gtSquadmateRevive == null ? null : Number(p.gtSquadmateRevive),
             gt_headshots: p.gtHeadshots || null,
             favorite_class: p.favoriteClass || null,
-            team_id: p.teamId || null,
-            team_name: p.teamName || null,
+            ...(schema.playerTeamId ? { team_id: p.teamId || null } : {}),
+            ...(schema.playerTeamName ? { team_name: p.teamName || null } : {}),
             created_at: p.createdAt || new Date().toISOString()
           }));
           await apiRequest("/rest/v1/players", {
@@ -2202,9 +2224,12 @@
 
     async function loadState() {
       try {
-        state.data = await fetchCloudData();
+        const loaded = await fetchCloudData();
+        state.schema = loaded.schema || { teamsTable: false, playerTeamId: false, playerTeamName: false };
+        state.data = loaded;
       } catch (err) {
         alert("Απέτυχε η φόρτωση από το cloud: " + (err.message || err));
+        state.schema = { teamsTable: false, playerTeamId: false, playerTeamName: false };
         state.data = initialData();
       }
 
@@ -2227,6 +2252,19 @@
         }))
         .filter(team => team.name)
         .sort((a, b) => a.name.localeCompare(b.name));
+
+      if (!state.data.teams.length) {
+        const derivedTeams = Array.from(new Set(
+          state.data.players
+            .map(player => String(player.teamName || "").trim())
+            .filter(Boolean)
+        )).sort((a, b) => a.localeCompare(b));
+        state.data.teams = derivedTeams.map(name => ({
+          id: uid("team"),
+          name,
+          createdAt: new Date().toISOString()
+        }));
+      }
 
       const teamMap = new Map(state.data.teams.map(team => [team.id, team.name]));
 
